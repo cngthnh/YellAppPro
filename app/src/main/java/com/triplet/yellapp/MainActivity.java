@@ -14,15 +14,15 @@ import android.widget.ImageButton;
 
 import com.google.android.material.navigation.NavigationBarView;
 
-public class MainActivity extends AppCompatActivity{
+import io.realm.Realm;
 
-    static int currentFragmentPosition = -1;
-    static SharedPreferences sharedPreferences = null;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Realm.init(this);
         HomeFragment homeFragment = new HomeFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         ((FragmentTransaction) transaction).setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);

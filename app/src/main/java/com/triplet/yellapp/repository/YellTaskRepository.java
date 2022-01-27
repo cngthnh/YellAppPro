@@ -7,7 +7,11 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
@@ -18,6 +22,7 @@ import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 
+import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -33,6 +38,7 @@ public class YellTaskRepository {
     Moshi moshi = new Moshi.Builder().build();
     private MutableLiveData<YellTask> YellTaskResponseLiveData;
     private MutableLiveData<String> taskId;
+    private Realm realm;
 
     public YellTaskRepository(Application application) {
         this.application = application;
@@ -41,6 +47,7 @@ public class YellTaskRepository {
         service = Client.createService(ApiService.class);
         YellTaskResponseLiveData = new MutableLiveData<>();
         taskId = new MutableLiveData<>();
+        realm = Realm.getDefaultInstance();
     }
 
     public void getTaskFromServer(String taskId) {
@@ -51,7 +58,16 @@ public class YellTaskRepository {
             @Override
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 if (response.isSuccessful()) {
-                    YellTaskResponseLiveData.postValue(response.body());
+                    YellTask yellTask = response.body();
+                    YellTaskResponseLiveData.postValue(yellTask);
+                    realm.beginTransaction();
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealm(yellTask);
+                        }
+                    });
+                    realm.commitTransaction();
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                     Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
@@ -64,6 +80,18 @@ public class YellTaskRepository {
                 Log.w("YellTaskFragment", "onFailure: " + t.getMessage() );
             }
         });
+    }
+
+    public boolean getTask(String taskId) {
+        YellTask object = realm.where(YellTask.class).equalTo("task_id", taskId).findFirst();
+        if (object == null) {
+            getTaskFromServer(taskId);
+            return false;
+        }
+        else {
+            YellTaskResponseLiveData.postValue(object);
+            return true;
+        }
     }
 
     public MutableLiveData<YellTask> getYellTaskResponseLiveData() {

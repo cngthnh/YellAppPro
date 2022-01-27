@@ -165,8 +165,8 @@ public class TaskFragment extends Fragment {
                 viewModel.addTask(currentYellTask);
             }
             else {
-                viewModel.getTask(currentYellTask.getTask_id());
-                loadingDialog.startLoadingDialog();
+                if (!viewModel.getTask(currentYellTask.getTask_id()))
+                    loadingDialog.startLoadingDialog();
             }
         }
     }

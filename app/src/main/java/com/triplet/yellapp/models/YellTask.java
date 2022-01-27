@@ -2,10 +2,14 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
-public class YellTask {
+
+public class YellTask extends RealmObject {
     @Json(name = "dashboard_id")
     public String dashboard_id;
+    @PrimaryKey
     @Json(name = "task_id")
     public String task_id;
     @Json(name = "name")

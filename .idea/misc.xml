@@ -16,7 +16,7 @@
         <entry key="app/src/main/res/layout/dialog_deadline_time.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_icon_picker.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/dialog_loading.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/dialog_loading.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_share.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_account.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.33" />
