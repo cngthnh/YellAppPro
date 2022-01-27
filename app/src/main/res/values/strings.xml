@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">Yell</string>
+    <string name="yell_sp">YellSP</string>
+    <string name="homepage">Trang chủ</string>
+    <string name="dashboards">Bảng công việc</string>
+    <string name="budgets">Ngân sách</string>
+    <string name="account">Tài khoản</string>
+    <string name="access_token">YELL_AT</string>
+    <string name="refresh_token">YELL_RT</string>
+    <string name="prompt_username">Tên đăng nhập</string>
+    <string name="prompt_password">Mật khẩu</string>
+    <string name="action_sign_in_short">Đăng nhập</string>
+    <string name="welcome">"Xin chào !"</string>
+    <string name="invalid_username">Tên đăng nhập không hợp lệ</string>
+    <string name="invalid_password">Mật khẩu phải có ít nhất một kí tự in hoa, một kí tự in thường, một chữ số và có ít nhất 8 kí tự</string>
+    <string name="invalid_pass_conf">Xác nhận mật khẩu không trùng khớp với mật khẩu</string>
+    <string name="invalid_email">Email không hợp lệ</string>
+    <string name="invalid_name">Họ tên không hợp lệ</string>
+    <string name="login_failed">Đăng nhập không thành công</string>
+    <string name="not_yet_registered">Chưa có tài khoản?</string>
+    <string name="use_as_guest">Sử dụng với tài khoản khách</string>
+    <string name="invalid_email_conf_code">Bạn phải điền đầy đủ 4 chữ số trong mã bảo mật</string>
+    <string-array name="reminder_mode">
+        <item>None</item>
+        <item>Before 1 day</item>
+        <item>Before 2 days</item>
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="expand">Most of these features work out of the box, while some may require basic configuration to get the best experience. This page summarizes the Julia features included in the Julia VS Code extension. For a more in-depth guide on how these features work and can be configured, see the Julia in VS Code documentation.</string>
+
+    <string name="create_budget">Tạo sổ tay chi tiêu</string>
+    <string name="create_new_budget">Tạo sổ tay chi tiêu</string>
+
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="10dp"
+    android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fileNameTextView"
+        android:textSize="20dp"
+        android:textColor="@color/black"
+        android:layout_weight="1"
+        android:text="Tên file"/>
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:layout_width="match_parent"
+        android:background="@color/design_default_color_surface"
+        android:id="@+id/deleteFileButton"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_delete"
+        android:layout_weight="5"/>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
