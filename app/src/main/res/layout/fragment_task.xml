@@ -34,8 +34,8 @@
                     android:layout_gravity="start"
                     android:layout_margin="12dp"
                     android:background="@color/white"
-                    android:scaleX="0.5"
-                    android:scaleY="0.5"
+                    android:scaleX="0.7"
+                    android:scaleY="0.7"
                     android:src="@drawable/ic_back">
 
                 </androidx.appcompat.widget.AppCompatImageButton>
@@ -89,23 +89,26 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="5dp">
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="15dp">
 
                     <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/taskIcon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:backgroundTint="@color/design_default_color_surface"
                         android:clickable="false"
-                        android:padding="12dp"
                         android:src="@drawable/ic_home"
+                        android:scaleType="fitCenter"
+                        android:padding="0dp"
                         android:tag="false">
 
                     </androidx.appcompat.widget.AppCompatImageButton>
 
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/taskName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:background="@android:color/transparent"
                         android:enabled="false"
@@ -121,7 +124,7 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
+                    android:paddingHorizontal="15dp"
                     android:paddingVertical="4dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -151,7 +154,7 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
+                    android:paddingHorizontal="15dp"
                     android:paddingVertical="4dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -181,7 +184,7 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
+                    android:paddingHorizontal="15dp"
                     android:paddingVertical="4dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -211,7 +214,7 @@
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
+                    android:paddingHorizontal="15dp"
                     android:paddingVertical="4dp">
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -238,23 +241,20 @@
                     </androidx.appcompat.widget.AppCompatTextView>
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.appcompat.widget.LinearLayoutCompat
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp">
+
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
                         android:background="@color/light_gray"
-                        android:padding="6dp"
+                        android:layout_marginVertical="6dp"
+                        android:layout_marginHorizontal="15dp"
                         android:text="Chia sẻ"
                         android:textSize="18dp">
 
                     </androidx.appcompat.widget.AppCompatButton>
-                </androidx.appcompat.widget.LinearLayoutCompat>
+
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"

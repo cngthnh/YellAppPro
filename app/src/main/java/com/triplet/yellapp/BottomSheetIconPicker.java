@@ -1,6 +1,5 @@
 package com.triplet.yellapp;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +7,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.triplet.yellapp.adapters.IconAdapter;
 import com.triplet.yellapp.databinding.DialogIconPickerBinding;
-import com.triplet.yellapp.databinding.FragmentTaskBinding;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

@@ -22,6 +22,7 @@
             android:layout_marginRight="10dp"
             app:tint="?titleTextColor"
             android:layout_marginStart="15dp"
+            android:background="?selectableItemBackgroundBorderless"
             />
         <TextView
             android:id="@+id/accountTitle"

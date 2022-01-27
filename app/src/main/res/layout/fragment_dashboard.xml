@@ -14,8 +14,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="4"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <FrameLayout
@@ -35,7 +34,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal"
                 android:weightSum="6">
 
@@ -52,6 +51,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:src="@drawable/ic_back"
+                        android:background="?selectableItemBackgroundBorderless"
                         app:tint="@color/white" />
                 </LinearLayout>
 
@@ -60,62 +60,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3" />
 
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end">
 
-                    <ImageView
-                        android:id="@+id/edit_db"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:src="@drawable/ic__edit"
-                        app:tint="@color/white" />
-
-                    <ImageView
-                        android:id="@+id/complete_edit_db"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:src="@drawable/ic_check"
-                        android:visibility="gone"
-                        app:tint="@color/white" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center">
-
-                    <ImageView
-                        android:id="@+id/delete_in_db"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_delete_1"
-                        app:tint="@color/white" />
-
-                    <ImageView
-                        android:id="@+id/cancel_edit_db"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_cancel"
-                        android:visibility="gone"
-                        app:tint="@color/white" />
-                </FrameLayout>
 
             </LinearLayout>
         </FrameLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
         <EditText
             android:id="@+id/edt_name_db"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:padding="15dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             android:background="@android:color/transparent"
             android:focusable="false"
             android:fontFamily="@font/roboto_bold"
@@ -123,28 +83,83 @@
             android:text="Đồ án CNPM"
             android:textColor="@color/black"
             android:textSize="30dp" />
+        <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/edit_db"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:src="@drawable/ic__edit"
+                android:background="?selectableItemBackgroundBorderless"
+                app:tint="?iconTint" />
+
+            <ImageView
+                android:id="@+id/complete_edit_db"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_check"
+                android:visibility="gone"
+                android:background="?selectableItemBackgroundBorderless"
+                app:tint="@color/green" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="20dp"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/delete_in_db"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_delete_1"
+                android:background="?selectableItemBackgroundBorderless"
+                app:tint="@color/red" />
+
+            <ImageView
+                android:id="@+id/cancel_edit_db"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_close"
+                android:visibility="gone"
+                android:background="?selectableItemBackgroundBorderless"
+                app:tint="@color/red" />
+        </FrameLayout>
+        </LinearLayout>
 
     </LinearLayout>
     <LinearLayout
         android:id="@+id/coop_label"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="90dp"
         android:padding="10dp"
-        android:layout_weight="5"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:orientation="horizontal"
         >
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingHorizontal="5dp"
+            android:layout_weight="2"
+            android:layout_marginEnd="10dp"
             android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Thành viên"
                 android:fontFamily="@font/roboto_medium"
+                android:layout_marginBottom="7dp"
                 android:textSize="18dp"/>
 
             <LinearLayout
@@ -171,13 +186,14 @@
                     android:textSize="25dp"
                     android:textColor="@color/black"
                     android:layout_marginEnd="8dp"
-                    tools:ignore="RtlCompat" />
+                    tools:ignore="RtlCompat"
+                    />
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
@@ -205,13 +221,12 @@
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="2.5"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="15dp">
+        android:layout_marginTop="10dp">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -303,6 +318,7 @@
                 app:layout_anchorGravity="bottom|center"
                 app:maxImageSize="30dp"
                 app:tint="@color/black"
+                android:cropToPadding="false"
                 />
         </FrameLayout>
 

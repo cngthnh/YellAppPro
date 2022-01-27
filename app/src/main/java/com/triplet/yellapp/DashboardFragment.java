@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -400,7 +401,7 @@ public class DashboardFragment extends Fragment {
         window.setAttributes(windowAttributes);
 
         dialog.setCancelable(true);
-        AppCompatButton invite = dialog.findViewById(R.id.invite);
+        AppCompatImageButton invite = dialog.findViewById(R.id.invite);
         TextView email = dialog.findViewById(R.id.uid);
         RecyclerView listUser = dialog.findViewById(R.id.userList);
 
