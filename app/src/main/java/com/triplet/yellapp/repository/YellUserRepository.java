@@ -31,6 +31,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class YellUserRepository {
+    // TODO: Lớp này có thể sử dụng cho nhiều fragment vì dữ liệu mà nó cung cấp
+    //
     SessionManager sessionManager;
     ApiService service;
     SharedPreferences sharedPreferences;
@@ -64,8 +66,7 @@ public class YellUserRepository {
                     dashboards = new ArrayList<>(response.body().getDashboards());
                     dashboardsLiveData.postValue(dashboards);
                 } else {
-                    ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(application.getApplicationContext(), response.errorBody().toString(), Toast.LENGTH_LONG).show();
                 }
             }
 
