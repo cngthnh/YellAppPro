@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
@@ -18,6 +20,7 @@ import com.triplet.yellapp.models.UserAccount;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ public class HomeFragment extends Fragment {
     FragmentHomeBinding binding;
     DashboardsHomeAdapter dashboardsHomeAdapter = null;
     List<DashboardCard> list;
+    UserViewModel userViewModel;
 
     SessionManager sessionManager;
     ApiService service;
@@ -38,6 +42,14 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.init();
+        userViewModel.getDashboardsLiveData().observe(this, new Observer<List<DashboardCard>>() {
+            @Override
+            public void onChanged(List<DashboardCard> dashboardCards) {
+                dashboardsHomeAdapter.setData(dashboardCards);
+            }
+        });
     }
 
     @Override
@@ -82,10 +94,10 @@ public class HomeFragment extends Fragment {
         binding.dashboardPreviewList.setLayoutManager(layoutManager);
 
         dashboardsHomeAdapter = new DashboardsHomeAdapter(getContext(), sessionManager);
-        list = new ArrayList<>();
-        getListDashboardFromServer();
-        dashboardsHomeAdapter.setData(list);
-        dashboardsHomeAdapter.notifyDataSetChanged();
+        //list = new ArrayList<>();
+        //getListDashboardFromServer();
+        //dashboardsHomeAdapter.setData(list);
+        userViewModel.getUser();
         binding.dashboardPreviewList.setVisibility(View.VISIBLE);
         binding.dashboardPreviewList.setAdapter(dashboardsHomeAdapter);
 

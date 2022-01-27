@@ -89,7 +89,7 @@ public class YellTaskRepository {
             return false;
         }
         else {
-            YellTaskResponseLiveData.postValue(object);
+            YellTaskResponseLiveData.postValue(realm.copyFromRealm(object));
             return true;
         }
     }

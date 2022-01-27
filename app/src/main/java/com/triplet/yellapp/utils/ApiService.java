@@ -3,6 +3,7 @@ package com.triplet.yellapp.utils;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.Notification;
+import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.models.TokenPair;
 import com.triplet.yellapp.models.UserAccount;
@@ -41,6 +42,9 @@ public interface ApiService {
 
     @GET("users")
     Call<UserAccount> getUserProfile(@Query("fetch") String fetch);
+
+    @GET("users")
+    Call<UserAccountFull> getUserFull(@Query("fetch") String fetch);
 
     @DELETE("auth")
     Call<InfoMessage> logout();
