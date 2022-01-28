@@ -297,6 +297,7 @@
                     android:text="Công việc"
                     android:fontFamily="@font/roboto_medium"
                     android:textSize="22dp"
+                    android:layout_marginBottom="10dp"
                     />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/list_tasks"
@@ -305,22 +306,21 @@
                     >
                 </androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_dashboard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:layout_marginBottom="24dp"
-                android:layout_marginEnd="24dp"
-                android:src="@drawable/ic_add"
-                app:elevation="1dp"
-                app:backgroundTint="@color/yellow_primary"
-                app:layout_anchorGravity="bottom|center"
-                app:maxImageSize="30dp"
-                app:tint="@color/black"
-                android:cropToPadding="false"
-                />
         </FrameLayout>
-
     </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_dashboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp"
+        android:src="@drawable/ic_add"
+        app:elevation="1dp"
+        app:backgroundTint="@color/yellow_primary"
+        app:layout_anchorGravity="bottom|center"
+        app:maxImageSize="30dp"
+        app:tint="@color/black"
+        android:cropToPadding="false"
+        />
 </LinearLayout>

@@ -26,6 +26,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
@@ -218,6 +219,16 @@ public class DashboardFragment extends Fragment {
         binding.listTasks.setLayoutManager(layoutManager2);
         binding.listTasks.setAdapter(yellTaskAdapter);
         yellTaskAdapter.setYellTaskArrayList(this.yellTasks);
+
+        binding.listTasks.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                // scroll xuống
+                if (dy > 0) binding.fabDashboard.hide();
+                else binding.fabDashboard.show();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
 
         binding.fabDashboard.setOnClickListener(new View.OnClickListener() {
             @Override

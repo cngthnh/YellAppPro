@@ -63,7 +63,8 @@ public class YellUserRepository {
             @Override
             public void onResponse(Call<UserAccountFull> call, Response<UserAccountFull> response) {
                 if (response.isSuccessful()) {
-                    dashboards = new ArrayList<>(response.body().getDashboards());
+                    UserAccountFull userAccountFull = response.body();
+                    dashboards = new ArrayList<>(userAccountFull.getDashboards());
                     dashboardsLiveData.postValue(dashboards);
                 } else {
                     Toast.makeText(application.getApplicationContext(), response.errorBody().toString(), Toast.LENGTH_LONG).show();
