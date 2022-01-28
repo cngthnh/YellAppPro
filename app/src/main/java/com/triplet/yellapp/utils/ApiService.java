@@ -1,5 +1,6 @@
 package com.triplet.yellapp.utils;
 
+import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.Notification;
@@ -110,7 +111,7 @@ public interface ApiService {
     @Headers("Content-Type: application/json")
     Call<InfoMessage> deleteTask(@Body RequestBody body);
 
-    /*@POST("budgets")
+    @POST("budgets")
     @Headers("Content-Type: application/json")
     Call<BudgetCard> createBudget(@Body RequestBody body);
 
@@ -127,6 +128,7 @@ public interface ApiService {
     Call<InfoMessage> deleteBudgets(@Body RequestBody body);
 
 
+    /*
     @GET("transactions")
     Call<TransactionCard> getTransaction(@Query("transaction_id") String transactionID);
 
