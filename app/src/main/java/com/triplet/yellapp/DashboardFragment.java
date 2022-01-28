@@ -67,6 +67,7 @@ public class DashboardFragment extends Fragment {
     UsersAdapter usersAdapter = null;
     UsersDetailAdapter usersDetailAdapter = null;
     List<String> usernames;
+    ArrayList<YellTask> yellTasks;
     SessionManager sessionManager;
     ApiService service;
     Moshi moshi = new Moshi.Builder().build();
@@ -77,6 +78,14 @@ public class DashboardFragment extends Fragment {
     public DashboardFragment(DashboardCard dashboardCard, SessionManager sessionManager) {
         this.dashboardCard = dashboardCard;
         this.sessionManager = sessionManager;
+        this.yellTasks = new ArrayList<>();
+        List<YellTask> temp = dashboardCard.getTasks();
+        if (!temp.isEmpty()) {
+            for (int i = 0; i<temp.size();i++) {
+                if (temp.get(i).getParent_id() == null)
+                    this.yellTasks.add(temp.get(i));
+            }
+        }
     }
 
     @Override
@@ -204,10 +213,11 @@ public class DashboardFragment extends Fragment {
 
         yellTaskAdapter = new TaskAdapter(getActivity());
 
-        getListTaskFromServer();
+        //getListTaskFromServer();
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity());
         binding.listTasks.setLayoutManager(layoutManager2);
         binding.listTasks.setAdapter(yellTaskAdapter);
+        yellTaskAdapter.setYellTaskArrayList(this.yellTasks);
 
         binding.fabDashboard.setOnClickListener(new View.OnClickListener() {
             @Override

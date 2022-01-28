@@ -35,6 +35,7 @@ public class HomeFragment extends Fragment {
     DashboardsHomeAdapter dashboardsHomeAdapter = null;
     List<DashboardCard> list;
     UserViewModel userViewModel;
+    LoadingDialog loadingDialog;
 
     SessionManager sessionManager;
     ApiService service;
@@ -43,10 +44,13 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        loadingDialog = new LoadingDialog(getActivity());
         userViewModel.init();
         userViewModel.getDashboardsLiveData().observe(this, new Observer<List<DashboardCard>>() {
             @Override
             public void onChanged(List<DashboardCard> dashboardCards) {
+                if (loadingDialog != null)
+                    loadingDialog.dismissDialog();
                 dashboardsHomeAdapter.setData(dashboardCards);
             }
         });
@@ -57,6 +61,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container,false);
         View view = binding.getRoot();
+        loadingDialog.startLoadingDialog();
 
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
