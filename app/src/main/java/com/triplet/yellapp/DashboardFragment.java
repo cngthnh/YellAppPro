@@ -80,7 +80,7 @@ public class DashboardFragment extends Fragment {
         this.sessionManager = sessionManager;
         this.yellTasks = new ArrayList<>();
         List<YellTask> temp = dashboardCard.getTasks();
-        if (!temp.isEmpty()) {
+        if (temp != null) {
             for (int i = 0; i<temp.size();i++) {
                 if (temp.get(i).getParent_id() == null)
                     this.yellTasks.add(temp.get(i));
