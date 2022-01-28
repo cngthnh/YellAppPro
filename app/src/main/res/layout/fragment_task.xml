@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white"
     android:clickable="true"
     android:focusable="true"
     tools:context=".TaskFragment">
@@ -19,13 +18,12 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/white"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white">
+                android:background="?colorOnPrimary">
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/backButton"
@@ -33,7 +31,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
                     android:layout_margin="12dp"
-                    android:background="@color/white"
+                    android:background="?colorOnPrimary"
                     android:scaleX="0.7"
                     android:scaleY="0.7"
                     android:src="@drawable/ic_back">
@@ -55,7 +53,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="end"
                     android:layout_margin="12dp"
-                    android:background="@color/white"
+                    android:background="?colorOnPrimary"
                     android:src="@drawable/ic_edit_mode">
 
                 </androidx.appcompat.widget.AppCompatImageButton>
@@ -66,7 +64,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="end"
                     android:layout_margin="12dp"
-                    android:background="@color/white"
+                    android:background="?colorOnPrimary"
                     android:src="@drawable/ic_delete">
 
                 </androidx.appcompat.widget.AppCompatImageButton>
@@ -96,7 +94,7 @@
                         android:id="@+id/taskIcon"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:backgroundTint="@color/design_default_color_surface"
+                        android:backgroundTint="?colorOnPrimary"
                         android:clickable="false"
                         android:src="@drawable/ic_home"
                         android:scaleType="fitCenter"
@@ -296,7 +294,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="2"
-                            android:background="@color/design_default_color_surface"
+                            android:background="?colorOnPrimary"
                             android:src="@drawable/ic_close"
                             android:tint="@color/red"
                             android:visibility="gone">
@@ -309,7 +307,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="2"
-                            android:background="@color/design_default_color_surface"
+                            android:background="?colorOnPrimary"
                             android:src="@drawable/ic_edit_mode"
                             android:tint="@color/dark_gray">
 
@@ -361,7 +359,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="4dp"
                 android:layout_gravity="center"
-                android:backgroundTint="@color/design_default_color_surface"
+                android:backgroundTint="?colorOnPrimary"
                 android:scaleX="2"
                 android:src="@drawable/ic_minimize"
                 android:tint="@color/icon_tint" />
@@ -399,7 +397,7 @@
                     android:elevation="3dp"
                     android:src="@drawable/ic_add"
                     android:id="@+id/addSubTask"
-                    android:tint="@color/white"
+                    android:tint="?colorOnPrimary"
                     android:layout_gravity="bottom|right"/>
 
             </FrameLayout>

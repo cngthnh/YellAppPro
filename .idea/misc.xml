@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/drawable/circular.xml" value="0.2078125" />
         <entry key="app/src/main/res/drawable/circular2.xml" value="0.2078125" />
         <entry key="app/src/main/res/drawable/circular_determinate_progress.xml" value="0.2078125" />
+        <entry key="app/src/main/res/drawable/toolbar_shape.xml" value="0.2078125" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3458333333333333" />
         <entry key="app/src/main/res/layout/activity_register.xml" value="0.19166666666666668" />
@@ -28,6 +29,8 @@
         <entry key="app/src/main/res/layout/icon_item.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/item_budget.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_dashboard.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/item_dashboard_home.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/item_notification.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/item_task.xml" value="0.33" />
       </map>
     </option>
