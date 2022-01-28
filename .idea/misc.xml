@@ -3,14 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/tab_indicator.xml" value="0.17395833333333333" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget.xml" value="0.23854166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget_history.xml" value="0.2015625" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget_list.xml" value="0.23854166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget_statistic.xml" value="0.2015625" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_dashboard.xml" value="0.176" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_home.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/icon_item.xml" value="0.264" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_budget.xml" value="0.19947916666666668" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_budget_home.xml" value="0.264" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/temp.xml" value="0.264" />
         <entry key="app/src/main/res/drawable/ic_check.xml" value="0.2046875" />
         <entry key="app/src/main/res/drawable/ic_check_box.xml" value="0.2046875" />
         <entry key="app/src/main/res/drawable/ic_circle.xml" value="0.2046875" />

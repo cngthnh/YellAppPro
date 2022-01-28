@@ -7,7 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
+import com.triplet.yellapp.adapters.ViewPagerBudgetAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetBinding;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.utils.ApiService;
@@ -20,6 +24,8 @@ public class BudgetsFragment extends Fragment {
     SessionManager sessionManager;
     ApiService service;
 
+    TabLayout tabLayout;
+    ViewPager viewPager;
 
     public BudgetsFragment(BudgetCard budgetCard, SessionManager sessionManager) {
         this.budgetCard = budgetCard;
@@ -52,6 +58,11 @@ public class BudgetsFragment extends Fragment {
             }
         });
 
+        ViewPagerBudgetAdapter viewPagerBudgetAdapter = new ViewPagerBudgetAdapter(
+                getActivity().getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        binding.viewpager.setAdapter(viewPagerBudgetAdapter);
+
+        binding.tablayout.setupWithViewPager(binding.viewpager);
 
         return view;
     }

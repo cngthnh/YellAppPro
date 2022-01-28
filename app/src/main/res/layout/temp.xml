@@ -132,23 +132,52 @@
             android:paddingTop="5dp"
             android:paddingBottom="10dp"
             android:orientation="vertical">
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tablayout"
-                app:tabMode="fixed"
-                app:tabIndicatorGravity="stretch"
-                app:tabIndicatorAnimationMode="elastic"
-                app:tabIndicator="@drawable/tab_indicator"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:tabSelectedTextColor="@color/yellow_primary_var"/>
-
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewpager"
+                android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    app:cornerRadius="10dp"
+                    android:backgroundTint="@color/bg_tab_opacity"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:textColor="@color/yellow_primary_var"
+                    android:text="Lịch sử"/>
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    app:cornerRadius="10dp"
+                    android:elevation="0dp"
+                    android:text="Thống kê"/>
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"/>
-
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_filter"/>
+                <Spinner
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:spinnerMode="dropdown"
+                    android:theme="@style/Theme.MaterialComponents.Light"
+                    android:entries="@array/transaction_filters_array"
+                    />
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycleView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="15dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="15dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
