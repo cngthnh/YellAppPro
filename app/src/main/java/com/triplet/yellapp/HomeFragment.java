@@ -46,12 +46,14 @@ public class HomeFragment extends Fragment {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         loadingDialog = new LoadingDialog(getActivity());
         userViewModel.init();
+        list = new ArrayList<>();
         userViewModel.getDashboardsLiveData().observe(this, new Observer<List<DashboardCard>>() {
             @Override
             public void onChanged(List<DashboardCard> dashboardCards) {
                 if (loadingDialog != null)
                     loadingDialog.dismissDialog();
-                dashboardsHomeAdapter.setData(dashboardCards);
+                list = new ArrayList<>(dashboardCards);
+                dashboardsHomeAdapter.setData(list);
             }
         });
     }
@@ -61,7 +63,8 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container,false);
         View view = binding.getRoot();
-        loadingDialog.startLoadingDialog();
+        if (list.isEmpty())
+            loadingDialog.startLoadingDialog();
 
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
@@ -102,7 +105,9 @@ public class HomeFragment extends Fragment {
         //list = new ArrayList<>();
         //getListDashboardFromServer();
         //dashboardsHomeAdapter.setData(list);
-        userViewModel.getUser();
+        if (list.isEmpty())
+            userViewModel.getUser();
+        dashboardsHomeAdapter.setData(list);
         binding.dashboardPreviewList.setVisibility(View.VISIBLE);
         binding.dashboardPreviewList.setAdapter(dashboardsHomeAdapter);
 
