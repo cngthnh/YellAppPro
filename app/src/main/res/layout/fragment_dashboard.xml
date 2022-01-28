@@ -82,7 +82,7 @@
                 android:fontFamily="@font/roboto_bold"
                 android:inputType="textMultiLine|textNoSuggestions"
                 android:text="Đồ án CNPM"
-                android:textColor="@color/black"
+                android:textColor="?titleTextColor"
                 android:textSize="30dp" />
             <FrameLayout
                 android:layout_width="30dp"
