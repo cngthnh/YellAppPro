@@ -16,5 +16,6 @@
         <item name="iconTint">@color/icon_tint</item>
         <item name="itemTextColor">@color/dark_yellow</item>
         <item name="titleTextColor">@color/title</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
     </style>
 </resources>

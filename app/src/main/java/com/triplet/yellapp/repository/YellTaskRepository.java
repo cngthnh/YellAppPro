@@ -22,7 +22,16 @@ import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
+
 import io.realm.Realm;
+import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -59,15 +68,16 @@ public class YellTaskRepository {
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 if (response.isSuccessful()) {
                     YellTask yellTask = response.body();
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    yellTask.last_sync = df.format(new Date());
                     YellTaskResponseLiveData.postValue(yellTask);
-                    realm.beginTransaction();
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            realm.copyToRealm(yellTask);
+                            realm.copyToRealmOrUpdate(yellTask);
                         }
                     });
-                    realm.commitTransaction();
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                     Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
@@ -89,6 +99,24 @@ public class YellTaskRepository {
             return false;
         }
         else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            long diff = 0;
+            try {
+                Date dt_sync = df.parse(object.last_sync);
+                Date dt_now = df.parse(df.format(new Date()));
+                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                getTaskFromServer(taskId);
+                return false;
+            }
+
+            if (diff > 5) {
+                getTaskFromServer(taskId);
+                return false;
+            }
+
             YellTaskResponseLiveData.postValue(realm.copyFromRealm(object));
             return true;
         }

@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import com.google.android.material.navigation.NavigationBarView;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Realm.init(this);
+        /*Realm realm = Realm.getDefaultInstance();
+        RealmConfiguration realmConfiguration = realm.getConfiguration();
+        realm.close();
+        Realm.deleteRealm(realmConfiguration);*/
         HomeFragment homeFragment = new HomeFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         ((FragmentTransaction) transaction).setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);

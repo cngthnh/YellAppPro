@@ -2,6 +2,8 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
+import java.util.Date;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -30,6 +32,8 @@ public class YellTask extends RealmObject {
     public String labels;
     @Json(name = "content")
     public String content;
+    public String last_sync;
+    public String local_edited_at;
 
     public YellTask() {
         this.dashboard_id = null;

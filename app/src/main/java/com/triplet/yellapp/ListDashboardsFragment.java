@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -15,6 +16,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.DashboardsAdapter;
@@ -68,6 +70,15 @@ public class ListDashboardsFragment extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recycleView.setLayoutManager(layoutManager);
+        binding.recycleView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                // scroll xuống
+                if (dy > 0) binding.fabListDashboards.hide();
+                else binding.fabListDashboards.show();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
 
         dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
 

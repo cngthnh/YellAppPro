@@ -25,6 +25,11 @@
         <item>Before 1 day</item>
         <item>Before 2 days</item>
     </string-array>
+    <string-array name="transaction_filters_array">
+        <item>Tất cả</item>
+        <item>Chi tiêu</item>
+        <item>Thu nhập</item>
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- TODO: Remove or change this placeholder text -->

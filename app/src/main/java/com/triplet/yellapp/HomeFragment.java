@@ -98,6 +98,17 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        binding.viewAllBudgetsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+
+                ListBudgetsFragment budgetsFragment = new ListBudgetsFragment();
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,budgetsFragment
+                        , "LIST_BUDGET").addToBackStack(null).commit();
+            }
+        });
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),  LinearLayoutManager.HORIZONTAL, false);
         binding.dashboardPreviewList.setLayoutManager(layoutManager);
 
