@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_dialog_new_object"
         android:padding="20dp"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
         <include layout="@layout/category_picker"
             android:id="@+id/categoryContainer"

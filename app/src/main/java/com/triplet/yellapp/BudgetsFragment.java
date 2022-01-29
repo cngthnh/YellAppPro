@@ -5,7 +5,9 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.telecom.ConnectionService;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,12 +109,17 @@ public class BudgetsFragment extends Fragment {
             return;
         }
 
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(window.getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.gravity = Gravity.BOTTOM;
+        lp.windowAnimations = R.style.DialogAnimation;
+
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        WindowManager.LayoutParams windowAttributes = window.getAttributes();
-        windowAttributes.gravity = Gravity.BOTTOM;
-        window.setAttributes(windowAttributes);
+        window.setAttributes(lp);
 
         dialog.setCancelable(true);
 
@@ -122,8 +129,8 @@ public class BudgetsFragment extends Fragment {
         MaterialButton saveBt = dialog.findViewById(R.id.transactionSaveBtn);
         MaterialButton category = dialog.findViewById(R.id.categoryTransaction);
 
-        dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
         dialog.findViewById(R.id.categoryContainer).setVisibility(View.GONE);
+        dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
 
         TransactionCard newTransaction = new TransactionCard();
         newTransaction.setType(0);
@@ -148,8 +155,8 @@ public class BudgetsFragment extends Fragment {
                 else if(newTransaction.getType() == 0)
                 {
                     androidx.appcompat.widget.LinearLayoutCompat  categoryLayout = (androidx.appcompat.widget.LinearLayoutCompat ) dialog.findViewById(R.id.categoryContainer);
-                    categoryLayout.setVisibility(View.VISIBLE);
                     dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.GONE);
+                    categoryLayout.setVisibility(View.VISIBLE);
                     TransactionCard type = new TransactionCard();
                     RadioGroup typeGroup = categoryLayout.findViewById(R.id.typeGroup);
                     MaterialButton saveBt = categoryLayout.findViewById(R.id.btn_save_category);
@@ -251,27 +258,6 @@ public class BudgetsFragment extends Fragment {
                 Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    private void openDialogOutcomeCategory(Dialog dialog, TransactionCard newTransaction) {
-
-        Window window = dialog.getWindow();
-        if(window == null){
-            return;
-        }
-
-        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        WindowManager.LayoutParams windowAttributes = window.getAttributes();
-        windowAttributes.gravity = Gravity.BOTTOM;
-        window.setAttributes(windowAttributes);
-
-        dialog.setCancelable(true);
-
-
-
-        dialog.show();
     }
 }
 
