@@ -13,6 +13,7 @@ import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.adapters.DashboardsAdapter;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.UserAccount;
@@ -27,10 +28,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -45,6 +48,7 @@ public class DashboardRepository {
     Moshi moshi;
     DateFormat df;
     MutableLiveData<DashboardCard> dashboardCardMutableLiveData;
+    MutableLiveData<List<YellTask>> yellTasksLiveData;
     private Realm realm;
 
     public DashboardRepository(Application application) {
@@ -53,6 +57,7 @@ public class DashboardRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         dashboardCardMutableLiveData = new MutableLiveData<>();
+        yellTasksLiveData = new MutableLiveData<>();
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
                 .build();
@@ -191,10 +196,84 @@ public class DashboardRepository {
         deleteDashboardFromServer(dashboardCard);
     }
 
+    public void inviteToDashboardOnServer(DashboardPermission dbPermission) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<InfoMessage> call;
+        RequestBody requestBody = dashboardPermissionToJson(dbPermission);
+        call = service.inviteSoToDashboard(requestBody);
+        call.enqueue(new Callback<InfoMessage>() {
+            @Override
+            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
+                Log.w("YellInviteSoToDashboard", "onResponse: " + response);
+                if(!response.isSuccessful())
+                {
+                    if (response.code() == 404) {
+                        Toast.makeText(application.getApplicationContext(), "User id này không tồn tại", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(application.getApplicationContext(), "Đã mời thành công", Toast.LENGTH_LONG).show();
+                        realm.copyToRealmOrUpdate(dbPermission);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<InfoMessage> call, Throwable t) {
+                Log.w("YellInviteSoToDashboard", "onFailure: " + t.getMessage() );
+            }
+        });
+    }
+
+    public void addTaskToServer(YellTask yellTask) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<YellTask> call;
+        RequestBody requestBody = taskToJson(yellTask);
+        call = service.addTask(null, requestBody);
+        call.enqueue(new Callback<YellTask>() {
+            @Override
+            public void onResponse(Call<YellTask> call, Response<YellTask> response) {
+                Log.w("YellCreateDashboard", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    yellTask.setTask_id(response.body().getTask_id());
+                    yellTask.last_sync = df.format(new Date());
+                    DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
+                    dashboardCard.addTask(yellTask);
+                    dashboardCardMutableLiveData.postValue(dashboardCard);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(dashboardCard);
+                        }
+                    });
+                } else {
+                    if (response.code() == 401) {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<YellTask> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
         String jsonYellTask = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
         return requestBody;
+    }
+
+    private RequestBody dashboardPermissionToJson(DashboardPermission dashboardPermission) {
+        String json = moshi.adapter(DashboardPermission.class).toJson(dashboardPermission);
+        return RequestBody.create(MediaType.parse("text/plain"), json);
+    }
+
+    private RequestBody taskToJson(YellTask currentYellTask) {
+        String jsonYellTask = moshi.adapter(YellTask.class).toJson(currentYellTask);
+        return RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
     }
 
 }

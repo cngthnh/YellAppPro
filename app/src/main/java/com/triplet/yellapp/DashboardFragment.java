@@ -102,12 +102,14 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onChanged(DashboardCard dashboard) {
                 List<YellTask> temp = dashboard.getTasks();
+                yellTasks = new ArrayList<>();
                 for (int i = 0; i<temp.size();i++) {
                     if (temp.get(i).getParent_id() == null) {
                         yellTasks.add(temp.get(i));
                     }
                 }
                 List<DashboardPermission> temp1 = dashboard.getUsers();
+                usernames = new ArrayList<>();
                 for (int i = 0;i< temp1.size();i++) {
                     usernames.add(temp1.get(i).getUid().subSequence(0,1).toString().toUpperCase(Locale.ROOT));
                 }
@@ -253,15 +255,12 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (getPermission(dashboardCard).equals("admin"))
-                    dashboardViewModel.editDashboard(dashboardCard);
+                    openDialogListShareDashboard();
                 else
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
         });
 
-
-
-        //getListTaskFromServer();
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity());
         binding.listTasks.setLayoutManager(layoutManager2);
         binding.listTasks.setAdapter(yellTaskAdapter);
@@ -280,93 +279,13 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getPermission(dashboardCard).equals("admin"))
-                    dashboardViewModel.editDashboard(dashboardCard);
+                    dashboardViewModel.addYellTask(new YellTask(dashboardCard.getId(),"Untitled"));
                 else
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
         });
 
         return view;
-    }
-
-    private void checkDeletePermission() {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<UserAccount> call;
-        call = service.getUserProfile("compact");
-        call.enqueue(new Callback<UserAccount>() {
-            @Override
-            public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
-                Log.w("YellGetListDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    String uid = response.body().getId();
-                    for(int i = 0; i < dashboardCard.getUsers().size(); i++){
-                        if(uid.equals(dashboardCard.getUsers().get(i).getUid())){
-
-                            if(dashboardCard.getUsers().get(i).getRole().equals("admin"))
-                            {
-                                openDialogDeleteDashboard(dashboardCard);
-                                return;
-                            }
-                            else {
-                                Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserAccount> call, Throwable t) {
-                Log.w("YellGetListDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void checkEditPermission(int code) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<UserAccount> call;
-        call = service.getUserProfile("compact");
-        call.enqueue(new Callback<UserAccount>() {
-            @Override
-            public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
-                Log.w("YellGetListDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    String uid = response.body().getId();
-                    for(int i = 0; i < dashboardCard.getUsers().size(); i++){
-                        if(uid.equals(dashboardCard.getUsers().get(i).getUid())){
-                            if(dashboardCard.getUsers().get(i).getRole().equals("viewer"))
-                            {
-                                if(code == 3)
-                                    openDialogListShareDashboard(2);
-                                else
-                                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                if(code == 1)
-                                    editDashboard();
-                                else if(code == 2)
-                                    addTask();
-                                else if(code == 3)
-                                {
-                                    openDialogListShareDashboard(1);
-                                }
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserAccount> call, Throwable t) {
-                Log.w("YellGetListDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void addTask() {
-        YellTask yell = new YellTask(dashboardCard.getId(),"Untitled");
-        addTaskToServer(yell);
     }
 
     private void editDashboard() {
@@ -404,11 +323,6 @@ public class DashboardFragment extends Fragment {
                 Log.w("YellGetDashboard", "onFailure: " + t.getMessage() );
             }
         });
-    }
-
-    private void setDashboard(int i, YellTask body) {
-        dashboardCard.getTasks().set(i ,body);
-        yellTaskAdapter.notifyDataSetChanged();
     }
 
     private void addTaskToServer(YellTask yellTask) {
@@ -453,7 +367,7 @@ public class DashboardFragment extends Fragment {
         return requestBody;
     }
 
-    private void openDialogListShareDashboard(int i) {
+    private void openDialogListShareDashboard() {
         final Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_share);
@@ -478,35 +392,30 @@ public class DashboardFragment extends Fragment {
         invite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(i == 1){
-                    PopupMenu popupMenu = new PopupMenu(getContext(), invite);
-                    popupMenu.getMenuInflater().inflate(R.menu.permission_menu, popupMenu.getMenu());
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            String userId = email.getText().toString();
-                            String role = null;
-                            switch (menuItem.getItemId()){
-                                case R.id.menu_edit:
-                                    role = "editor";
-                                    break;
-                                case R.id.menu_view:
-                                    role = "viewer";
-                                    break;
-                            }
-                            if(role != null && userId.length() > 0)
-                            {
-                                DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getId(), userId, role);
-                                inviteSoToDashboard(dbPermission);
-                            }
-                            return false;
+                PopupMenu popupMenu = new PopupMenu(getContext(), invite);
+                popupMenu.getMenuInflater().inflate(R.menu.permission_menu, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        String userId = email.getText().toString();
+                        String role = null;
+                        switch (menuItem.getItemId()){
+                            case R.id.menu_edit:
+                                role = "editor";
+                                break;
+                            case R.id.menu_view:
+                                role = "viewer";
+                                break;
                         }
-                    });
-                    popupMenu.show();
-                }
-                else {
-                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
-                }
+                        if(role != null && userId.length() > 0)
+                        {
+                            DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getId(), userId, role);
+                            dashboardViewModel.inviteSomeone(dbPermission);
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
             }
         });
 
@@ -522,60 +431,6 @@ public class DashboardFragment extends Fragment {
         listUser.setAdapter(usersDetailAdapter);
 
         dialog.show();
-    }
-
-    private void inviteSoToDashboard(DashboardPermission dbPermission) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(DashboardPermission.class).toJson(dbPermission);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.inviteSoToDashboard(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellInviteSoToDashboard", "onResponse: " + response);
-                if(!response.isSuccessful())
-                {
-                    if (response.code() == 404) {
-                        Toast.makeText(getContext(), "User id này không tồn tại", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellInviteSoToDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void editDashboardOnServer() {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.editDashboard(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellEditDashboard", "onResponse: " + response);
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellEditDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void getListUserNamesFromServer() {
-        usernames.add("BC");
-        usernames.add("TH");
-        usernames.add("TT");
     }
 
     private void openDialogDeleteDashboard(DashboardCard dashboardCard) {
@@ -619,30 +474,6 @@ public class DashboardFragment extends Fragment {
         cancelDeleteBt.setOnClickListener(view -> dialog.dismiss());
 
         dialog.show();
-    }
-
-    private void deleteDashboardFromServer(DashboardCard dashboardCard) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.deleteDashboard(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellDeleteDashboard", "onResponse: " + response);
-                if(getActivity() != null){
-                    getActivity().getSupportFragmentManager().popBackStack();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellDeleteDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
     }
 
     public static void makeTextViewResizable(final TextView tv, final int maxLine, final String expandText, final boolean viewMore) {

@@ -10,6 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
+import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.DashboardRepository;
 
 import java.util.ArrayList;
@@ -43,4 +45,13 @@ public class DashboardViewModel extends AndroidViewModel {
     public LiveData<DashboardCard> getDashboardCardLiveData() {
         return dashboardCardLiveData;
     }
+
+    public void inviteSomeone(DashboardPermission dashboardPermission) {
+        repository.inviteToDashboardOnServer(dashboardPermission);
+    }
+
+    public void addYellTask(YellTask yellTask) {
+        repository.addTaskToServer(yellTask);
+    }
+
 }

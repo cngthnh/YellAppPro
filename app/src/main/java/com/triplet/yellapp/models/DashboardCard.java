@@ -73,6 +73,12 @@ public class DashboardCard extends RealmObject {
         this.tasks = tasks;
     }
 
+    public void addTask(YellTask yellTask) {
+        if (tasks == null)
+            tasks = new RealmList<>();
+        tasks.add(yellTask);
+    }
+
     public RealmList<DashboardPermission> getUsers() {
         return users;
     }
