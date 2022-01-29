@@ -7,27 +7,29 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.repository.YellUserRepository;
 
 import java.util.List;
 
 public class UserViewModel extends AndroidViewModel {
     private YellUserRepository repository;
+    private LiveData<UserAccountFull> yellUserLiveData;
 
-    public LiveData<List<DashboardCard>> getDashboardsLiveData() {
-        return dashboardsLiveData;
+    public LiveData<UserAccountFull> getYellUserLiveData() {
+        return yellUserLiveData;
     }
-
-    private LiveData<List<DashboardCard>> dashboardsLiveData;
 
     public UserViewModel(@NonNull Application application) {
         super(application);
     }
+
     public void init() {
         repository = new YellUserRepository(getApplication());
-        dashboardsLiveData = repository.getDashboardsLiveData();
+        yellUserLiveData = repository.getYellUserLiveData();
     }
-    public void getUser() {
-        repository.getUserFromServer();
+
+    public boolean getUser() {
+        return repository.getUser();
     }
 }

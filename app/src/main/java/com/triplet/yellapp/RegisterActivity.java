@@ -301,6 +301,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                 if (response.isSuccessful()) {
                     sessionManager.saveToken(response.body());
+                    sharedPreferences.edit().putString("uid",currentUsername);
+                    sharedPreferences.edit().apply();
                     removePrevInfo();
                     startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                     finish();

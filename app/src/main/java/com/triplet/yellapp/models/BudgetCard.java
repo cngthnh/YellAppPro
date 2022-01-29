@@ -1,9 +1,14 @@
 package com.triplet.yellapp.models;
 import com.squareup.moshi.Json;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class BudgetCard {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class BudgetCard extends RealmObject {
     @Json(name = "name")
     public String name;
     @Json(name = "balance")
@@ -14,11 +19,15 @@ public class BudgetCard {
     public String created_at;
     @Json(name = "type")
     public Integer type;
+    @PrimaryKey
     @Json(name = "budget_id")
     public String id;
     @Json(name = "transactions")
-    public List<TransactionCard> transactions;
+    public RealmList<TransactionCard> transactions;
+    @Json(name = "updated_at")
     public String updated_at;
+    public String last_sync;
+    public String local_edited_at;
 
     public BudgetCard(){}
     public BudgetCard(String name, Integer balance, Integer threshold, String created_at) {
@@ -44,7 +53,7 @@ public class BudgetCard {
         this.type = type;
         this.created_at = created_at;
     }
-    public BudgetCard(String name, Integer balance, Integer threshold, Integer type, String id, List<TransactionCard> transactions) {
+    public BudgetCard(String name, Integer balance, Integer threshold, Integer type, String id, RealmList<TransactionCard> transactions) {
         this.name = name;
         this.balance = balance;
         this.threshold= threshold;
@@ -89,7 +98,7 @@ public class BudgetCard {
     }
 
     public List<TransactionCard> getTransactionsList() { return transactions;}
-    public void setTransactionsList(List<TransactionCard> transactions) { this.transactions = transactions;}
+    public void setTransactionsList(RealmList<TransactionCard> transactions) { this.transactions = transactions;}
 
     public String getUpdated_at() { return updated_at;}
     public void setUpdated_at(String updated_at) {

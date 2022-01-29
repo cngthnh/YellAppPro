@@ -5,6 +5,7 @@ import com.squareup.moshi.Json;
 import java.util.Date;
 
 import io.realm.RealmObject;
+import io.realm.annotations.LinkingObjects;
 import io.realm.annotations.PrimaryKey;
 
 

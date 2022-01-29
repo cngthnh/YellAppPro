@@ -20,6 +20,7 @@ import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.RealmListJsonAdapterFactory;
 import com.triplet.yellapp.utils.SessionManager;
 
 import java.text.DateFormat;
@@ -44,7 +45,7 @@ public class YellTaskRepository {
     ApiService service;
     SharedPreferences sharedPreferences;
     Application application;
-    Moshi moshi = new Moshi.Builder().build();
+    Moshi moshi;
     private MutableLiveData<YellTask> YellTaskResponseLiveData;
     private MutableLiveData<String> taskId;
     private Realm realm;
@@ -55,6 +56,9 @@ public class YellTaskRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         YellTaskResponseLiveData = new MutableLiveData<>();
+        moshi = new Moshi.Builder()
+                .add(new RealmListJsonAdapterFactory())
+                .build();
         taskId = new MutableLiveData<>();
         realm = Realm.getDefaultInstance();
     }
@@ -110,6 +114,9 @@ public class YellTaskRepository {
                 e.printStackTrace();
                 getTaskFromServer(taskId);
                 return false;
+            }
+            catch (NullPointerException e) {
+                return true;
             }
 
             if (diff > 5) {

@@ -16,7 +16,7 @@ public class YellTaskViewModel extends AndroidViewModel {
     private YellTaskRepository yellTaskRepository;
     private LiveData<YellTask> yellTaskLiveData;
     private  LiveData<String> taskId;
-    private Realm realm;
+
     public YellTaskViewModel(@NonNull Application application) {
         super(application);
     }
