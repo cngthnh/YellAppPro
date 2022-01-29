@@ -5,12 +5,25 @@
       <map>
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/bg_dialog_new_object.xml" value="0.17395833333333333" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/bg_item_user.xml" value="0.17395833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_car.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_car_alt.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_coffee.xml" value="0.2703125" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_eating.xml" value="0.2703125" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_home.xml" value="0.2703125" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_home_line.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_shopping.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_stopwatch.xml" value="0.14479166666666668" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_time.xml" value="0.2703125" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_travel.xml" value="0.2703125" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/tab_indicator.xml" value="0.17395833333333333" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/category_picker.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_attach.xml" value="0.2" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_category_outcome.xml" value="0.264" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_icon_picker.xml" value="0.13020833333333334" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_loading.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_new_budget.xml" value="0.176" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_new_transaction.xml" value="0.2" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_share.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/fragment_budget_history.xml" value="0.2015625" />
@@ -25,7 +38,7 @@
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_file.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_notification.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_task.xml" value="0.13020833333333334" />
-        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_transaction.xml" value="0.2" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_transaction.xml" value="0.536" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_user.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_user_detail.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/layout_transaction.xml" value="0.264" />

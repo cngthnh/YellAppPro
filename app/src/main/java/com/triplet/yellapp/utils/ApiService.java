@@ -4,6 +4,7 @@ import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.Notification;
+import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.models.TokenPair;
@@ -128,7 +129,7 @@ public interface ApiService {
     Call<InfoMessage> deleteBudgets(@Body RequestBody body);
 
 
-    /*
+
     @GET("transactions")
     Call<TransactionCard> getTransaction(@Query("transaction_id") String transactionID);
 
@@ -141,6 +142,6 @@ public interface ApiService {
 
     @HTTP(method = "DELETE", path = "transactions", hasBody = true)
     @Headers("Content-Type: application/json")
-    Call<InfoMessage> deleteTransaction(@Body RequestBody body);*/
+    Call<InfoMessage> deleteTransaction(@Body RequestBody body);
 
 }

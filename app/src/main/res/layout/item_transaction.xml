@@ -2,7 +2,7 @@
 <com.chauthai.swipereveallayout.SwipeRevealLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/swipe"
+    android:id="@+id/swipeTransaction"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:mode="same_level"
     app:dragEdge="right"
@@ -11,7 +11,7 @@
     >
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/deleteBudgetItem"
+        android:id="@+id/deleteTransactionItem"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -29,7 +29,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/item_layout"
+        android:id="@+id/item_layout_transaction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -40,13 +40,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="15dp"
             android:layout_marginBottom="15dp">
 
             <ImageView
+                android:id="@+id/categoryImg"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="15dp"
                 android:src="@drawable/ic_eating"/>
 
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -65,7 +64,7 @@
                     android:paddingStart="20dp"
                     android:textSize="18dp"/>
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/descriptionItem"
+                    android:id="@+id/contentTransaction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Du lịch Đà Lạt"
@@ -80,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical"
-                android:layout_marginEnd="15dp"
+                android:layout_marginEnd="5dp"
                 android:layout_marginStart="10dp">
                 <TextView
                     android:id="@+id/amount"
@@ -92,7 +91,7 @@
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/orange" />
                 <TextView
-                    android:id="@+id/date"
+                    android:id="@+id/dateTransaction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="textEnd"
@@ -100,15 +99,11 @@
                     android:fontFamily="@font/roboto_regular" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
-        <View
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:layout_gravity="bottom"
             android:background="?editTextBackground"
-            />
+            android:layout_gravity="bottom"/>
     </androidx.cardview.widget.CardView>
-
-
-
-
 </com.chauthai.swipereveallayout.SwipeRevealLayout>

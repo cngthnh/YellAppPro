@@ -6,6 +6,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
         android:orientation="horizontal">
         <ImageView
             android:layout_width="20dp"
@@ -21,11 +22,11 @@
             />
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycleView"
+        android:id="@+id/recycleViewTransaction"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="15dp"
+        android:paddingStart="10dp"
         android:paddingTop="10dp"
-        android:paddingEnd="15dp" />
+        android:paddingEnd="10dp" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

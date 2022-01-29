@@ -1,21 +1,44 @@
 package com.triplet.yellapp;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
+import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.ViewPagerBudgetAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetBinding;
 import com.triplet.yellapp.models.BudgetCard;
+import com.triplet.yellapp.models.ErrorMessage;
+import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.utils.ApiService;
+import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BudgetsFragment extends Fragment {
     FragmentBudgetBinding binding;
@@ -23,9 +46,8 @@ public class BudgetsFragment extends Fragment {
 
     SessionManager sessionManager;
     ApiService service;
+    Moshi moshi = new Moshi.Builder().build();
 
-    TabLayout tabLayout;
-    ViewPager viewPager;
 
     public BudgetsFragment(BudgetCard budgetCard, SessionManager sessionManager) {
         this.budgetCard = budgetCard;
@@ -59,12 +81,199 @@ public class BudgetsFragment extends Fragment {
         });
 
         ViewPagerBudgetAdapter viewPagerBudgetAdapter = new ViewPagerBudgetAdapter(
-                getActivity().getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+                getActivity().getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, budgetCard.getTransactionsList());
         binding.viewpager.setAdapter(viewPagerBudgetAdapter);
 
         binding.tablayout.setupWithViewPager(binding.viewpager);
 
+        binding.fabBudget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDialogCreateNewTransaction();
+            }
+        });
+
         return view;
+    }
+
+    private void openDialogCreateNewTransaction() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_new_transaction);
+
+        Window window = dialog.getWindow();
+        if(window == null){
+            return;
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttributes = window.getAttributes();
+        windowAttributes.gravity = Gravity.BOTTOM;
+        window.setAttributes(windowAttributes);
+
+        dialog.setCancelable(true);
+
+        EditText content = dialog.findViewById(R.id.transactionContent);
+        EditText amount = dialog.findViewById(R.id.transactionAmount);
+        RadioGroup typeGroup = dialog.findViewById(R.id.typeGroup);
+        MaterialButton saveBt = dialog.findViewById(R.id.transactionSaveBtn);
+        MaterialButton category = dialog.findViewById(R.id.categoryTransaction);
+
+        TransactionCard newTransaction = new TransactionCard();
+        newTransaction.setType(0);
+        typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if(i == R.id.rbIncome){
+                    newTransaction.setType(1);
+                }
+                else if(i == R.id.rbOutcome){
+                    newTransaction.setType(0);
+                }
+            }
+        });
+
+        category.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(newTransaction.getType() == null){
+                    Toast.makeText(getContext(), "Chưa chọn loại danh mục", Toast.LENGTH_LONG).show();
+                }
+                else if(newTransaction.getType() == 0)
+                {
+                    openDialogOutcomeCategory(newTransaction);
+                }
+                else {
+                    //openDialogIncomeCategory();
+                }
+            }
+        });
+
+
+
+        saveBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (content.getText().toString().equals("") || amount.getText().toString().equals("")){
+
+                    Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_LONG).show();
+                }
+                else if(newTransaction.getPurpose() == null)
+                {
+                    Toast.makeText(getContext(), "Vui lòng chọn danh mục", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    newTransaction.setBudget_id(budgetCard.getId());
+                    newTransaction.setContent(content.getText().toString());
+                    newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
+                    addTransactionToServer(newTransaction, dialog);
+                    dialog.dismiss();
+                }
+            }
+        });
+
+
+
+
+        dialog.show();
+    }
+
+    private void addTransactionToServer(TransactionCard newTransaction, Dialog dialog) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<TransactionCard> call;
+        String transID;
+
+        String json = moshi.adapter(TransactionCard.class).toJson(newTransaction);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
+        call = service.addTransaction(requestBody);
+        call.enqueue(new Callback<TransactionCard>() {
+            @Override
+            public void onResponse(Call<TransactionCard> call, Response<TransactionCard> response) {
+                Log.w("YellCreateTransaction", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    Toast.makeText(getActivity(), "Tạo thành công!", Toast.LENGTH_LONG).show();
+                    newTransaction.setTran_id(response.body().getTran_id());
+                    Log.e("ID", newTransaction.getTran_id());
+                    budgetCard.getTransactionsList().add(newTransaction);
+
+                } else {
+                    {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(getActivity(), "Tạo thất bại! " + apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<TransactionCard> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void openDialogOutcomeCategory(TransactionCard newTransaction) {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_category_outcome);
+
+        Window window = dialog.getWindow();
+        if(window == null){
+            return;
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttributes = window.getAttributes();
+        windowAttributes.gravity = Gravity.BOTTOM;
+        window.setAttributes(windowAttributes);
+
+        dialog.setCancelable(true);
+
+        TransactionCard type = new TransactionCard();
+
+
+        RadioGroup typeGroup = dialog.findViewById(R.id.radio_group_category);
+        MaterialButton saveBt = dialog.findViewById(R.id.btn_save_category);
+
+        typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.radio_food:
+                        type.setPurpose("Ăn uống");
+                        break;
+                    case R.id.radio_coffee:
+                        type.setPurpose("Cà phê");
+                        break;
+                    case R.id.radio_shopping:
+                        type.setPurpose("Mua sắm");
+                        break;
+                    case R.id.radio_transport:
+                        type.setPurpose("Đi lại");
+                        break;
+                    case R.id.radio_daily_use:
+                        type.setPurpose("Sinh hoạt hằng ngày");
+                        break;
+                }
+            }
+        });
+
+        saveBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(type.getPurpose()==null){
+                    newTransaction.setPurpose("Ăn uống");
+                }
+                else {
+                    newTransaction.setPurpose(type.getPurpose());
+                }
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 }
 
