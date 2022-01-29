@@ -65,7 +65,7 @@ public class DashboardCard extends RealmObject {
         this.description = description;
     }
 
-    public List<YellTask> getTasks() {
+    public RealmList<YellTask> getTasks() {
         return tasks;
     }
 
@@ -73,7 +73,7 @@ public class DashboardCard extends RealmObject {
         this.tasks = tasks;
     }
 
-    public List<DashboardPermission> getUsers() {
+    public RealmList<DashboardPermission> getUsers() {
         return users;
     }
 

@@ -43,8 +43,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class YellUserRepository {
-    // TODO: Lớp này có thể sử dụng cho nhiều fragment vì dữ liệu mà nó cung cấp
-    //
+
     SessionManager sessionManager;
     ApiService service;
     SharedPreferences sharedPreferences;
@@ -166,6 +165,7 @@ public class YellUserRepository {
                 if (response.isSuccessful()) {
                     dashboardCard.setId(response.body().getId());
                     dashboardCard.last_sync = df.format(new Date());
+                    dashboardCard.setUsers(response.body().getUsers());
                     UserAccountFull userAccountFull = yellUserLiveData.getValue();
                     userAccountFull.addDashboard(dashboardCard);
                     userAccountFull.last_sync = dashboardCard.last_sync;

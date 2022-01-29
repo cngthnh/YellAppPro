@@ -1,5 +1,8 @@
 package com.triplet.yellapp.adapters;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -29,8 +32,10 @@ import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.DashboardFragment;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.UserAccount;
+import com.triplet.yellapp.repository.DashboardRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
@@ -50,16 +55,31 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
     private ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
     SessionManager sessionManager;
     ApiService service;
+    String uid;
     Moshi moshi = new Moshi.Builder().build();
+    DashboardRepository repository;
 
     public DashboardsAdapter(Context mContext, SessionManager sessionManager) {
         this.mContext = mContext;
         this.sessionManager = sessionManager;
+        this.uid =  mContext.getSharedPreferences(mContext.getResources().getString(R.string.yell_sp), MODE_PRIVATE)
+                .getString("uid","n");
+        this.repository = new DashboardRepository((Application) mContext.getApplicationContext());
     }
 
     public void setData(List<DashboardCard> mListDashboard) {
         this.mListDashboard = mListDashboard;
         notifyDataSetChanged();
+    }
+
+    public void addDashboardCard(DashboardCard dashboardCard) {
+        mListDashboard.add(mListDashboard.size(),dashboardCard);
+        notifyItemInserted(mListDashboard.size()+1);
+    }
+
+    public void removeDashboardCard(int position) {
+        mListDashboard.remove(position);
+        notifyItemRemoved(position);
     }
 
     @NonNull
@@ -81,7 +101,14 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
         holder.deleteLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkPermission(dashboardCard, holder);
+                String permission = getPermission(dashboardCard);
+                if (permission.equals("admin")) {
+                    openDialogDeleteDashboard(holder,dashboardCard);
+                    return;
+                }
+                else {
+                    Toast.makeText(mContext, "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -96,6 +123,15 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
             }
         });
 
+    }
+
+    private String getPermission(DashboardCard dashboardCard) {
+        List<DashboardPermission> permissions = dashboardCard.getUsers();
+        for (int i = 0;i<permissions.size();i++) {
+            if (uid.equals(permissions.get(i).getUid()))
+                return permissions.get(i).getRole();
+        }
+        return null;
     }
 
     private void openDialogDeleteDashboard(DashboardsViewHolder holder, DashboardCard dashboardCard) {
@@ -133,9 +169,8 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
         deleteBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteDashboardFromServer(dashboardCard);
-                mListDashboard.remove(holder.getAdapterPosition());
-                notifyItemRemoved(holder.getAdapterPosition());
+                repository.deleteDashboard(dashboardCard);
+                removeDashboardCard(holder.getLayoutPosition());
                 dialog.dismiss();
             }
         });

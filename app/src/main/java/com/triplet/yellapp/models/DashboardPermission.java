@@ -7,7 +7,7 @@ import io.realm.annotations.PrimaryKey;
 
 public class DashboardPermission extends RealmObject {
     @Json(name = "dashboard_id")
-    public String id;
+    public String dashboard_id;
     @Json(name = "uid")
     public String uid;
     @Json(name = "role")
@@ -15,20 +15,20 @@ public class DashboardPermission extends RealmObject {
     @PrimaryKey
     public String id_uid;
 
-    public DashboardPermission(String id, String uid, String role) {
-        this.id = id;
+    public DashboardPermission(String dashboard_id, String uid, String role) {
+        this.dashboard_id = dashboard_id;
         this.uid = uid;
         this.role = role;
     }
 
     public DashboardPermission() {}
 
-    public String getId() {
-        return id;
+    public String getDashboard_id() {
+        return dashboard_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDashboard_id(String dashboard_id) {
+        this.dashboard_id = dashboard_id;
     }
 
     public String getUid() {

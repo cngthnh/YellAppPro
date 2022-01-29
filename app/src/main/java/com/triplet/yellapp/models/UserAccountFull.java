@@ -67,7 +67,7 @@ public class UserAccountFull extends RealmObject {
         this.email = email;
     }
 
-    public List<DashboardCard> getDashboards() {
+    public RealmList<DashboardCard> getDashboards() {
         return dashboards;
     }
 
@@ -79,7 +79,7 @@ public class UserAccountFull extends RealmObject {
         dashboards.add(dashboardCard);
     }
 
-    public List<BudgetCard> getBudgetCards() {
+    public RealmList<BudgetCard> getBudgetCards() {
         return budgetCards;
     }
 
