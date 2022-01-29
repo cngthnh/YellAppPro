@@ -69,7 +69,7 @@ public class YellUserRepository {
                 .add(new RealmListJsonAdapterFactory())
                 .build();
         realm = Realm.getDefaultInstance();
-        df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
@@ -131,7 +131,7 @@ public class YellUserRepository {
             return false;
         }
         else {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
             long diff = 0;
             try {

@@ -17,5 +17,6 @@
         <item name="itemTextColor">@color/dark_yellow</item>
         <item name="titleTextColor">@color/title</item>
         <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="tabBackground">@color/white</item>
     </style>
 </resources>

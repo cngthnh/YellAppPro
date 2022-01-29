@@ -72,7 +72,7 @@ public class YellTaskRepository {
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 if (response.isSuccessful()) {
                     YellTask yellTask = response.body();
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                     df.setTimeZone(TimeZone.getTimeZone("UTC"));
                     yellTask.last_sync = df.format(new Date());
                     YellTaskResponseLiveData.postValue(yellTask);
@@ -103,7 +103,7 @@ public class YellTaskRepository {
             return false;
         }
         else {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
             long diff = 0;
             try {
@@ -200,6 +200,17 @@ public class YellTaskRepository {
                 // TODO:
             }
         });
+    }
+
+    public void patchTask(YellTask yellTask) {
+        YellTaskResponseLiveData.postValue(yellTask);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(yellTask);
+            }
+        });
+        patchTaskToServer(yellTask);
     }
 
     public void deleteTaskToServer(YellTask yellTask) {

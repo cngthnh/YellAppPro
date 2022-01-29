@@ -2,10 +2,12 @@ package com.triplet.yellapp;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -37,6 +39,7 @@ import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.UserAccount;
+import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
@@ -75,7 +78,6 @@ public class ListBudgetsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentBudgetListBinding.inflate(inflater, container, false );
         View view = binding.getRoot();
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recycleView.setLayoutManager(layoutManager);
         binding.recycleView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -152,10 +154,14 @@ public class ListBudgetsFragment extends Fragment {
         typeSpend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                typeSpend.setBackgroundColor(Color.DKGRAY);
-                typeSpend.setTextColor(Color.WHITE);
-                typeSave.setBackgroundColor(Color.WHITE);
-                typeSave.setTextColor(Color.BLACK);
+                TypedValue primary = new TypedValue();
+                TypedValue secondary = new TypedValue();
+                getActivity().getTheme().resolveAttribute(R.attr.colorOnPrimary, primary, true);
+                getActivity().getTheme().resolveAttribute(R.attr.colorOnSecondary, secondary, true);
+                typeSpend.setBackgroundColor(secondary.data);
+                typeSpend.setTextColor(primary.data);
+                typeSave.setBackgroundColor(primary.data);
+                typeSave.setTextColor(secondary.data);
 
                 thresholdCard.setVisibility(View.VISIBLE);
                 thresholdTitle.setText("Giới hạn chi tiêu");
@@ -166,10 +172,14 @@ public class ListBudgetsFragment extends Fragment {
         typeSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                typeSave.setBackgroundColor(Color.DKGRAY);
-                typeSave.setTextColor(Color.WHITE);
-                typeSpend.setBackgroundColor(Color.WHITE);
-                typeSpend.setTextColor(Color.BLACK);
+                TypedValue primary = new TypedValue();
+                TypedValue secondary = new TypedValue();
+                getContext().getTheme().resolveAttribute(R.attr.colorOnPrimary, primary, true);
+                getActivity().getTheme().resolveAttribute(R.attr.colorOnSecondary, secondary, true);
+                typeSave.setBackgroundColor(secondary.data);
+                typeSave.setTextColor(primary.data);
+                typeSpend.setBackgroundColor(primary.data);
+                typeSpend.setTextColor(secondary.data);
                 thresholdCard.setVisibility(View.VISIBLE);
                 thresholdTitle.setText("Mục tiêu tiết kiệm");
                 newBudget.setType(1);

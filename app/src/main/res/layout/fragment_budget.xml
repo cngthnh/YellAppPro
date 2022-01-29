@@ -76,7 +76,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Số dư hiện tại"
-                        android:textColor="?titleTextColor"/>
+                        android:textColor="@color/black"/>
                     <TextView
                         android:id="@+id/budgetBalance"
                         android:layout_width="match_parent"
@@ -84,13 +84,13 @@
                         android:fontFamily="@font/roboto_bold"
                         android:textSize="30dp"
                         android:text="10.000.000vnđ"
-                        android:textColor="?titleTextColor"/>
+                        android:textColor="@color/black"/>
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Ngày tạo"
                         android:layout_marginBottom="5dp"
-                        android:textColor="?titleTextColor"/>
+                        android:textColor="@color/black"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -99,13 +99,13 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_calendar"
-                            app:tint="?titleTextColor"/>
+                            app:tint="@color/black"/>
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="28/01/2022"
                             android:layout_marginStart="5dp"
-                            android:textColor="?titleTextColor"/>
+                            android:textColor="@color/black"/>
                     </LinearLayout>
                 </LinearLayout>
                 <ImageView
@@ -140,9 +140,11 @@
                 app:tabIndicator="@drawable/tab_indicator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="10dp"
-                android:layout_marginBottom="10dp"
-                app:tabSelectedTextColor="@color/yellow_primary_var"/>
+                android:backgroundTint="@android:color/transparent"
+                app:tabSelectedTextColor="@color/yellow_primary_var"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                app:tabRippleColor="@android:color/transparent"/>
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/viewpager"

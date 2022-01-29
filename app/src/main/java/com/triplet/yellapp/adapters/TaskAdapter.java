@@ -3,28 +3,40 @@ package com.triplet.yellapp.adapters;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.triplet.yellapp.LoadingDialog;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.TaskFragment;
+import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
+import com.triplet.yellapp.utils.ApiService;
+import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.SessionManager;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
@@ -88,10 +100,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         {
             holder.taskLabel.setText("Đã hoàn thành");
             holder.taskLabel.setBackgroundResource(R.drawable.frame_cover_item_task_green);
+            holder.makeCompleteBtn.setImageResource(R.drawable.ic_check_circle_filled);
+            holder.makeCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(activity, R.color.orange)));
         }
         else if (status == 1) {
             holder.taskLabel.setText("Chưa hoàn thành");
             holder.taskLabel.setBackgroundResource(R.drawable.frame_cover_item_task_yellow);
+            holder.makeCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
+            TypedValue typedValue = new TypedValue();
+            activity.getTheme().resolveAttribute(R.attr.iconTint, typedValue, true);
+            holder.makeCompleteBtn.setImageTintList(ColorStateList.valueOf(typedValue.data));
         }
         holder.deleteTaskItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +132,30 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                         .commit();
             }
         });
+        holder.makeCompleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (yellTask.status == 2) {
+                    yellTask.status = 1;
+                    ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_line);
+                    holder.taskLabel.setText("Chưa hoàn thành");
+                    holder.taskLabel.setBackgroundResource(R.drawable.frame_cover_item_task_yellow);
+                    holder.makeCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
+                    TypedValue typedValue = new TypedValue();
+                    activity.getTheme().resolveAttribute(R.attr.iconTint, typedValue, true);
+                    holder.makeCompleteBtn.setImageTintList(ColorStateList.valueOf(typedValue.data));
+                }
+                else {
+                    yellTask.status = 2;
+                    ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_filled);
+                    holder.taskLabel.setText("Đã hoàn thành");
+                    holder.taskLabel.setBackgroundResource(R.drawable.frame_cover_item_task_green);
+                    holder.makeCompleteBtn.setImageResource(R.drawable.ic_check_circle_filled);
+                    holder.makeCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(activity, R.color.orange)));
+                }
+                repository.patchTask(yellTask);
+            }
+        });
     }
 
     @Override
@@ -127,11 +169,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         AppCompatTextView taskName;
         AppCompatTextView taskLabel;
         CardView deleteTaskItem;
+        ImageButton makeCompleteBtn;
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             taskName = itemView.findViewById(R.id.taskNameItem);
             taskLabel = itemView.findViewById(R.id.taskLabelItem);
             deleteTaskItem = itemView.findViewById(R.id.deleteTaskItem);
+            makeCompleteBtn = itemView.findViewById(R.id.makeCompleteBtn);
         }
     }
 }

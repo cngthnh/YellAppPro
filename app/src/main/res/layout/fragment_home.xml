@@ -80,6 +80,7 @@
         android:layout_marginHorizontal="25dp"
         android:layout_marginTop="85dp"
         app:cardCornerRadius="10dp"
+        android:animateLayoutChanges="true"
         app:cardElevation="3dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -100,6 +101,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/highlightTaskDuration"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/orange"
@@ -110,6 +112,7 @@
 
                 </TextView>
                 <TextView
+                    android:id="@+id/highlightTaskTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="?titleTextColor"
@@ -120,6 +123,7 @@
                 </TextView>
             </LinearLayout>
             <ImageButton
+                android:id="@+id/highLightTaskCompleteBtn"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
