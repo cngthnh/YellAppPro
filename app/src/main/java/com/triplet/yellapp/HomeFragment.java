@@ -20,6 +20,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.triplet.yellapp.adapters.BudgetsHomeAdapter;
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentHomeBinding;
 import com.triplet.yellapp.models.DashboardCard;
@@ -48,6 +49,7 @@ public class HomeFragment extends Fragment {
 
     FragmentHomeBinding binding;
     DashboardsHomeAdapter dashboardsHomeAdapter = null;
+    BudgetsHomeAdapter budgetsHomeAdapter = null;
     UserViewModel userViewModel;
     LoadingDialog loadingDialog;
     UserAccountFull user;
@@ -65,6 +67,7 @@ public class HomeFragment extends Fragment {
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
         dashboardsHomeAdapter = new DashboardsHomeAdapter(getContext(), sessionManager);
+        budgetsHomeAdapter = new BudgetsHomeAdapter(getContext(), sessionManager);
         taskRepo = new YellTaskRepository(getActivity().getApplication());
         realm = Realm.getDefaultInstance();
         userViewModel.init();
@@ -135,7 +138,7 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                ListBudgetsFragment budgetsFragment = new ListBudgetsFragment();
+                ListBudgetsFragment budgetsFragment = new ListBudgetsFragment(userViewModel);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, budgetsFragment
                         , "LIST_BUDGET").addToBackStack(null).commit();
             }
@@ -145,6 +148,11 @@ public class HomeFragment extends Fragment {
         binding.dashboardPreviewList.setLayoutManager(layoutManager);
         binding.dashboardPreviewList.setVisibility(View.VISIBLE);
         binding.dashboardPreviewList.setAdapter(dashboardsHomeAdapter);
+
+        LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        binding.budgetPreView.setLayoutManager(layoutManager1);
+        binding.budgetPreView.setVisibility(View.VISIBLE);
+        binding.budgetPreView.setAdapter(budgetsHomeAdapter);
 
         return view;
     }
@@ -235,6 +243,7 @@ public class HomeFragment extends Fragment {
 
     private void bindingData () {
         dashboardsHomeAdapter.setData(user.getDashboards());
+        budgetsHomeAdapter.setData(user.getBudgetCards());
         binding.accountTitle.setText("Hi, " + user.getName());
         bindNearestDeadlineTask();
         binding.highLightTaskCompleteBtn.setOnClickListener(new View.OnClickListener() {

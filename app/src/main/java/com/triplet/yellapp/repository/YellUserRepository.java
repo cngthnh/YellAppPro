@@ -191,10 +191,54 @@ public class YellUserRepository {
         });
     }
 
+    public void addBudgetToServer(BudgetCard budgetCard) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<BudgetCard> call;
+        RequestBody requestBody = budgetToJson(budgetCard);
+        call = service.createBudget(requestBody);
+        call.enqueue(new Callback<BudgetCard>() {
+            @Override
+            public void onResponse(Call<BudgetCard> call, Response<BudgetCard> response) {
+                Log.w("YellCreateDashboard", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    budgetCard.setId(response.body().getId());
+                    budgetCard.last_sync = df.format(new Date());
+                    UserAccountFull userAccountFull = yellUserLiveData.getValue();
+                    userAccountFull.addBudget(budgetCard);
+                    userAccountFull.last_sync = budgetCard.last_sync;
+                    yellUserLiveData.postValue(userAccountFull);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(userAccountFull);
+                        }
+                    });
+                } else {
+                    if (response.code() == 401) {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<BudgetCard> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
         String jsonYellTask = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
         return requestBody;
     }
+
+    private RequestBody budgetToJson(BudgetCard budgetCard) {
+        String jsonBudget = moshi.adapter(BudgetCard.class).toJson(budgetCard);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"),jsonBudget);
+        return requestBody;
+    }
+
 
 }

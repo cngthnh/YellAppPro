@@ -22,6 +22,7 @@
     <color name="grey">#C4C4C4</color>
     <color name="icon_tint">#909090</color>
     <color name="icon_tint_dark">#707070</color>
+    <color name="background_dark_card">#707070</color>
     <color name="title">#000000</color>
     <color name="title_dark">#DFDFDF</color>
     <color name="red">#FF6B5D</color>
