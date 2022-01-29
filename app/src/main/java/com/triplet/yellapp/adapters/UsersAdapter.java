@@ -27,6 +27,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
 
     public void setData(List<DashboardPermission> mListUserName) {
         this.mListUserName = mListUserName;
+        notifyDataSetChanged();
     }
 
     @NonNull

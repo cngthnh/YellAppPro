@@ -1,6 +1,7 @@
 package com.triplet.yellapp;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -32,6 +33,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,10 +54,12 @@ import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.MySpannable;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.DashboardViewModel;
 import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -68,30 +73,62 @@ public class DashboardFragment extends Fragment {
     UsersAdapter usersAdapter = null;
     UsersDetailAdapter usersDetailAdapter = null;
     List<String> usernames;
-    ArrayList<YellTask> yellTasks;
+    List<YellTask> yellTasks;
     SessionManager sessionManager;
+    LoadingDialog loadingDialog;
     ApiService service;
+    DashboardViewModel dashboardViewModel;
+    String uid;
     Moshi moshi = new Moshi.Builder().build();
-    YellTaskViewModel viewModel;
     TaskAdapter yellTaskAdapter;
 
 
     public DashboardFragment(DashboardCard dashboardCard, SessionManager sessionManager) {
         this.dashboardCard = dashboardCard;
         this.sessionManager = sessionManager;
-        this.yellTasks = new ArrayList<>();
-        List<YellTask> temp = dashboardCard.getTasks();
-        if (temp != null) {
-            for (int i = 0; i<temp.size();i++) {
-                if (temp.get(i).getParent_id() == null)
-                    this.yellTasks.add(temp.get(i));
-            }
-        }
+        yellTasks = new ArrayList<>();
+        usernames = new ArrayList<>();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.uid =  getContext().getSharedPreferences(getContext().getResources().getString(R.string.yell_sp), MODE_PRIVATE)
+                .getString("uid","n");
+        dashboardViewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
+        dashboardViewModel.init();
+        loadingDialog = new LoadingDialog(getActivity());
+        dashboardViewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
+            @Override
+            public void onChanged(DashboardCard dashboard) {
+                List<YellTask> temp = dashboard.getTasks();
+                for (int i = 0; i<temp.size();i++) {
+                    if (temp.get(i).getParent_id() == null) {
+                        yellTasks.add(temp.get(i));
+                    }
+                }
+                List<DashboardPermission> temp1 = dashboard.getUsers();
+                for (int i = 0;i< temp1.size();i++) {
+                    usernames.add(temp1.get(i).getUid().subSequence(0,1).toString().toUpperCase(Locale.ROOT));
+                }
+                if (getActivity() != null) {
+                   if (loadingDialog != null)
+                       loadingDialog.dismissDialog();
+                   dashboardCard = dashboard;
+                   bindingData();
+               }
+            }
+        });
+        usersAdapter = new UsersAdapter(getContext());
+        yellTaskAdapter = new TaskAdapter(getActivity());
+    }
+
+    private void bindingData() {
+        binding.edtNameDb.setText(dashboardCard.getName());
+        //TODO: Binding Label
+        binding.tvDescriptionDb.setText(dashboardCard.getDescription());
+        yellTaskAdapter.setYellTaskArrayList(yellTasks);
+        usersAdapter.setData(dashboardCard.getUsers());
     }
 
     @Override
@@ -100,8 +137,9 @@ public class DashboardFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(inflater, container, false );
         View view = binding.getRoot();
-        binding.edtNameDb.setText(dashboardCard.getName());
-
+        if (!dashboardViewModel.getDashboard(dashboardCard.getId()))
+            loadingDialog.startLoadingDialog();
+        bindingData();
         if(dashboardCard.getDescription()!=null){
             binding.tvDescriptionDb.setText(dashboardCard.getDescription());
             binding.edtDescriptionDb.setText(dashboardCard.getDescription());
@@ -119,14 +157,24 @@ public class DashboardFragment extends Fragment {
         binding.deleteInDb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkDeletePermission();
+                if (getPermission(dashboardCard).equals("admin")) {
+                    openDialogDeleteDashboard(dashboardCard);
+                }
+                else {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
         binding.editDb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkEditPermission(1); //edit name and description
+                if (getPermission(dashboardCard).equals("admin")) {
+                    editDashboard();
+                }
+                else {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -176,7 +224,7 @@ public class DashboardFragment extends Fragment {
                     dashboardCard.setName(name);
                 }
                 dashboardCard.setDescription(dsc);
-                editDashboardOnServer();
+                dashboardViewModel.editDashboard(dashboardCard);
 
                 binding.tvDescriptionDb.setText(dsc);
                 binding.tvDescriptionDb.setTag(null);
@@ -197,28 +245,26 @@ public class DashboardFragment extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),  LinearLayoutManager.HORIZONTAL, false);
         binding.listUsers.setLayoutManager(layoutManager);
-        usersAdapter = new UsersAdapter(getContext());
-        usernames = new ArrayList<>();
-        getListUserNamesFromServer();
-        usersAdapter.setData(dashboardCard.getUsers());
-        usersAdapter.notifyDataSetChanged();
+
         binding.listUsers.setVisibility(View.VISIBLE);
         binding.listUsers.setAdapter(usersAdapter);
 
         binding.editUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                checkEditPermission(3);
+                if (getPermission(dashboardCard).equals("admin"))
+                    dashboardViewModel.editDashboard(dashboardCard);
+                else
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
         });
 
-        yellTaskAdapter = new TaskAdapter(getActivity());
+
 
         //getListTaskFromServer();
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getActivity());
         binding.listTasks.setLayoutManager(layoutManager2);
         binding.listTasks.setAdapter(yellTaskAdapter);
-        yellTaskAdapter.setYellTaskArrayList(this.yellTasks);
 
         binding.listTasks.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -233,7 +279,10 @@ public class DashboardFragment extends Fragment {
         binding.fabDashboard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkEditPermission(2);
+                if (getPermission(dashboardCard).equals("admin"))
+                    dashboardViewModel.editDashboard(dashboardCard);
+                else
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -562,7 +611,8 @@ public class DashboardFragment extends Fragment {
         title.setText(spannable);
 
         deleteBt.setOnClickListener(view -> {
-            deleteDashboardFromServer(dashboardCard);
+            dashboardViewModel.deleteDashboard(dashboardCard);
+            getActivity().getSupportFragmentManager().popBackStack();
             dialog.dismiss();
         });
 
@@ -656,5 +706,13 @@ public class DashboardFragment extends Fragment {
 
         }
         return ssb;
+    }
+    private String getPermission(DashboardCard dashboardCard) {
+        List<DashboardPermission> permissions = dashboardCard.getUsers();
+        for (int i = 0;i<permissions.size();i++) {
+            if (uid.equals(permissions.get(i).getUid()))
+                return permissions.get(i).getRole();
+        }
+        return "n";
     }
 }

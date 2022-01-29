@@ -11,16 +11,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.DashboardsAdapter;
-import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentListDashboardsBinding;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.ErrorMessage;
@@ -29,8 +25,6 @@ import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
-import com.triplet.yellapp.viewmodels.DashboardViewModel;
-import com.triplet.yellapp.viewmodels.DashboardViewModelFactory;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
