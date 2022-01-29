@@ -1,5 +1,6 @@
 package com.triplet.yellapp.utils;
 
+import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.models.TokenPair;
 
 import java.io.IOException;
@@ -40,10 +41,13 @@ public class Client {
     }
 
     private static Retrofit buildRetrofit(OkHttpClient client){
+        Moshi moshi = new Moshi.Builder()
+                .add(new RealmListJsonAdapterFactory())
+                .build();
         return new Retrofit.Builder()
                 .baseUrl(API_URL)
                 .client(client)
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();
     }
 

@@ -2,19 +2,26 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
-public class DashboardPermission {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class DashboardPermission extends RealmObject {
     @Json(name = "dashboard_id")
     public String id;
     @Json(name = "uid")
     public String uid;
     @Json(name = "role")
     public String role;
+    @PrimaryKey
+    public String id_uid;
 
     public DashboardPermission(String id, String uid, String role) {
         this.id = id;
         this.uid = uid;
         this.role = role;
     }
+
+    public DashboardPermission() {}
 
     public String getId() {
         return id;

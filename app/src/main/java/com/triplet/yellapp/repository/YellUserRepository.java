@@ -13,17 +13,26 @@ import androidx.lifecycle.MutableLiveData;
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.LoginActivity;
 import com.triplet.yellapp.R;
+import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.ErrorMessage;
+import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccount;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.RealmListJsonAdapterFactory;
 import com.triplet.yellapp.utils.SessionManager;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import retrofit2.Call;
@@ -37,14 +46,13 @@ public class YellUserRepository {
     ApiService service;
     SharedPreferences sharedPreferences;
     Application application;
-    Moshi moshi = new Moshi.Builder().build();
-    List<DashboardCard> dashboards;
+    Moshi moshi;
+    MutableLiveData<UserAccountFull> yellUserLiveData;
+    private Realm realm;
 
-    public MutableLiveData<List<DashboardCard>> getDashboardsLiveData() {
-        return dashboardsLiveData;
+    public MutableLiveData<UserAccountFull> getYellUserLiveData() {
+        return yellUserLiveData;
     }
-
-    MutableLiveData<List<DashboardCard>> dashboardsLiveData;
 
     public YellUserRepository(Application application)
     {
@@ -52,7 +60,11 @@ public class YellUserRepository {
         sharedPreferences = application.getSharedPreferences(application.getResources().getString(R.string.yell_sp), MODE_PRIVATE);
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
-        dashboardsLiveData = new MutableLiveData<>();
+        yellUserLiveData = new MutableLiveData<>();
+        moshi = new Moshi.Builder()
+                .add(new RealmListJsonAdapterFactory())
+                .build();
+        realm = Realm.getDefaultInstance();
     }
 
     public void getUserFromServer() {
@@ -63,9 +75,38 @@ public class YellUserRepository {
             @Override
             public void onResponse(Call<UserAccountFull> call, Response<UserAccountFull> response) {
                 if (response.isSuccessful()) {
-                    UserAccountFull userAccountFull = response.body();
-                    dashboards = new ArrayList<>(userAccountFull.getDashboards());
-                    dashboardsLiveData.postValue(dashboards);
+                    UserAccountFull user = response.body();
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    user.last_sync = df.format(new Date());
+                    List<DashboardCard> dashboardCards = user.getDashboards();
+                    List<YellTask> yellTasks;
+                    for (int i = 0;i<dashboardCards.size();i++) {
+                        dashboardCards.get(i).last_sync = user.getLast_sync();
+                        yellTasks = dashboardCards.get(i).getTasks();
+                        for (int j = 0;j<yellTasks.size();j++) {
+                            yellTasks.get(j).last_sync = user.getLast_sync();
+                        }
+                    }
+                    List<BudgetCard> budgetCards = user.getBudgetCards();
+                    List<TransactionCard> transactionCards;
+                    for (int i = 0;i<budgetCards.size();i++) {
+                        budgetCards.get(i).last_sync = user.getLast_sync();
+                        transactionCards = budgetCards.get(i).getTransactionsList();
+                        for (int j = 0;j<transactionCards.size();j++) {
+                            transactionCards.get(j).last_sync = user.getLast_sync();
+                        }
+                    }
+                    yellUserLiveData.postValue(user);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("uid",user.getUid());
+                    editor.apply();
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(user);
+                        }
+                    });
                 } else {
                     Toast.makeText(application.getApplicationContext(), response.errorBody().toString(), Toast.LENGTH_LONG).show();
                 }
@@ -76,6 +117,37 @@ public class YellUserRepository {
                 Log.w("YellUserRepo", "onFailure: " + t.getMessage() );
             }
         });
+    }
+
+    public boolean getUser() {
+        String uid = sharedPreferences.getString("uid",null);
+        UserAccountFull object = realm.where(UserAccountFull.class).equalTo("uid", uid).findFirst();
+        if (object == null) {
+            getUserFromServer();
+            return false;
+        }
+        else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            long diff = 0;
+            try {
+                Date dt_sync = df.parse(object.getLast_sync());
+                Date dt_now = df.parse(df.format(new Date()));
+                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                getUserFromServer();
+                return false;
+            }
+
+            if (diff > 5) {
+                getUserFromServer();
+                return false;
+            }
+
+            yellUserLiveData.postValue(realm.copyFromRealm(object));
+            return true;
+        }
     }
 
 

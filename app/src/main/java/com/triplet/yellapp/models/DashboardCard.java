@@ -2,10 +2,15 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class DashboardCard {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class DashboardCard extends RealmObject {
+    @PrimaryKey
     @Json(name = "dashboard_id")
     public String id;
     @Json(name = "name")
@@ -13,17 +18,22 @@ public class DashboardCard {
     @Json(name = "description")
     public String description;
     @Json(name = "tasks")
-    public List<YellTask> tasks;
+    public RealmList<YellTask> tasks;
     @Json(name = "users")
-    public List<DashboardPermission> users;
+    public RealmList<DashboardPermission> users;
+    public String last_sync;
+    public String local_edited_at;
 
+    public DashboardCard() {
+
+    }
 
 
     public DashboardCard(String name) {
         this.name = name;
     }
 
-    public DashboardCard(String id, String name, String description, List<YellTask> tasks, List<DashboardPermission> users) {
+    public DashboardCard(String id, String name, String description, RealmList<YellTask> tasks, RealmList<DashboardPermission> users) {
         this.id = id;
         this.name = name;
         //this.description = description;
@@ -59,7 +69,7 @@ public class DashboardCard {
         return tasks;
     }
 
-    public void setTasks(List<YellTask> tasks) {
+    public void setTasks(RealmList<YellTask> tasks) {
         this.tasks = tasks;
     }
 
@@ -67,7 +77,7 @@ public class DashboardCard {
         return users;
     }
 
-    public void setUsers(List<DashboardPermission> users) {
+    public void setUsers(RealmList<DashboardPermission> users) {
         this.users = users;
     }
 }

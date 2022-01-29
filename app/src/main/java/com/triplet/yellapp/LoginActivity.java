@@ -133,6 +133,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     if (response.isSuccessful()) {
                         sessionManager.saveToken(response.body());
+                        sharedPreferences.edit().putString("uid",username);
+                        sharedPreferences.edit().apply();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }

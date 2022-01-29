@@ -4,8 +4,12 @@ import com.squareup.moshi.Json;
 
 import java.util.List;
 
-public class UserAccountFull {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class UserAccountFull extends RealmObject {
+    @PrimaryKey
     @Json(name = "uid")
     public String uid;
     @Json(name = "name")
@@ -13,11 +17,31 @@ public class UserAccountFull {
     @Json(name = "email")
     public String email;
     @Json(name = "dashboards")
-    public List<DashboardCard> dashboards;
+    public RealmList<DashboardCard> dashboards;
+    @Json(name = "budgets")
+    public RealmList<BudgetCard> budgetCards;
     @Json(name = "created_at")
     public String created_at;
     @Json(name = "updated_at")
     public String updated_at;
+    public String last_sync;
+    public String local_edited_at;
+
+    public String getLast_sync() {
+        return last_sync;
+    }
+
+    public void setLast_sync(String last_sync) {
+        this.last_sync = last_sync;
+    }
+
+    public String getLocal_edited_at() {
+        return local_edited_at;
+    }
+
+    public void setLocal_edited_at(String local_edited_at) {
+        this.local_edited_at = local_edited_at;
+    }
 
     public String getUid() {
         return uid;
@@ -47,8 +71,16 @@ public class UserAccountFull {
         return dashboards;
     }
 
-    public void setDashboards(List<DashboardCard> dashboards) {
+    public void setDashboards(RealmList<DashboardCard> dashboards) {
         this.dashboards = dashboards;
+    }
+
+    public List<BudgetCard> getBudgetCards() {
+        return budgetCards;
+    }
+
+    public void setBudgetCards(RealmList<BudgetCard> budgetCards) {
+        this.budgetCards = budgetCards;
     }
 
     public String getCreated_at() {

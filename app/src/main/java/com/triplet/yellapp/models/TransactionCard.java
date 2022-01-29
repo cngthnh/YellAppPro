@@ -2,9 +2,14 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
-public class TransactionCard {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class TransactionCard extends RealmObject {
+
     @Json(name = "budget_id")
     public String budget_id;
+    @PrimaryKey
     @Json(name = "transaction_id")
     public String transaction_id;
     @Json(name = "content")
@@ -17,6 +22,10 @@ public class TransactionCard {
     public String purposes;
     @Json(name = "created_at")
     public String created_at;
+    @Json(name = "updated_at")
+    public String updated_at;
+    public String last_sync;
+    public String local_edited_at;
 
     public TransactionCard() {
     }
