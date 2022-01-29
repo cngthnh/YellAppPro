@@ -27,7 +27,6 @@ public class HomeFragment extends Fragment {
 
     FragmentHomeBinding binding;
     DashboardsHomeAdapter dashboardsHomeAdapter = null;
-    List<DashboardCard> dashboardCards;
     UserViewModel userViewModel;
     LoadingDialog loadingDialog;
     UserAccountFull user;
@@ -60,13 +59,8 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        if (user == null) {
-            if(!userViewModel.getUser())
-                loadingDialog.startLoadingDialog();
-        }
-        else {
-            bindingData();
-        }
+        if(!userViewModel.getUser())
+            loadingDialog.startLoadingDialog();
         binding.avatarImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,7 +84,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                ListDashboardsFragment dashboardsFragment = new ListDashboardsFragment();
+                ListDashboardsFragment dashboardsFragment = new ListDashboardsFragment(userViewModel);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, dashboardsFragment
                         , "LIST_DASHBOARD").addToBackStack(null).commit();
             }

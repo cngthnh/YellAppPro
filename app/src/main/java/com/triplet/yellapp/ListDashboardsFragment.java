@@ -25,11 +25,13 @@ import com.triplet.yellapp.databinding.FragmentListDashboardsBinding;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.UserAccount;
+import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.DashboardViewModel;
 import com.triplet.yellapp.viewmodels.DashboardViewModelFactory;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,15 +48,31 @@ public class ListDashboardsFragment extends Fragment {
     List<DashboardCard> list;
     SessionManager sessionManager;
     ApiService service;
+    UserViewModel userViewModel;
+    LoadingDialog loadingDialog;
     Moshi moshi = new Moshi.Builder().build();
-    DashboardViewModel dashboardViewModel;
 
-    public ListDashboardsFragment() {
+    public ListDashboardsFragment(UserViewModel userViewModel) {
+        this.userViewModel = userViewModel;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadingDialog = new LoadingDialog(getActivity());
+        dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
+        list = new ArrayList<>();
+        userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
+            @Override
+            public void onChanged(UserAccountFull userAccountFull) {
+                list = userAccountFull.getDashboards();
+                if (getActivity() != null) {
+                    if (loadingDialog != null)
+                        loadingDialog.dismissDialog();
+                    dashboardsAdapter.setData(list);
+                }
+            }
+        });
     }
 
 
@@ -64,6 +82,13 @@ public class ListDashboardsFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentListDashboardsBinding.inflate(inflater, container, false );
         View view = binding.getRoot();
+        if(!userViewModel.getUser())
+            loadingDialog.startLoadingDialog();
+        else {
+            if (list.isEmpty())
+                list = userViewModel.getYellUserLiveData().getValue().getDashboards();
+            dashboardsAdapter.setData(list);
+        }
 
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
@@ -80,11 +105,6 @@ public class ListDashboardsFragment extends Fragment {
             }
         });
 
-        dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
-
-        list = new ArrayList<>();
-        getListDashboardFromServer();
-
         /*
         dashboardViewModel = new ViewModelProvider(this.getActivity(), new DashboardViewModelFactory(list)).get(DashboardViewModel.class);
         dashboardViewModel.getListDashboardLiveData().observe(this.getActivity(), new Observer<List<DashboardCard>>() {
@@ -98,8 +118,6 @@ public class ListDashboardsFragment extends Fragment {
 
          */
 
-        dashboardsAdapter.setData(list);
-        dashboardsAdapter.notifyDataSetChanged();
         binding.recycleView.setVisibility(View.VISIBLE);
         binding.recycleView.setAdapter(dashboardsAdapter);
 
