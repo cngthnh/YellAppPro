@@ -16,7 +16,7 @@
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_time.xml" value="0.2703125" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/ic_travel.xml" value="0.2703125" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/drawable/tab_indicator.xml" value="0.17395833333333333" />
-        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/category_picker.xml" value="0.13020833333333334" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/category_picker.xml" value="0.264" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_attach.xml" value="0.2" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_category_outcome.xml" value="0.264" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.25416666666666665" />
@@ -43,9 +43,6 @@
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/item_user_detail.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/layout_transaction.xml" value="0.264" />
         <entry key="..\:/Users/DELL/AndroidStudioProjects/YellAppPro/app/src/main/res/layout/temp.xml" value="0.264" />
-        <entry key="..\:/Users/Huy/Documents/Android/YellAppPro/app/src/main/res/layout/fragment_dashboard.xml" value="0.175" />
-        <entry key="..\:/Users/Huy/Documents/Android/YellAppPro/app/src/main/res/layout/fragment_home.xml" value="0.3302083333333333" />
-        <entry key="app/src/main/res/drawable/bg_dialog_new_object.xml" value="0.19739583333333333" />
         <entry key="app/src/main/res/drawable/ic_check.xml" value="0.2046875" />
         <entry key="app/src/main/res/drawable/ic_check_box.xml" value="0.2046875" />
         <entry key="app/src/main/res/drawable/ic_circle.xml" value="0.2046875" />
@@ -55,37 +52,26 @@
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.19166666666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3458333333333333" />
         <entry key="app/src/main/res/layout/activity_register.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/category_picker.xml" value="0.17889492753623187" />
         <entry key="app/src/main/res/layout/dialog_attach.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/dialog_category_outcome.xml" value="0.18125" />
-        <entry key="app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/dialog_deadline_time.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/dialog_delete_dashboard.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_icon_picker.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/dialog_loading.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/dialog_new_budget.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/dialog_new_transaction.xml" value="0.18125" />
-        <entry key="app/src/main/res/layout/dialog_share.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/dialog_loading.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/dialog_share.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_account.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_budget.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_budget_history.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_budget_list.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/fragment_budget_statistic.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_list_dashboards.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_notification.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/fragment_task.xml" value="0.19166666666666668" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_list_dashboards.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_notification.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_task.xml" value="0.33" />
         <entry key="app/src/main/res/layout/icon_item.xml" value="0.19166666666666668" />
-        <entry key="app/src/main/res/layout/item_budget.xml" value="0.182518115942029" />
-        <entry key="app/src/main/res/layout/item_budget_home.xml" value="0.18125" />
         <entry key="app/src/main/res/layout/item_dashboard.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/layout/item_dashboard_home.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/layout/item_file.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/layout/item_notification.xml" value="0.33" />
         <entry key="app/src/main/res/layout/item_task.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/item_transaction.xml" value="0.20018115942028986" />
         <entry key="app/src/main/res/layout/item_user.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/layout/item_user_detail.xml" value="0.18854166666666666" />
-        <entry key="app/src/main/res/layout/temp.xml" value="0.18125" />
       </map>
     </option>
   </component>

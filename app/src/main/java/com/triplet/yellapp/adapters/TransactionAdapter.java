@@ -77,16 +77,18 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.content.setText(transactionCard.getContent());
         holder.amount.setText(String.valueOf(transactionCard.getAmount()));
 
-        if(transactionCard.getPurpose()=="Ăn uống")
+        if(transactionCard.getPurpose().equals("Ăn uống"))
             holder.categoryImg.setImageResource(R.drawable.ic_pizza);
-        else if(transactionCard.getPurpose()=="Mua sắm")
-            holder.categoryImg.setImageResource(R.drawable.ic_shopping);
-        else if(transactionCard.getPurpose()=="Sinh hoạt gia đình")
-            holder.categoryImg.setImageResource(R.drawable.ic_home);
-        else if(transactionCard.getPurpose()=="Cà phê")
+        else if(transactionCard.getPurpose().equals("Mua sắm"))
+            holder.categoryImg.setImageResource(R.drawable.ic_basket);
+        else if(transactionCard.getPurpose().equals("Sinh hoạt hằng ngày"))
+            holder.categoryImg.setImageResource(R.drawable.ic_home_line);
+        else if(transactionCard.getPurpose().equals("Cà phê"))
             holder.categoryImg .setImageResource(R.drawable.ic_coffee);
-        else if(transactionCard.getPurpose()=="Đi lại")
+        else if(transactionCard.getPurpose().equals("Di chuyển"))
             holder.categoryImg.setImageResource(R.drawable.ic_car_alt);
+        else if(transactionCard.getPurpose().equals("Du lịch"))
+            holder.categoryImg.setImageResource(R.drawable.ic_plane);
 
 
         viewBinderHelper.bind(holder.swipeRevealLayout, String.valueOf(1));

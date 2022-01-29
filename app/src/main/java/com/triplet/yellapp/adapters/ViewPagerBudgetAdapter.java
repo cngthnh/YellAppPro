@@ -9,15 +9,17 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import com.triplet.yellapp.HistoryBudgetFragment;
 import com.triplet.yellapp.StatisticBudgetFragment;
 import com.triplet.yellapp.models.TransactionCard;
+import com.triplet.yellapp.viewmodels.BudgetViewModel;
 
 import java.util.List;
 
 public class ViewPagerBudgetAdapter extends FragmentStatePagerAdapter {
 
-    List<TransactionCard> transactionCardList;
-    public ViewPagerBudgetAdapter(@NonNull FragmentManager fm, int behavior, List<TransactionCard> transactionCardList) {
+    BudgetViewModel budgetViewModel;
+
+    public ViewPagerBudgetAdapter(@NonNull FragmentManager fm, int behavior, BudgetViewModel budgetViewModel) {
         super(fm, behavior);
-        this.transactionCardList = transactionCardList;
+        this.budgetViewModel = budgetViewModel;
     }
 
     @NonNull
@@ -26,7 +28,7 @@ public class ViewPagerBudgetAdapter extends FragmentStatePagerAdapter {
         if (position == 1) {
             return new StatisticBudgetFragment();
         }
-        return new HistoryBudgetFragment(transactionCardList);
+        return new HistoryBudgetFragment(budgetViewModel);
     }
 
     @Override

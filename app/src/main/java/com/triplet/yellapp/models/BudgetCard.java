@@ -100,6 +100,11 @@ public class BudgetCard extends RealmObject {
     public List<TransactionCard> getTransactionsList() { return transactions;}
     public void setTransactionsList(RealmList<TransactionCard> transactions) { this.transactions = transactions;}
 
+    public void addTransaction(TransactionCard transactionCard) {
+        if (transactions == null)
+            transactions = new RealmList<>();
+        transactions.add(transactionCard);
+    }
     public String getUpdated_at() { return updated_at;}
     public void setUpdated_at(String updated_at) {
         this.updated_at = updated_at;

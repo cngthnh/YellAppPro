@@ -231,9 +231,8 @@ public class ListBudgetsFragment extends Fragment {
                     newBudget.setName(nameBudget.getText().toString());
                     newBudget.setBalance(Integer.parseInt(balanceBudget.getText().toString()));
                     newBudget.setThreshold(Integer.parseInt(thresholdBudget.getText().toString()));
-
-                    //addBudgetToServer(newBudget, dialog);
                     userViewModel.addBudget(newBudget);
+                    dialog.dismiss();
                 }
             }
         });

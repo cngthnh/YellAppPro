@@ -1,5 +1,6 @@
 package com.triplet.yellapp.adapters;
 
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -28,6 +29,8 @@ import com.triplet.yellapp.BudgetsFragment;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.InfoMessage;
+import com.triplet.yellapp.repository.BudgetRepository;
+import com.triplet.yellapp.repository.DashboardRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
@@ -48,14 +51,22 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
     SessionManager sessionManager;
     ApiService service;
     Moshi moshi = new Moshi.Builder().build();
+    BudgetRepository repository;
 
     public BudgetsAdapter(Context mContext, SessionManager sessionManager) {
         this.mContext = mContext;
         this.sessionManager = sessionManager;
+        this.repository = new BudgetRepository((Application) mContext.getApplicationContext());
     }
 
     public void setData(List<BudgetCard> mListBudget) {
         this.mListBudget = mListBudget;
+        notifyDataSetChanged();
+    }
+
+    public void removeBudgetCard(int position) {
+        mListBudget.remove(position);
+        notifyItemRemoved(position);
     }
 
     @NonNull
@@ -132,9 +143,9 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
         deleteBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteBudgetFromServer(budgetCard);
-                mListBudget.remove(holder.getAdapterPosition());
-                notifyItemRemoved(holder.getAdapterPosition());
+
+                repository.deleteBudget(budgetCard);
+                removeBudgetCard(holder.getLayoutPosition());
                 dialog.dismiss();
             }
         });
