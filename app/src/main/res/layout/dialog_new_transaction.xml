@@ -1,134 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/bg_dialog_new_object"
-    android:padding="20dp"
-    android:orientation="vertical">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Thêm giao dịch"
-        android:textSize="30dp"
-        android:textColor="?titleTextColor"
-        android:layout_marginBottom="10dp"
-        android:fontFamily="@font/roboto_bold" />
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        android:backgroundTint="?editTextBackground"
-        app:cardElevation="0dp"
-        android:layout_marginVertical="5dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="10dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nội dung giao dịch"/>
-            <EditText
-                android:id="@+id/transactionContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:hint="Nội dung cụ thể của giao dịch"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.cardview.widget.CardView
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        android:backgroundTint="?editTextBackground"
-        app:cardElevation="0dp"
-        android:layout_marginVertical="5dp">
-        <LinearLayout
+        android:background="@drawable/bg_dialog_new_object"
+        android:padding="20dp"
+        android:orientation="vertical">
+        <include layout="@layout/category_picker"
+            android:id="@+id/categoryContainer"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:visibility="gone"/>
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/makeTransactionContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="10dp">
+            android:orientation="vertical">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Số tiền"/>
-            <androidx.appcompat.widget.LinearLayoutCompat
+                android:text="Thêm giao dịch"
+                android:textSize="30dp"
+                android:textColor="?titleTextColor"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/roboto_bold" />
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:backgroundTint="?editTextBackground"
+                app:cardElevation="0dp"
+                android:layout_marginVertical="5dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nội dung giao dịch"/>
+                    <EditText
+                        android:id="@+id/transactionContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:hint="Nội dung cụ thể của giao dịch"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:backgroundTint="?editTextBackground"
+                app:cardElevation="0dp"
+                android:layout_marginVertical="5dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="10dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Số tiền"/>
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <EditText
+                            android:id="@+id/transactionAmount"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:hint="0"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:text="vnđ"
+                            android:layout_marginStart="10dp"/>
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <RadioGroup
+                android:id="@+id/typeGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/transactionAmount"
+                <RadioButton
+                    android:id="@+id/rbOutcome"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:hint="0"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:text="vnđ"
-                    android:layout_marginStart="10dp"/>
-            </androidx.appcompat.widget.LinearLayoutCompat>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-    <RadioGroup
-        android:id="@+id/typeGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal">
-        <RadioButton
-            android:id="@+id/rbOutcome"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="40dp"
-            android:text="Chi tiêu"
-            android:textAlignment="center"
-            android:button="@android:color/transparent"
-            android:background="@drawable/custom_radio_bg"
-            android:textColor="@drawable/custom_radio_text"
-            android:textSize="16dp"
-            android:fontFamily="@font/roboto_bold"
-            android:layout_marginEnd="7dp"
-            android:checked="true"/>
-        <RadioButton
-            android:id="@+id/rbIncome"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="40dp"
-            android:text="Thu nhập"
-            android:textAlignment="center"
-            android:button="@android:color/transparent"
-            android:background="@drawable/custom_radio_bg"
-            android:textColor="@drawable/custom_radio_text"
-            android:textSize="16dp"
-            android:fontFamily="@font/roboto_bold"
-            android:layout_marginStart="7dp"
-            android:checked="false"/>
-    </RadioGroup>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/categoryTransaction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        app:cornerRadius="20dp"
-        app:icon="@drawable/ic_category"
-        app:iconGravity="textStart"
-        android:text="Danh mục"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        app:strokeColor="@color/yellow_primary_var"/>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/transactionSaveBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:icon="@drawable/ic_save"
-        app:iconGravity="textStart"
-        android:text="Lưu"/>
+                    android:layout_height="40dp"
+                    android:text="Chi tiêu"
+                    android:textAlignment="center"
+                    android:button="@android:color/transparent"
+                    android:background="@drawable/custom_radio_bg"
+                    android:textColor="@drawable/custom_radio_text"
+                    android:textSize="16dp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:layout_marginEnd="7dp"
+                    android:checked="true"/>
+                <RadioButton
+                    android:id="@+id/rbIncome"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="40dp"
+                    android:text="Thu nhập"
+                    android:textAlignment="center"
+                    android:button="@android:color/transparent"
+                    android:background="@drawable/custom_radio_bg"
+                    android:textColor="@drawable/custom_radio_text"
+                    android:textSize="16dp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:layout_marginStart="7dp"
+                    android:checked="false"/>
+            </RadioGroup>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/categoryTransaction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_category"
+                app:iconGravity="textStart"
+                android:text="Danh mục"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@color/yellow_primary_var"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/transactionSaveBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_save"
+                app:iconGravity="textStart"
+                android:text="Lưu"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
-</androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>
