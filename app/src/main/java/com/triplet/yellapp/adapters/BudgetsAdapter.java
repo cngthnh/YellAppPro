@@ -72,7 +72,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
             return;
         }
         holder.budgetName.setText(budgetCard.getName());
-        holder.threshold.setText(String.valueOf(budgetCard.threshold));
+        holder.balance.setText(String.valueOf(budgetCard.balance));
 
         viewBinderHelper.bind(holder.swipeRevealLayout, String.valueOf(1));
         holder.deleteLayout.setOnClickListener(new View.OnClickListener() {
@@ -181,7 +181,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
 
     public class BudgetsViewHolder extends RecyclerView.ViewHolder{
         private TextView budgetName;
-        private TextView threshold;
+        private TextView balance;
         private SwipeRevealLayout swipeRevealLayout;
         private CardView deleteLayout;
         private CardView itemLayout;
@@ -190,7 +190,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
             super(itemView);
             budgetName = itemView.findViewById((R.id.budgetNameItem));
             swipeRevealLayout = itemView.findViewById(R.id.swipeBudget);
-            threshold=itemView.findViewById(R.id.budgetBalanceItem);
+            balance=itemView.findViewById(R.id.budgetBalanceItem);
             deleteLayout = itemView.findViewById(R.id.deleteBudgetItem);
             itemLayout = itemView.findViewById(R.id.item_layout_budget);
         }

@@ -2,9 +2,11 @@ package com.triplet.yellapp;
 
 import static java.lang.Math.abs;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.triplet.yellapp.adapters.BudgetsHomeAdapter;
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentHomeBinding;
 import com.triplet.yellapp.models.DashboardCard;
@@ -27,7 +30,9 @@ import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
+import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,6 +49,7 @@ public class HomeFragment extends Fragment {
 
     FragmentHomeBinding binding;
     DashboardsHomeAdapter dashboardsHomeAdapter = null;
+    BudgetsHomeAdapter budgetsHomeAdapter = null;
     UserViewModel userViewModel;
     LoadingDialog loadingDialog;
     UserAccountFull user;
@@ -51,6 +57,7 @@ public class HomeFragment extends Fragment {
     SessionManager sessionManager;
     YellTask nearDeadlineTask;
     YellTaskRepository taskRepo;
+    YellTaskViewModel taskViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,7 @@ public class HomeFragment extends Fragment {
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
         dashboardsHomeAdapter = new DashboardsHomeAdapter(getContext(), sessionManager);
+        budgetsHomeAdapter = new BudgetsHomeAdapter(getContext(), sessionManager);
         taskRepo = new YellTaskRepository(getActivity().getApplication());
         realm = Realm.getDefaultInstance();
         userViewModel.init();
@@ -71,6 +79,20 @@ public class HomeFragment extends Fragment {
                 user = userAccountFull;
                 bindingData();
 
+            }
+        });
+        taskViewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);
+        taskViewModel.init();
+        taskViewModel.getYellTaskLiveData().observe(this, new Observer<YellTask>() {
+            @Override
+            public void onChanged(YellTask yellTask) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        bindNearestDeadlineTask();
+                    }
+                }, 3000);
             }
         });
     }
@@ -116,7 +138,7 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                ListBudgetsFragment budgetsFragment = new ListBudgetsFragment();
+                ListBudgetsFragment budgetsFragment = new ListBudgetsFragment(userViewModel);
                 activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, budgetsFragment
                         , "LIST_BUDGET").addToBackStack(null).commit();
             }
@@ -126,6 +148,11 @@ public class HomeFragment extends Fragment {
         binding.dashboardPreviewList.setLayoutManager(layoutManager);
         binding.dashboardPreviewList.setVisibility(View.VISIBLE);
         binding.dashboardPreviewList.setAdapter(dashboardsHomeAdapter);
+
+        LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        binding.budgetPreView.setLayoutManager(layoutManager1);
+        binding.budgetPreView.setVisibility(View.VISIBLE);
+        binding.budgetPreView.setAdapter(budgetsHomeAdapter);
 
         return view;
     }
@@ -204,25 +231,29 @@ public class HomeFragment extends Fragment {
             nearDeadlineTask = realm.copyFromRealm(realmTaskObj);
             binding.highlightTaskTitle.setText(nearDeadlineTask.name);
             binding.highlightTaskDuration.setText(time2DurationString(nearDeadlineTask.end_time));
+            binding.highLightTaskCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
+            binding.highLightTaskCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.icon_tint)));
+            taskViewModel.getTask(nearDeadlineTask.task_id);
         } else {
             binding.highlightTaskTitle.setText("Không có công việc nào gần đến hạn");
             binding.highlightTaskDuration.setText("Bạn có thời gian rảnh");
+            binding.highLightTaskCompleteBtn.setVisibility(View.GONE);
         }
     }
 
     private void bindingData () {
         dashboardsHomeAdapter.setData(user.getDashboards());
-        binding.accountTitle.setText("Hi, "+user.getName());
+        budgetsHomeAdapter.setData(user.getBudgetCards());
+        binding.accountTitle.setText("Hi, " + user.getName());
         bindNearestDeadlineTask();
         binding.highLightTaskCompleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 nearDeadlineTask.status = 2;
-                ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_filled);
-                ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_filled);
-                ((ImageButton) view).setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
+                ImageButton button = ((ImageButton) view);
+                button.setImageResource(R.drawable.ic_check_circle_filled);
+                button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
                 taskRepo.patchTask(nearDeadlineTask);
-                bindNearestDeadlineTask();
             }
         });
     }

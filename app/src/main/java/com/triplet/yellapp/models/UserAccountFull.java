@@ -87,6 +87,10 @@ public class UserAccountFull extends RealmObject {
         this.budgetCards = budgetCards;
     }
 
+    public void addBudget(BudgetCard budgetCard) {
+        budgetCards.add(budgetCard);
+    }
+
     public String getCreated_at() {
         return created_at;
     }
