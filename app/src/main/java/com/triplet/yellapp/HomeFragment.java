@@ -2,9 +2,11 @@ package com.triplet.yellapp;
 
 import static java.lang.Math.abs;
 
+import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +29,9 @@ import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
+import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,6 +55,7 @@ public class HomeFragment extends Fragment {
     SessionManager sessionManager;
     YellTask nearDeadlineTask;
     YellTaskRepository taskRepo;
+    YellTaskViewModel taskViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +76,20 @@ public class HomeFragment extends Fragment {
                 user = userAccountFull;
                 bindingData();
 
+            }
+        });
+        taskViewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);
+        taskViewModel.init();
+        taskViewModel.getYellTaskLiveData().observe(this, new Observer<YellTask>() {
+            @Override
+            public void onChanged(YellTask yellTask) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        bindNearestDeadlineTask();
+                    }
+                }, 3000);
             }
         });
     }
@@ -204,25 +223,28 @@ public class HomeFragment extends Fragment {
             nearDeadlineTask = realm.copyFromRealm(realmTaskObj);
             binding.highlightTaskTitle.setText(nearDeadlineTask.name);
             binding.highlightTaskDuration.setText(time2DurationString(nearDeadlineTask.end_time));
+            binding.highLightTaskCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
+            binding.highLightTaskCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.icon_tint)));
+            taskViewModel.getTask(nearDeadlineTask.task_id);
         } else {
             binding.highlightTaskTitle.setText("Không có công việc nào gần đến hạn");
             binding.highlightTaskDuration.setText("Bạn có thời gian rảnh");
+            binding.highLightTaskCompleteBtn.setVisibility(View.GONE);
         }
     }
 
     private void bindingData () {
         dashboardsHomeAdapter.setData(user.getDashboards());
-        binding.accountTitle.setText("Hi, "+user.getName());
+        binding.accountTitle.setText("Hi, " + user.getName());
         bindNearestDeadlineTask();
         binding.highLightTaskCompleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 nearDeadlineTask.status = 2;
-                ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_filled);
-                ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_filled);
-                ((ImageButton) view).setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
+                ImageButton button = ((ImageButton) view);
+                button.setImageResource(R.drawable.ic_check_circle_filled);
+                button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
                 taskRepo.patchTask(nearDeadlineTask);
-                bindNearestDeadlineTask();
             }
         });
     }

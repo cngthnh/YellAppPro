@@ -87,6 +87,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:minHeight="90dp"
+            android:animateLayoutChanges="true"
             android:gravity="center">
             <ImageView
                 android:layout_width="50dp"
@@ -99,6 +100,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/highlightTaskDuration"
