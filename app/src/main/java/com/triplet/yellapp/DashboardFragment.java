@@ -108,15 +108,11 @@ public class DashboardFragment extends Fragment {
                         yellTasks.add(temp.get(i));
                     }
                 }
-                List<DashboardPermission> temp1 = dashboard.getUsers();
-                usernames = new ArrayList<>();
-                for (int i = 0;i< temp1.size();i++) {
-                    usernames.add(temp1.get(i).getUid().subSequence(0,1).toString().toUpperCase(Locale.ROOT));
-                }
                 if (getActivity() != null) {
                    if (loadingDialog != null)
                        loadingDialog.dismissDialog();
                    dashboardCard = dashboard;
+                   usersAdapter.setData(dashboard.getUsers());
                    bindingData();
                }
             }

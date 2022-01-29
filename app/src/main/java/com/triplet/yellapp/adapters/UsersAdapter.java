@@ -43,6 +43,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
         if(userName == null){
             return;
         }
+        if (userName.getUid() == null)
+            return;
         holder.userName.setText(userName.getUid().substring(0,1).toUpperCase(Locale.ROOT));
     }
 

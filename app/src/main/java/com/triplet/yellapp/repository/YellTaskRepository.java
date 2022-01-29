@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
+import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
@@ -46,6 +47,8 @@ public class YellTaskRepository {
     SharedPreferences sharedPreferences;
     Application application;
     Moshi moshi;
+    DateFormat df;
+    private MutableLiveData<DashboardCard> dashboardCardMutableLiveData;
     private MutableLiveData<YellTask> YellTaskResponseLiveData;
     private MutableLiveData<String> taskId;
     private Realm realm;
@@ -56,6 +59,9 @@ public class YellTaskRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         YellTaskResponseLiveData = new MutableLiveData<>();
+        dashboardCardMutableLiveData = new MutableLiveData<>();
+        df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
                 .build();
@@ -72,8 +78,6 @@ public class YellTaskRepository {
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 if (response.isSuccessful()) {
                     YellTask yellTask = response.body();
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
                     yellTask.last_sync = df.format(new Date());
                     YellTaskResponseLiveData.postValue(yellTask);
                     realm.executeTransactionAsync(new Realm.Transaction() {
@@ -141,32 +145,107 @@ public class YellTaskRepository {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<YellTask> call;
         RequestBody requestBody = taskToJson(yellTask);
-        call = service.addTask(null,requestBody);
+        call = service.addTask(null, requestBody);
         call.enqueue(new Callback<YellTask>() {
             @Override
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
-                Log.w("YellTaskCreate", "onResponse: " + response.body());
+                Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
                     yellTask.setTask_id(response.body().getTask_id());
-                    taskId.postValue(yellTask.getTask_id());
-                }
-                else {
+                    yellTask.last_sync = df.format(new Date());
+                    DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
+                    if (dashboardCard == null) {
+                        getDashboardFromServer(response.body().getDashboard_id());
+                    }
+                    dashboardCard.addTask(yellTask);
+                    dashboardCardMutableLiveData.postValue(dashboardCard);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(dashboardCard);
+                        }
+                    });
+                } else {
                     if (response.code() == 401) {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                         Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    // TODO
+
                 }
-
             }
-
             @Override
             public void onFailure(Call<YellTask> call, Throwable t) {
                 Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-                // TODO:
             }
         });
     }
+
+    private void getDashboardFromServer(String dashboardId) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<DashboardCard> call;
+        call = service.getDashboard(dashboardId,"full");
+        call.enqueue(new Callback<DashboardCard>() {
+            @Override
+            public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
+                if (response.isSuccessful()) {
+                    DashboardCard dashboard = response.body();
+                    dashboard.last_sync = df.format(new Date());
+                    dashboardCardMutableLiveData.postValue(dashboard);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(dashboard);
+                        }
+                    });
+                } else {
+                    ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                    Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DashboardCard> call, Throwable t) {
+                dashboardCardMutableLiveData.postValue(null);
+                Log.w("DashboardCardFragment", "onFailure: " + t.getMessage() );
+            }
+        });
+    }
+
+    public boolean getDashboard(String dashboardId) {
+        DashboardCard object = realm.where(DashboardCard.class).equalTo("id", dashboardId).findFirst();
+        if (object == null) {
+            getDashboardFromServer(dashboardId);
+            return false;
+        }
+        else {
+            long diff = 0;
+            try {
+                Date dt_sync = df.parse(object.last_sync);
+                Date dt_now = df.parse(df.format(new Date()));
+                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                getDashboardFromServer(dashboardId);
+                return false;
+            }
+            catch (NullPointerException e) {
+                return true;
+            }
+
+            if (diff > 5) {
+                getDashboardFromServer(dashboardId);
+                return false;
+            }
+
+            dashboardCardMutableLiveData.postValue(realm.copyFromRealm(object));
+            return true;
+        }
+    }
+
+    public MutableLiveData<DashboardCard> getDashboardCardMutableLiveData() {
+        return dashboardCardMutableLiveData;
+    }
+
     private RequestBody taskToJson(YellTask currentYellTask) {
         String jsonYellTask = moshi.adapter(YellTask.class).toJson(currentYellTask);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
@@ -213,7 +292,7 @@ public class YellTaskRepository {
         patchTaskToServer(yellTask);
     }
 
-    public void deleteTaskToServer(YellTask yellTask) {
+    private void deleteTaskOnServer(YellTask yellTask) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
         RequestBody requestBody = taskToJson(yellTask);
@@ -240,5 +319,18 @@ public class YellTaskRepository {
                 // TODO:
             }
         });
+    }
+
+    public void deleteYellTask(YellTask yellTask) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                YellTask object = realm.where(YellTask.class).equalTo("task_id",yellTask.getTask_id()).findFirst();
+                if (object == null)
+                    return;
+                object.deleteFromRealm();
+            }
+        });
+        deleteTaskOnServer(yellTask);
     }
 }

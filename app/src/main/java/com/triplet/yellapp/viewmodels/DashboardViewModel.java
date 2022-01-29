@@ -54,4 +54,8 @@ public class DashboardViewModel extends AndroidViewModel {
         repository.addTaskToServer(yellTask);
     }
 
+    public void deleteYellTask(YellTask yellTask) {
+        repository.deleteYellTask(yellTask);
+    }
+
 }

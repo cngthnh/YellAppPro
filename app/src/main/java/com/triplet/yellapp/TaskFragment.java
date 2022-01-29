@@ -30,12 +30,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.triplet.yellapp.adapters.TaskAdapter;
 import com.triplet.yellapp.databinding.FragmentTaskBinding;
+import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.YellTask;
+import com.triplet.yellapp.viewmodels.DashboardViewModel;
 import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,12 +56,11 @@ public class TaskFragment extends Fragment {
     private static final String ARG_PARAM5 = "parentId";
 
     YellTask currentYellTask;
-    ArrayList<YellTask> subTasks;
+    List<YellTask> subTasks;
     FragmentTaskBinding binding;
     YellTaskViewModel viewModel;
     TaskAdapter yellTaskAdapter;
     LoadingDialog loadingDialog;
-
 
     // TODO: Rename and change types of parameters
     private String previousTaskName;
@@ -77,7 +79,7 @@ public class TaskFragment extends Fragment {
      */
     // TODO: Rename and change types and number of parameters
     public static TaskFragment newInstance(String taskName, String dashBoardId, String taskId,
-                                           String previousTaskName) {
+                                           String previousTaskName, DashboardViewModel viewModel) {
         TaskFragment fragment = new TaskFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, taskName);
@@ -111,36 +113,34 @@ public class TaskFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(YellTask yellTask) {
-                if (loadingDialog != null)
-                    loadingDialog.dismissDialog();
                 currentYellTask = yellTask;
-                if (yellTask != null) {
-                    if (currentYellTask.getEnd_time() != null)
-                        binding.deadlineTask.setText(serverTime2MobileTime(currentYellTask.getEnd_time()));
+                if (getActivity() != null) {
+                    if (loadingDialog != null)
+                        loadingDialog.dismissDialog();
+                    if (yellTask != null) {
+                        if (currentYellTask.getEnd_time() != null)
+                            binding.deadlineTask.setText(serverTime2MobileTime(currentYellTask.getEnd_time()));
 
-                    if (currentYellTask.getPriority() != null) {
-                        if (currentYellTask.getPriority() == 1)
-                            binding.priorityTextView.setText("Thấp");
-                        else if (currentYellTask.getPriority() == 2)
-                            binding.priorityTextView.setText("Thường");
-                        else if (currentYellTask.getPriority() == 3) {
-                            binding.priorityTextView.setText("Cao");
+                        if (currentYellTask.getPriority() != null) {
+                            if (currentYellTask.getPriority() == 1)
+                                binding.priorityTextView.setText("Thấp");
+                            else if (currentYellTask.getPriority() == 2)
+                                binding.priorityTextView.setText("Thường");
+                            else if (currentYellTask.getPriority() == 3) {
+                                binding.priorityTextView.setText("Cao");
+                            }
                         }
-                    }
 
-                    if (currentYellTask.getStatus() != null) {
-                        if (currentYellTask.getStatus() == 2)
-                            binding.statusTextView.setText("Đã hoàn thành");
-                        else if (currentYellTask.getStatus() == 1) {
-                            binding.statusTextView.setText("Chưa hoàn thành");
+                        if (currentYellTask.getStatus() != null) {
+                            if (currentYellTask.getStatus() == 2)
+                                binding.statusTextView.setText("Đã hoàn thành");
+                            else if (currentYellTask.getStatus() == 1) {
+                                binding.statusTextView.setText("Chưa hoàn thành");
+                            }
                         }
-                    }
-                    if (yellTask.getName() != null)
                         binding.taskName.setText(yellTask.getName());
-
-                    if (yellTask.getContent() != null)
                         binding.contentEditText.setText(yellTask.getContent());
-
+                    }
                 }
             }
         });
@@ -154,6 +154,25 @@ public class TaskFragment extends Fragment {
                 }
             }
         });
+        viewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
+            @Override
+            public void onChanged(DashboardCard dashboardCard) {
+                List<YellTask> list = dashboardCard.getTasks();
+                try {
+                    subTasks = new ArrayList<>();
+                    for (int i = 0; i< list.size();i++)
+                        if (list.get(i).getParent_id() != null)
+                            if (list.get(i).getParent_id().equals(currentYellTask.getTask_id()))
+                                subTasks.add(list.get(i));
+                    yellTaskAdapter.setYellTaskArrayList(subTasks);
+                }
+                catch (Exception e)
+                {
+                    Log.e("TaskFragment","Line 169 in Task Fragment");
+                    viewModel.getDashboard(currentYellTask.getDashboard_id());
+                }
+            }
+        });
         yellTaskAdapter = new TaskAdapter(getActivity());
         if (getArguments() != null) {
             currentYellTask.setName(getArguments().getString(ARG_PARAM1));
@@ -161,13 +180,6 @@ public class TaskFragment extends Fragment {
             currentYellTask.setTask_id(getArguments().getString(ARG_PARAM3));
             previousTaskName = getArguments().getString(ARG_PARAM4);
             currentYellTask.setParent_id(getArguments().getString(ARG_PARAM5));
-            if (currentYellTask.getTask_id() == null) {
-                viewModel.addTask(currentYellTask);
-            }
-            else {
-                if (!viewModel.getTask(currentYellTask.getTask_id()))
-                    loadingDialog.startLoadingDialog();
-            }
         }
     }
 
@@ -181,6 +193,9 @@ public class TaskFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentTaskBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        if (!viewModel.getTask(currentYellTask.getTask_id()))
+            loadingDialog.startLoadingDialog();
+        viewModel.getDashboard(currentYellTask.getDashboard_id());
         setToolbarTaskListener();
         setConfigTaskListener();
         return view;
@@ -492,11 +507,7 @@ public class TaskFragment extends Fragment {
         binding.addSubTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                YellTask yell = new YellTask(currentYellTask.getDashboard_id(),"Untitled");
-                yell.setParent_id(currentYellTask.getTask_id());
-                yellTaskAdapter.setParentName(currentYellTask.getName());
-                subTasks.add(yell);
-                viewModel.addTask(yell);
+                viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()));
             }
         });
     }

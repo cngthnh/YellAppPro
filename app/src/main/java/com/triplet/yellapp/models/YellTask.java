@@ -82,6 +82,20 @@ public class YellTask extends RealmObject {
         this.content = null;
     }
 
+    public YellTask(String dashboard_id, String name, String parent_id) {
+        this.dashboard_id = dashboard_id;
+        this.name = name;
+        this.status = null;
+        this.task_id = null;
+        this.noti_level = null;
+        this.priority = null;
+        this.parent_id = parent_id;
+        this.start_time = null;
+        this.end_time = null;
+        this.labels = null;
+        this.content = null;
+    }
+
     public YellTask(String task_id) {
         this.dashboard_id = null;
         this.name = null;
