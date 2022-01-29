@@ -30,7 +30,7 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
 
     public void setData(List<BudgetCard> mListBudget) {
         this.mListBudget = mListBudget;
-
+        notifyDataSetChanged();
     }
 
     @NonNull

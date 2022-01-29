@@ -35,12 +35,13 @@ import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
-    ArrayList<YellTask> yellTaskArrayList;
+    List<YellTask> yellTaskArrayList;
     MutableLiveData<Integer> sizeList;
     YellTaskRepository repository;
     FragmentActivity activity;
@@ -61,7 +62,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         this.parentName = parentName;
     }
 
-    public void setYellTaskArrayList(ArrayList<YellTask> yells) {
+    public void setYellTaskArrayList(List<YellTask> yells) {
         this.yellTaskArrayList = yells;
         notifyDataSetChanged();
     }

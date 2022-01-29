@@ -16,6 +16,7 @@ import com.triplet.yellapp.LoginActivity;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccount;
@@ -36,6 +37,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -51,6 +53,7 @@ public class YellUserRepository {
     Moshi moshi;
     MutableLiveData<UserAccountFull> yellUserLiveData;
     DateFormat df;
+    String uid;
     private Realm realm;
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
@@ -64,6 +67,7 @@ public class YellUserRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         yellUserLiveData = new MutableLiveData<>();
+        uid = sharedPreferences.getString("uid",null);
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
                 .build();
@@ -123,7 +127,6 @@ public class YellUserRepository {
     }
 
     public boolean getUser() {
-        String uid = sharedPreferences.getString("uid",null);
         UserAccountFull object = realm.where(UserAccountFull.class).equalTo("uid", uid).findFirst();
         if (object == null) {
             getUserFromServer();
@@ -165,7 +168,9 @@ public class YellUserRepository {
                 if (response.isSuccessful()) {
                     dashboardCard.setId(response.body().getId());
                     dashboardCard.last_sync = df.format(new Date());
-                    dashboardCard.setUsers(response.body().getUsers());
+                    RealmList<DashboardPermission> dashboardPermissions = new RealmList<>();
+                    dashboardPermissions.add(new DashboardPermission(dashboardCard.getId(),uid,"admin"));
+                    dashboardCard.setUsers(dashboardPermissions);
                     UserAccountFull userAccountFull = yellUserLiveData.getValue();
                     userAccountFull.addDashboard(dashboardCard);
                     userAccountFull.last_sync = dashboardCard.last_sync;
