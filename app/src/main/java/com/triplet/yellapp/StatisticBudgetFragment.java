@@ -9,9 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class FragmentStatisticBudget extends Fragment {
+public class StatisticBudgetFragment extends Fragment {
 
-    public FragmentStatisticBudget() {
+    public StatisticBudgetFragment() {
     }
 
 

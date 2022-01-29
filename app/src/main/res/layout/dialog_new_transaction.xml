@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="500dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_dialog_new_object"
     android:padding="20dp"
     android:orientation="vertical">
     <TextView
@@ -77,6 +78,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     <RadioGroup
+        android:id="@+id/typeGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -111,6 +113,7 @@
             android:checked="false"/>
     </RadioGroup>
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/categoryTransaction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="10dp"
@@ -121,6 +124,7 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:strokeColor="@color/yellow_primary_var"/>
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/transactionSaveBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:icon="@drawable/ic_save"

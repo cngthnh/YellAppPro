@@ -6,22 +6,27 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.triplet.yellapp.FragmentHistoryBudget;
-import com.triplet.yellapp.FragmentStatisticBudget;
+import com.triplet.yellapp.HistoryBudgetFragment;
+import com.triplet.yellapp.StatisticBudgetFragment;
+import com.triplet.yellapp.models.TransactionCard;
+
+import java.util.List;
 
 public class ViewPagerBudgetAdapter extends FragmentStatePagerAdapter {
 
-    public ViewPagerBudgetAdapter(@NonNull FragmentManager fm, int behavior) {
+    List<TransactionCard> transactionCardList;
+    public ViewPagerBudgetAdapter(@NonNull FragmentManager fm, int behavior, List<TransactionCard> transactionCardList) {
         super(fm, behavior);
+        this.transactionCardList = transactionCardList;
     }
 
     @NonNull
     @Override
     public Fragment getItem(int position) {
         if (position == 1) {
-            return new FragmentStatisticBudget();
+            return new StatisticBudgetFragment();
         }
-        return new FragmentHistoryBudget();
+        return new HistoryBudgetFragment(transactionCardList);
     }
 
     @Override
