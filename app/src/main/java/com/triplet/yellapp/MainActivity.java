@@ -18,22 +18,25 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Realm.init(this);
-        /*Realm realm = Realm.getDefaultInstance();
-        RealmConfiguration realmConfiguration = realm.getConfiguration();
-        realm.close();
-        Realm.deleteRealm(realmConfiguration);*/
         HomeFragment homeFragment = new HomeFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         ((FragmentTransaction) transaction).setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
         transaction.replace(R.id.fragmentContainer, homeFragment, "HOME");
         transaction.addToBackStack("HOME");
         transaction.commit();
+    }
+    @Override
+    public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (currentFragment instanceof HomeFragment) {
+            ((HomeFragment) currentFragment).onBackPressed();
+        } else
+            super.onBackPressed();
     }
 }
 

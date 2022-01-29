@@ -144,6 +144,7 @@
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_save"
                 app:iconGravity="textStart"
+                app:cornerRadius="20dp"
                 android:text="Lưu"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
 

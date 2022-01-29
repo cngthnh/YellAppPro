@@ -33,6 +33,7 @@ import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.DashboardViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     MutableLiveData<Integer> sizeList;
     YellTaskRepository repository;
     FragmentActivity activity;
+    DashboardViewModel dashboardViewModel;
     String parentName;
 
     public TaskAdapter(FragmentActivity activity) {
@@ -115,8 +117,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.deleteTaskItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                YellTask yell = new YellTask(yellTask.getTask_id());
-                repository.deleteTaskToServer(yell);
+                repository.deleteYellTask(yellTask);
                 removeYellTask(holder.getLayoutPosition());
             }
         });
@@ -127,7 +128,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                         yellTask.getDashboard_id(), yellTask.getTask_id(), parentName, yellTask.getParent_id());
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                android.R.anim.slide_in_left, android.R.anim.fade_out)
+                                R.anim.slide_in_right, R.anim.slide_out_left)
                         .replace(R.id.fragmentContainer, fragment)
                         .addToBackStack(null)
                         .commit();
@@ -136,7 +137,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.makeCompleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (yellTask.status == 2) {
+                if ((yellTask.status == null)||(yellTask.status == 2)) {
                     yellTask.status = 1;
                     ((ImageButton) view).setImageResource(R.drawable.ic_check_circle_line);
                     holder.taskLabel.setText("Chưa hoàn thành");

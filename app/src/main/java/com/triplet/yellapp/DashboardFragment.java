@@ -108,15 +108,11 @@ public class DashboardFragment extends Fragment {
                         yellTasks.add(temp.get(i));
                     }
                 }
-                List<DashboardPermission> temp1 = dashboard.getUsers();
-                usernames = new ArrayList<>();
-                for (int i = 0;i< temp1.size();i++) {
-                    usernames.add(temp1.get(i).getUid().subSequence(0,1).toString().toUpperCase(Locale.ROOT));
-                }
                 if (getActivity() != null) {
                    if (loadingDialog != null)
                        loadingDialog.dismissDialog();
                    dashboardCard = dashboard;
+                   usersAdapter.setData(dashboard.getUsers());
                    bindingData();
                }
             }
@@ -377,12 +373,17 @@ public class DashboardFragment extends Fragment {
             return;
         }
 
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(window.getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.gravity = Gravity.BOTTOM;
+        lp.windowAnimations = R.style.DialogAnimation;
+
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        WindowManager.LayoutParams windowAttributes = window.getAttributes();
-        windowAttributes.gravity = Gravity.BOTTOM;
-        window.setAttributes(windowAttributes);
+        window.setAttributes(lp);
 
         dialog.setCancelable(true);
         AppCompatImageButton invite = dialog.findViewById(R.id.invite);

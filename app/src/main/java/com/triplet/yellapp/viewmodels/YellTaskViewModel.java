@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
+import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
 
@@ -16,6 +17,7 @@ public class YellTaskViewModel extends AndroidViewModel {
     private YellTaskRepository yellTaskRepository;
     private LiveData<YellTask> yellTaskLiveData;
     private  LiveData<String> taskId;
+    private LiveData<DashboardCard> dashboardCardLiveData;
 
     public YellTaskViewModel(@NonNull Application application) {
         super(application);
@@ -25,6 +27,7 @@ public class YellTaskViewModel extends AndroidViewModel {
         yellTaskRepository = new YellTaskRepository(getApplication());
         yellTaskLiveData = yellTaskRepository.getYellTaskResponseLiveData();
         taskId = yellTaskRepository.getTaskIdLiveData();
+        dashboardCardLiveData = yellTaskRepository.getDashboardCardMutableLiveData();
     }
 
     public boolean getTask(String taskId) {
@@ -39,11 +42,19 @@ public class YellTaskViewModel extends AndroidViewModel {
         yellTaskRepository.patchTask(yellTask);
     }
 
-    public void deleteTask(YellTask yellTask) {yellTaskRepository.deleteTaskToServer(yellTask);}
+    public void deleteTask(YellTask yellTask) {yellTaskRepository.deleteYellTask(yellTask);}
+
+    public void getDashboard(String dashboardId) {
+        yellTaskRepository.getDashboard(dashboardId);
+    }
 
     public LiveData<YellTask> getYellTaskLiveData() {
         return yellTaskLiveData;
     }
 
     public  LiveData<String> getTaskIdLiveData() {return taskId;}
+
+    public LiveData<DashboardCard> getDashboardCardLiveData () {
+        return dashboardCardLiveData;
+    }
 }
