@@ -75,6 +75,10 @@ public class UserAccountFull extends RealmObject {
         this.dashboards = dashboards;
     }
 
+    public void addDashboard(DashboardCard dashboardCard) {
+        dashboards.add(dashboardCard);
+    }
+
     public List<BudgetCard> getBudgetCards() {
         return budgetCards;
     }

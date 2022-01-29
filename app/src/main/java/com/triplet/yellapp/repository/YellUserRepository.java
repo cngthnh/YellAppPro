@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
@@ -35,6 +36,8 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,6 +51,7 @@ public class YellUserRepository {
     Application application;
     Moshi moshi;
     MutableLiveData<UserAccountFull> yellUserLiveData;
+    DateFormat df;
     private Realm realm;
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
@@ -65,6 +69,8 @@ public class YellUserRepository {
                 .add(new RealmListJsonAdapterFactory())
                 .build();
         realm = Realm.getDefaultInstance();
+        df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     public void getUserFromServer() {
@@ -76,8 +82,6 @@ public class YellUserRepository {
             public void onResponse(Call<UserAccountFull> call, Response<UserAccountFull> response) {
                 if (response.isSuccessful()) {
                     UserAccountFull user = response.body();
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
                     user.last_sync = df.format(new Date());
                     List<DashboardCard> dashboardCards = user.getDashboards();
                     List<YellTask> yellTasks;
@@ -150,5 +154,47 @@ public class YellUserRepository {
         }
     }
 
+    public void addDashboardToServer(DashboardCard dashboardCard) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<DashboardCard> call;
+        RequestBody requestBody = dashboardToJson(dashboardCard);
+        call = service.addDashboard(requestBody);
+        call.enqueue(new Callback<DashboardCard>() {
+            @Override
+            public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
+                Log.w("YellCreateDashboard", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    dashboardCard.setId(response.body().getId());
+                    dashboardCard.last_sync = df.format(new Date());
+                    UserAccountFull userAccountFull = yellUserLiveData.getValue();
+                    userAccountFull.addDashboard(dashboardCard);
+                    userAccountFull.last_sync = dashboardCard.last_sync;
+                    yellUserLiveData.postValue(userAccountFull);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(userAccountFull);
+                        }
+                    });
+                } else {
+                    if (response.code() == 401) {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<DashboardCard> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private RequestBody dashboardToJson(DashboardCard dashboardCard) {
+        String jsonYellTask = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
+        return requestBody;
+    }
 
 }

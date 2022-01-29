@@ -59,6 +59,7 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
 
     public void setData(List<DashboardCard> mListDashboard) {
         this.mListDashboard = mListDashboard;
+        notifyDataSetChanged();
     }
 
     @NonNull

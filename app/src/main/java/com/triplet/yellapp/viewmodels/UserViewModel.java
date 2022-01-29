@@ -32,4 +32,8 @@ public class UserViewModel extends AndroidViewModel {
     public boolean getUser() {
         return repository.getUser();
     }
+
+    public void addDashboard(DashboardCard dashboardCard) {
+        repository.addDashboardToServer(dashboardCard);
+    }
 }

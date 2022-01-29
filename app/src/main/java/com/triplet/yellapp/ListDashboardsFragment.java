@@ -134,7 +134,7 @@ public class ListDashboardsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 DashboardCard dashboardCard = new DashboardCard("Untitled");
-                addDashboardToServer(dashboardCard, view);
+                userViewModel.addDashboard(dashboardCard);
             }
         });
 
@@ -144,7 +144,6 @@ public class ListDashboardsFragment extends Fragment {
     private void addDashboardToServer(DashboardCard dashboardCard, View view) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<DashboardCard> call;
-
         String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
         call = service.addDashboard(requestBody);
