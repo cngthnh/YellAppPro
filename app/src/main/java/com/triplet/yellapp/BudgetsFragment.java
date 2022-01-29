@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -121,6 +122,9 @@ public class BudgetsFragment extends Fragment {
         MaterialButton saveBt = dialog.findViewById(R.id.transactionSaveBtn);
         MaterialButton category = dialog.findViewById(R.id.categoryTransaction);
 
+        dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
+        dialog.findViewById(R.id.categoryContainer).setVisibility(View.GONE);
+
         TransactionCard newTransaction = new TransactionCard();
         newTransaction.setType(0);
         typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -143,7 +147,44 @@ public class BudgetsFragment extends Fragment {
                 }
                 else if(newTransaction.getType() == 0)
                 {
-                    openDialogOutcomeCategory(newTransaction);
+                    androidx.appcompat.widget.LinearLayoutCompat  categoryLayout = (androidx.appcompat.widget.LinearLayoutCompat ) dialog.findViewById(R.id.categoryContainer);
+                    categoryLayout.setVisibility(View.VISIBLE);
+                    dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.GONE);
+                    TransactionCard type = new TransactionCard();
+                    RadioGroup typeGroup = categoryLayout.findViewById(R.id.typeGroup);
+                    MaterialButton saveBt = categoryLayout.findViewById(R.id.btn_save_category);
+                    typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                            if (i == R.id.rbEating)
+                                type.setPurpose("Ăn uống");
+                            else if (i == R.id.rbHangout)
+                                type.setPurpose("Cà phê");
+                            else if (i == R.id.rbBuying)
+                                type.setPurpose("Mua sắm");
+                            else if (i == R.id.rbTransport)
+                                type.setPurpose("Đi lại");
+                            else if (i == R.id.rbCasual)
+                                type.setPurpose("Sinh hoạt hằng ngày");
+                            else if (i == R.id.rbTravel)
+                                type.setPurpose("Du lịch");
+                        }
+                    });
+
+                    saveBt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(type.getPurpose()==null){
+                                newTransaction.setPurpose("Ăn uống");
+                            }
+                            else {
+                                newTransaction.setPurpose(type.getPurpose());
+                            }
+                            dialog.findViewById(R.id.categoryContainer).setVisibility(View.GONE);
+                            dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
+                        }
+                    });
+
                 }
                 else {
                     //openDialogIncomeCategory();
@@ -212,10 +253,7 @@ public class BudgetsFragment extends Fragment {
         });
     }
 
-    private void openDialogOutcomeCategory(TransactionCard newTransaction) {
-        final Dialog dialog = new Dialog(getContext());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_category_outcome);
+    private void openDialogOutcomeCategory(Dialog dialog, TransactionCard newTransaction) {
 
         Window window = dialog.getWindow();
         if(window == null){
@@ -231,47 +269,7 @@ public class BudgetsFragment extends Fragment {
 
         dialog.setCancelable(true);
 
-        TransactionCard type = new TransactionCard();
 
-
-        RadioGroup typeGroup = dialog.findViewById(R.id.radio_group_category);
-        MaterialButton saveBt = dialog.findViewById(R.id.btn_save_category);
-
-        typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i){
-                    case R.id.radio_food:
-                        type.setPurpose("Ăn uống");
-                        break;
-                    case R.id.radio_coffee:
-                        type.setPurpose("Cà phê");
-                        break;
-                    case R.id.radio_shopping:
-                        type.setPurpose("Mua sắm");
-                        break;
-                    case R.id.radio_transport:
-                        type.setPurpose("Đi lại");
-                        break;
-                    case R.id.radio_daily_use:
-                        type.setPurpose("Sinh hoạt hằng ngày");
-                        break;
-                }
-            }
-        });
-
-        saveBt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(type.getPurpose()==null){
-                    newTransaction.setPurpose("Ăn uống");
-                }
-                else {
-                    newTransaction.setPurpose(type.getPurpose());
-                }
-                dialog.dismiss();
-            }
-        });
 
         dialog.show();
     }
