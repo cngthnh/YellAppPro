@@ -55,7 +55,10 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 BudgetsFragment budgetFragment = new BudgetsFragment(budgetCard, sessionManager);
                 activity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer,budgetFragment, "BUDGET").addToBackStack(null).commit();
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer,budgetFragment, "BUDGET")
+                        .addToBackStack(null).commit();
             }
         });
     }

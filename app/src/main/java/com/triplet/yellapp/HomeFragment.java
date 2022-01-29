@@ -109,8 +109,11 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 AccountFragment accountFragment = new AccountFragment();
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, accountFragment
-                        , "ACCOUNT").addToBackStack(null).commit();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, accountFragment, "ACCOUNT")
+                        .addToBackStack(null).commit();
             }
         });
 
@@ -119,8 +122,11 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 NotificationFragment notificationFragment = new NotificationFragment();
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, notificationFragment
-                        , "NOTIFICATION").addToBackStack(null).commit();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, notificationFragment, "NOTIFICATION")
+                        .addToBackStack(null).commit();
             }
         });
         binding.viewAllDashboardsBtn.setOnClickListener(new View.OnClickListener() {
@@ -128,8 +134,11 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 ListDashboardsFragment dashboardsFragment = new ListDashboardsFragment(userViewModel);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, dashboardsFragment
-                        , "LIST_DASHBOARD").addToBackStack(null).commit();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, dashboardsFragment, "LIST_DASHBOARD")
+                        .addToBackStack(null).commit();
             }
         });
 
@@ -139,8 +148,11 @@ public class HomeFragment extends Fragment {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
                 ListBudgetsFragment budgetsFragment = new ListBudgetsFragment(userViewModel);
-                activity.getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, budgetsFragment
-                        , "LIST_BUDGET").addToBackStack(null).commit();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, budgetsFragment, "LIST_BUDGET")
+                        .addToBackStack(null).commit();
             }
         });
 
@@ -256,6 +268,9 @@ public class HomeFragment extends Fragment {
                 taskRepo.patchTask(nearDeadlineTask);
             }
         });
+    }
+    public void onBackPressed() {
+
     }
 
 }

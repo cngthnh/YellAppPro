@@ -4,40 +4,35 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="7dp"
-    android:orientation="horizontal"
-    android:weightSum="13">
+    android:orientation="horizontal">
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/user_id"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:drawableLeft="@drawable/ic_view_list"
-        android:layout_weight="11"
+        android:drawableLeft="@drawable/ic_account"
+        android:layout_weight="1"
         android:drawablePadding="15dp"
         android:text="User1"
         android:textSize="22dp" />
 
     <ImageView
         android:id="@+id/edit_permission"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:src="@drawable/ic__edit"
-        android:scaleX="0.7"
-        android:scaleY="0.7"
-        app:tint="@color/icon_tint_dark"
-        android:layout_gravity="end"
-        android:layout_weight="1"
+        app:tint="?iconTint"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
         />
     <ImageView
         android:id="@+id/delete_permission"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:src="@drawable/ic_delete_1"
-        android:scaleX="0.7"
-        android:scaleY="0.7"
-        app:tint="@color/icon_tint_dark"
-        android:layout_gravity="end"
-        android:layout_weight="1"
+        app:tint="@color/red"
+        android:layout_gravity="center"
         />
 
 
