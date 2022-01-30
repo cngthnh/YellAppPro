@@ -27,6 +27,7 @@ import com.triplet.yellapp.utils.SessionManager;
 
 import java.nio.charset.StandardCharsets;
 
+import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -103,7 +104,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     void login() {
-
         validator.clear();
 
         if (!validator.validate()) {

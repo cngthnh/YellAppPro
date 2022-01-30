@@ -3,6 +3,7 @@ package com.triplet.yellapp.models;
 import com.squareup.moshi.Json;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 public class DashboardPermission extends RealmObject {
@@ -19,6 +20,10 @@ public class DashboardPermission extends RealmObject {
         this.dashboard_id = dashboard_id;
         this.uid = uid;
         this.role = role;
+    }
+
+    public void setId_uid() {
+        this.id_uid = this.dashboard_id + this.uid;
     }
 
     public DashboardPermission() {}

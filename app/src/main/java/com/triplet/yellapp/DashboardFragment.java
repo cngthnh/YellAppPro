@@ -65,12 +65,9 @@ public class DashboardFragment extends Fragment {
     UsersAdapter usersAdapter = null;
     UsersDetailAdapter usersDetailAdapter = null;
     List<YellTask> yellTasks;
-    SessionManager sessionManager;
     LoadingDialog loadingDialog;
-    ApiService service;
     DashboardViewModel dashboardViewModel;
     String uid;
-    Moshi moshi = new Moshi.Builder().build();
     TaskAdapter yellTaskAdapter;
 
 
@@ -90,7 +87,12 @@ public class DashboardFragment extends Fragment {
         dashboardViewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
             @Override
             public void onChanged(DashboardCard dashboard) {
-                yellTasks = dashboard.getTasks();
+                yellTasks = new ArrayList<>();
+                List<YellTask> temp = dashboard.getTasks();
+                for (int i=0;i< temp.size();i++) {
+                    if (temp.get(i).getParent_id() == null)
+                        yellTasks.add(temp.get(i));
+                }
                 if (getActivity() != null) {
                    if (loadingDialog != null)
                        loadingDialog.dismissDialog();

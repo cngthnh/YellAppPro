@@ -123,6 +123,13 @@ public class TaskFragment extends Fragment {
             @Override
             public void onChanged(YellTask yellTask) {
                 currentYellTask = yellTask;
+                subTasks = new ArrayList<>();
+                List<YellTask> temp = dashboard.getTasks();
+                for (int i=0;i< temp.size();i++) {
+                    if (temp.get(i).getParent_id() != null)
+                        if (temp.get(i).getParent_id() == currentYellTask.getTask_id())
+                            subTasks.add(temp.get(i));
+                }
                 subTasks = currentYellTask.getSubtasks();
                 if (getActivity() != null) {
                     if (loadingDialog != null)
