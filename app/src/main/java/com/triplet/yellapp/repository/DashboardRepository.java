@@ -29,6 +29,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -77,6 +78,14 @@ public class DashboardRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            RealmList<DashboardPermission> users = new RealmList<>();
+                            DashboardPermission user;
+                            for (int i = 0;i<dashboard.getUsers().size();i++) {
+                                user = dashboard.getUsers().get(i);
+                                user.setId_uid(dashboard.getDashboard_id());
+                                users.add(user);
+                            }
+                            dashboard.setUsers(users);
                             realm.copyToRealmOrUpdate(dashboard);
                         }
                     });
@@ -206,8 +215,10 @@ public class DashboardRepository {
                         Toast.makeText(application.getApplicationContext(), "User id này không tồn tại", Toast.LENGTH_LONG).show();
                     }
                     else {
-                        Toast.makeText(application.getApplicationContext(), "Đã mời thành công", Toast.LENGTH_LONG).show();
                     }
+                }
+                else {
+                    Toast.makeText(application.getApplicationContext(), "Đã mời thành công", Toast.LENGTH_LONG).show();
                 }
             }
 

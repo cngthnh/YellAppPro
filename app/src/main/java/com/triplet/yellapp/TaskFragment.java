@@ -375,15 +375,6 @@ public class TaskFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void setConfigTaskListener() {
         AppCompatTextView deadlineTask = binding.deadlineTask;
-        DeadlineTimeDialog deadlineTimeDialog = new DeadlineTimeDialog();
-        deadlineTimeDialog.getDateTimeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                deadlineTask.setText(s);
-                currentYellTask.setEnd_time(mobileTime2ServerTime(s));
-                viewModel.editTask(currentYellTask);
-            }
-        });
         deadlineTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -391,6 +382,15 @@ public class TaskFragment extends Fragment {
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
                     return;
                 }
+                DeadlineTimeDialog deadlineTimeDialog = new DeadlineTimeDialog();
+                deadlineTimeDialog.getDateTimeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        deadlineTask.setText(s);
+                        currentYellTask.setEnd_time(mobileTime2ServerTime(s));
+                        viewModel.editTask(currentYellTask);
+                    }
+                });
                 deadlineTimeDialog.show(getActivity().getSupportFragmentManager(),
                         "DeadlineTimeDialog");
             }

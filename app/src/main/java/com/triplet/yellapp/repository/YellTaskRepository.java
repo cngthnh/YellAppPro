@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer;
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
@@ -33,6 +34,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -200,6 +202,14 @@ public class YellTaskRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            RealmList<DashboardPermission> users = new RealmList<>();
+                            DashboardPermission user;
+                            for (int i = 0;i<dashboard.getUsers().size();i++) {
+                                user = dashboard.getUsers().get(i);
+                                user.setId_uid(dashboard.getDashboard_id());
+                                users.add(user);
+                            }
+                            dashboard.setUsers(users);
                             realm.copyToRealmOrUpdate(dashboard);
                         }
                     });

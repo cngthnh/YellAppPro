@@ -95,25 +95,6 @@ public class YellUserRepository {
             public void onResponse(Call<UserAccountFull> call, Response<UserAccountFull> response) {
                 if (response.isSuccessful()) {
                     UserAccountFull user = response.body();
-                    user.last_sync = df.format(new Date());
-                    List<DashboardCard> dashboardCards = user.getDashboards();
-                    List<YellTask> yellTasks;
-                    for (int i = 0;i<dashboardCards.size();i++) {
-                        dashboardCards.get(i).last_sync = user.getLast_sync();
-                        yellTasks = dashboardCards.get(i).getTasks();
-                        for (int j = 0;j<yellTasks.size();j++) {
-                            yellTasks.get(j).last_sync = user.getLast_sync();
-                        }
-                    }
-                    List<BudgetCard> budgetCards = user.getBudgetCards();
-                    List<TransactionCard> transactionCards;
-                    for (int i = 0;i<budgetCards.size();i++) {
-                        budgetCards.get(i).last_sync = user.getLast_sync();
-                        transactionCards = budgetCards.get(i).getTransactionsList();
-                        for (int j = 0;j<transactionCards.size();j++) {
-                            transactionCards.get(j).last_sync = user.getLast_sync();
-                        }
-                    }
                     yellUserLiveData.postValue(user);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("uid",user.getUid());
@@ -121,6 +102,27 @@ public class YellUserRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            user.last_sync = df.format(new Date());
+                            List<DashboardCard> dashboardCards = user.getDashboards();
+                            List<YellTask> yellTasks;
+                            for (int i = 0;i<dashboardCards.size();i++) {
+                                dashboardCards.get(i).last_sync = user.getLast_sync();
+                                yellTasks = dashboardCards.get(i).getTasks();
+                                for (int j = 0;j<yellTasks.size();j++) {
+                                    yellTasks.get(j).last_sync = user.getLast_sync();
+                                }
+                                for (int j =0;j<dashboardCards.get(i).getUsers().size();j++)
+                                    dashboardCards.get(i).users.get(j).setId_uid(dashboardCards.get(i).dashboard_id);
+                            }
+                            List<BudgetCard> budgetCards = user.getBudgetCards();
+                            List<TransactionCard> transactionCards;
+                            for (int i = 0;i<budgetCards.size();i++) {
+                                budgetCards.get(i).last_sync = user.getLast_sync();
+                                transactionCards = budgetCards.get(i).getTransactionsList();
+                                for (int j = 0;j<transactionCards.size();j++) {
+                                    transactionCards.get(j).last_sync = user.getLast_sync();
+                                }
+                            }
                             realm.copyToRealmOrUpdate(user);
                         }
                     });
@@ -179,7 +181,9 @@ public class YellUserRepository {
                     dashboardCard.setDashboard_id(response.body().getDashboard_id());
                     dashboardCard.last_sync = df.format(new Date());
                     RealmList<DashboardPermission> dashboardPermissions = new RealmList<>();
-                    dashboardPermissions.add(new DashboardPermission(dashboardCard.getDashboard_id(),uid,"admin"));
+                    DashboardPermission permission = new DashboardPermission(dashboardCard.getDashboard_id(),uid,"admin");
+                    permission.setId_uid(dashboardCard.getDashboard_id());
+                    dashboardPermissions.add(permission);
                     dashboardCard.setUsers(dashboardPermissions);
                     UserAccountFull userAccountFull = yellUserLiveData.getValue();
                     userAccountFull.addDashboard(dashboardCard);
@@ -267,6 +271,7 @@ public class YellUserRepository {
     }
 
     public void rejectInvited(Notification notification) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
         RequestBody requestBody = notificationToJson(notification);
         call = service.rejectInvited(requestBody);
@@ -288,6 +293,7 @@ public class YellUserRepository {
     }
 
     public void confirmInvited(Notification notification) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
         RequestBody requestBody = notificationToJson(notification);
         call = service.confirmInvited(requestBody);

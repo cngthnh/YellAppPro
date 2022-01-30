@@ -48,6 +48,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public NotificationAdapter(FragmentActivity activity, UserViewModel viewModel) {
         this.activity = activity;
         this.userViewModel = viewModel;
+        userViewModel.getNotificationLiveData().observe(activity, new Observer<Notification>() {
+            @Override
+            public void onChanged(Notification notification) {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void setData(List<Notification> mListNotification) {
@@ -65,12 +71,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
-        userViewModel.getNotificationLiveData().observe(activity, new Observer<Notification>() {
-            @Override
-            public void onChanged(Notification notification) {
-                notifyDataSetChanged();
-            }
-        });
         Notification notification = mListNotification.get(position);
 
         holder.message.setText(notification.getMessage());

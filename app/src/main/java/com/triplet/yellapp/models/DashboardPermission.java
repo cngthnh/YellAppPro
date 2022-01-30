@@ -9,11 +9,11 @@ import io.realm.annotations.PrimaryKey;
 public class DashboardPermission extends RealmObject {
     @Json(name = "dashboard_id")
     public String dashboard_id;
-    @PrimaryKey
     @Json(name = "uid")
     public String uid;
     @Json(name = "role")
     public String role;
+    @PrimaryKey
     public String id_uid;
 
     public DashboardPermission(String dashboard_id, String uid, String role) {
@@ -22,7 +22,8 @@ public class DashboardPermission extends RealmObject {
         this.role = role;
     }
 
-    public void setId_uid() {
+    public void setId_uid(String dashboard_id) {
+        this.dashboard_id = dashboard_id;
         this.id_uid = this.dashboard_id + this.uid;
     }
 
