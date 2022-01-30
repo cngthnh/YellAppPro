@@ -27,6 +27,7 @@ import com.triplet.yellapp.utils.SessionManager;
 
 import java.nio.charset.StandardCharsets;
 
+import io.realm.Realm;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -47,6 +48,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -102,7 +104,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     void login() {
-
         validator.clear();
 
         if (!validator.validate()) {

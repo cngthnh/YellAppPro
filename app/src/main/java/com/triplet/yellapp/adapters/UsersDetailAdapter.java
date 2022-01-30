@@ -43,7 +43,6 @@ public class UsersDetailAdapter extends RecyclerView.Adapter<UsersDetailAdapter.
             return;
         }
         holder.userId.setText(dashboardPermission.getUid() + "(" + dashboardPermission.getRole() + ")");
-
     }
 
     @Override

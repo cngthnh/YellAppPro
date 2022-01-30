@@ -16,8 +16,8 @@ import io.realm.Realm;
 public class YellTaskViewModel extends AndroidViewModel {
     private YellTaskRepository yellTaskRepository;
     private LiveData<YellTask> yellTaskLiveData;
-    private  LiveData<String> taskId;
     private LiveData<DashboardCard> dashboardCardLiveData;
+    private LiveData<YellTask> addYellTaskLiveData;
 
     public YellTaskViewModel(@NonNull Application application) {
         super(application);
@@ -26,16 +26,16 @@ public class YellTaskViewModel extends AndroidViewModel {
     public void init() {
         yellTaskRepository = new YellTaskRepository(getApplication());
         yellTaskLiveData = yellTaskRepository.getYellTaskResponseLiveData();
-        taskId = yellTaskRepository.getTaskIdLiveData();
         dashboardCardLiveData = yellTaskRepository.getDashboardCardMutableLiveData();
+        addYellTaskLiveData = yellTaskRepository.getAddYellTaskMutableLiveData();
     }
 
     public boolean getTask(String taskId) {
         return yellTaskRepository.getTask(taskId);
     }
 
-    public void addTask(YellTask yellTask) {
-       yellTaskRepository.addTaskToServer(yellTask);
+    public void addTask(YellTask yellTask, YellTask parentTask) {
+       yellTaskRepository.addTaskToServer(yellTask, parentTask);
     }
 
     public void editTask(YellTask yellTask) {
@@ -52,9 +52,11 @@ public class YellTaskViewModel extends AndroidViewModel {
         return yellTaskLiveData;
     }
 
-    public  LiveData<String> getTaskIdLiveData() {return taskId;}
-
     public LiveData<DashboardCard> getDashboardCardLiveData () {
         return dashboardCardLiveData;
+    }
+
+    public LiveData<YellTask> getAddYellTaskLiveData() {
+        return addYellTaskLiveData;
     }
 }

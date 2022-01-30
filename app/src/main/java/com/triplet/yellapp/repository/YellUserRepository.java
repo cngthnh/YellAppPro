@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
@@ -15,6 +16,8 @@ import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
+import com.triplet.yellapp.models.InfoMessage;
+import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
@@ -47,12 +50,22 @@ public class YellUserRepository {
     Application application;
     Moshi moshi;
     MutableLiveData<UserAccountFull> yellUserLiveData;
+    MutableLiveData<List<Notification>> listNotificationLiveData;
+    MutableLiveData<Notification> notificationMutableLiveData;
     DateFormat df;
     String uid;
     private Realm realm;
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
         return yellUserLiveData;
+    }
+
+    public MutableLiveData<Notification> getNotificationMutableLiveData() {
+        return notificationMutableLiveData;
+    }
+
+    public MutableLiveData<List<Notification>> getListNotificationLiveData() {
+        return listNotificationLiveData;
     }
 
     public YellUserRepository(Application application)
@@ -62,6 +75,8 @@ public class YellUserRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         yellUserLiveData = new MutableLiveData<>();
+        listNotificationLiveData = new MutableLiveData<>();
+        notificationMutableLiveData = new MutableLiveData<>();
         uid = sharedPreferences.getString("uid",null);
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
@@ -80,25 +95,6 @@ public class YellUserRepository {
             public void onResponse(Call<UserAccountFull> call, Response<UserAccountFull> response) {
                 if (response.isSuccessful()) {
                     UserAccountFull user = response.body();
-                    user.last_sync = df.format(new Date());
-                    List<DashboardCard> dashboardCards = user.getDashboards();
-                    List<YellTask> yellTasks;
-                    for (int i = 0;i<dashboardCards.size();i++) {
-                        dashboardCards.get(i).last_sync = user.getLast_sync();
-                        yellTasks = dashboardCards.get(i).getTasks();
-                        for (int j = 0;j<yellTasks.size();j++) {
-                            yellTasks.get(j).last_sync = user.getLast_sync();
-                        }
-                    }
-                    List<BudgetCard> budgetCards = user.getBudgetCards();
-                    List<TransactionCard> transactionCards;
-                    for (int i = 0;i<budgetCards.size();i++) {
-                        budgetCards.get(i).last_sync = user.getLast_sync();
-                        transactionCards = budgetCards.get(i).getTransactionsList();
-                        for (int j = 0;j<transactionCards.size();j++) {
-                            transactionCards.get(j).last_sync = user.getLast_sync();
-                        }
-                    }
                     yellUserLiveData.postValue(user);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("uid",user.getUid());
@@ -106,6 +102,27 @@ public class YellUserRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            user.last_sync = df.format(new Date());
+                            List<DashboardCard> dashboardCards = user.getDashboards();
+                            List<YellTask> yellTasks;
+                            for (int i = 0;i<dashboardCards.size();i++) {
+                                dashboardCards.get(i).last_sync = user.getLast_sync();
+                                yellTasks = dashboardCards.get(i).getTasks();
+                                for (int j = 0;j<yellTasks.size();j++) {
+                                    yellTasks.get(j).last_sync = user.getLast_sync();
+                                }
+                                for (int j =0;j<dashboardCards.get(i).getUsers().size();j++)
+                                    dashboardCards.get(i).users.get(j).setId_uid(dashboardCards.get(i).dashboard_id);
+                            }
+                            List<BudgetCard> budgetCards = user.getBudgetCards();
+                            List<TransactionCard> transactionCards;
+                            for (int i = 0;i<budgetCards.size();i++) {
+                                budgetCards.get(i).last_sync = user.getLast_sync();
+                                transactionCards = budgetCards.get(i).getTransactionsList();
+                                for (int j = 0;j<transactionCards.size();j++) {
+                                    transactionCards.get(j).last_sync = user.getLast_sync();
+                                }
+                            }
                             realm.copyToRealmOrUpdate(user);
                         }
                     });
@@ -164,7 +181,9 @@ public class YellUserRepository {
                     dashboardCard.setDashboard_id(response.body().getDashboard_id());
                     dashboardCard.last_sync = df.format(new Date());
                     RealmList<DashboardPermission> dashboardPermissions = new RealmList<>();
-                    dashboardPermissions.add(new DashboardPermission(dashboardCard.getDashboard_id(),uid,"admin"));
+                    DashboardPermission permission = new DashboardPermission(dashboardCard.getDashboard_id(),uid,"admin");
+                    permission.setId_uid(dashboardCard.getDashboard_id());
+                    dashboardPermissions.add(permission);
                     dashboardCard.setUsers(dashboardPermissions);
                     UserAccountFull userAccountFull = yellUserLiveData.getValue();
                     userAccountFull.addDashboard(dashboardCard);
@@ -228,6 +247,73 @@ public class YellUserRepository {
         });
     }
 
+    public void getNotificationFromServer() {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<List<Notification>> call;
+        call = service.getNotification(null);
+        call.enqueue(new Callback<List<Notification>>() {
+            @Override
+            public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
+                Log.w("YellGetNotification", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    listNotificationLiveData.postValue(response.body());
+                    getUserFromServer();
+                    Log.w("YellGetNotification", "Get Notification Successfully " + response);
+                }
+                listNotificationLiveData.postValue(response.body());
+            }
+            @Override
+            public void onFailure(Call<List<Notification>> call, Throwable t) {
+                Log.w("YellGetNotification", "onFailure: " + t.getMessage() );
+                listNotificationLiveData.postValue(null);
+            }
+        });
+    }
+
+    public void rejectInvited(Notification notification) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<InfoMessage> call;
+        RequestBody requestBody = notificationToJson(notification);
+        call = service.rejectInvited(requestBody);
+        call.enqueue(new Callback<InfoMessage>() {
+            @Override
+            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
+                Log.w("YellReject", "onResponse: " + response);
+                if(response.isSuccessful()){
+                    notification.setRole(null);
+                    notificationMutableLiveData.postValue(notification);
+                    Log.w("YellReject", "Rejected Successfully");
+                }
+            }
+            @Override
+            public void onFailure(Call<InfoMessage> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void confirmInvited(Notification notification) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<InfoMessage> call;
+        RequestBody requestBody = notificationToJson(notification);
+        call = service.confirmInvited(requestBody);
+        call.enqueue(new Callback<InfoMessage>() {
+            @Override
+            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
+                Log.w("YellConfirm", "onResponse: " + response);
+                if(response.isSuccessful()){
+                    notification.setRole(null);
+                    notificationMutableLiveData.postValue(notification);
+                    Log.w("YellConfirm", "Confirm Successfully");
+                }
+            }
+            @Override
+            public void onFailure(Call<InfoMessage> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
         String jsonYellTask = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
@@ -237,6 +323,12 @@ public class YellUserRepository {
     private RequestBody budgetToJson(BudgetCard budgetCard) {
         String jsonBudget = moshi.adapter(BudgetCard.class).toJson(budgetCard);
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"),jsonBudget);
+        return requestBody;
+    }
+
+    private RequestBody notificationToJson(Notification notification) {
+        String json = moshi.adapter(Notification.class).toJson(notification);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
         return requestBody;
     }
 

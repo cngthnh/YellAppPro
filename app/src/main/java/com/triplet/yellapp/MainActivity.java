@@ -8,9 +8,12 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -18,9 +21,11 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity {
+    private boolean doubleTapToQuit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         setContentView(R.layout.activity_main);
         Realm.init(this);
         HomeFragment homeFragment = new HomeFragment();
@@ -34,6 +39,21 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
         if (currentFragment instanceof HomeFragment) {
+            if (doubleTapToQuit) {
+                finish();
+                return;
+            }
+            this.doubleTapToQuit = true;
+            Toast.makeText(this, "Nhấn quay lại một lần nữa để thoát ứng dụng", Toast.LENGTH_SHORT).show();
+
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleTapToQuit = false;
+                }
+            }, 2000);
+
             ((HomeFragment) currentFragment).onBackPressed();
         } else
             super.onBackPressed();

@@ -64,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:text="Du lịch"
                     android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/black"
+                    android:textColor="?colorOnSecondary"
                     android:paddingStart="15dp"
                     android:textSize="18dp"/>
                 <androidx.appcompat.widget.AppCompatTextView
@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:text="Du lịch Đà Lạt"
                     android:fontFamily="@font/roboto_regular"
-                    android:textColor="@color/black"
+                    android:textColor="?colorOnSecondary"
                     android:paddingStart="15dp"
                     android:textSize="18dp"/>
 

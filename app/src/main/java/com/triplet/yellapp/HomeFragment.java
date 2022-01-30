@@ -24,6 +24,7 @@ import com.triplet.yellapp.adapters.BudgetsHomeAdapter;
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentHomeBinding;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
@@ -43,6 +44,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 import io.realm.Sort;
 
 public class HomeFragment extends Fragment {
@@ -78,7 +80,6 @@ public class HomeFragment extends Fragment {
                     loadingDialog.dismissDialog();
                 user = userAccountFull;
                 bindingData();
-
             }
         });
         taskViewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);
@@ -100,6 +101,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         if(!userViewModel.getUser())
@@ -121,7 +123,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                NotificationFragment notificationFragment = new NotificationFragment();
+                NotificationFragment notificationFragment = new NotificationFragment(userViewModel);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)
@@ -246,6 +248,7 @@ public class HomeFragment extends Fragment {
             binding.highLightTaskCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
             binding.highLightTaskCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.icon_tint)));
             taskViewModel.getTask(nearDeadlineTask.task_id);
+            binding.highLightTaskCompleteBtn.setVisibility(View.VISIBLE);
         } else {
             binding.highlightTaskTitle.setText("Không có công việc nào gần đến hạn");
             binding.highlightTaskDuration.setText("Bạn có thời gian rảnh");

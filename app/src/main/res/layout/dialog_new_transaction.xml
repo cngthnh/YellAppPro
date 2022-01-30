@@ -115,7 +115,8 @@
                     android:textColor="@drawable/custom_radio_text"
                     android:textSize="16dp"
                     android:fontFamily="@font/roboto_bold"
-                    android:layout_marginEnd="7dp"/>
+                    android:layout_marginEnd="7dp"
+                    android:checked="true"/>
                 <RadioButton
                     android:id="@+id/rbIncome"
                     android:layout_width="0dp"

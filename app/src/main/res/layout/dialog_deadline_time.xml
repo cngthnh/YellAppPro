@@ -30,7 +30,8 @@
             android:layout_marginHorizontal="18dp"
             android:src="@drawable/ic_date"
             android:id="@+id/dateButton"
-            android:background="@color/design_default_color_on_primary"
+            android:background="?popupMenuBackground"
+            android:tint="?colorOnSecondary"
             android:layout_weight="5">
 
         </androidx.appcompat.widget.AppCompatImageButton>
@@ -61,8 +62,9 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="18dp"
             android:id="@+id/timeButton"
-            android:background="@color/design_default_color_on_primary"
+            android:background="?popupMenuBackground"
             android:src="@drawable/ic_time"
+            android:tint="?colorOnSecondary"
             android:layout_weight="5">
 
         </androidx.appcompat.widget.AppCompatImageButton>

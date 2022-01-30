@@ -123,7 +123,6 @@ public class TaskFragment extends Fragment {
             @Override
             public void onChanged(YellTask yellTask) {
                 currentYellTask = yellTask;
-                subTasks = currentYellTask.getSubtasks();
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -150,19 +149,17 @@ public class TaskFragment extends Fragment {
                         }
                         binding.taskName.setText(yellTask.getName());
                         binding.contentEditText.setText(yellTask.getContent());
-                        yellTaskAdapter.setYellTaskArrayList(subTasks);
+                        yellTaskAdapter.setYellTaskArrayList(currentYellTask.getSubtasks());
                     }
                 }
             }
         });
-        viewModel.getTaskIdLiveData().observe(this, new Observer<String>() {
+        viewModel.getAddYellTaskLiveData().observe(this, new Observer<YellTask>() {
             @Override
-            public void onChanged(String s) {
-                if (currentYellTask.getTask_id() == null)
-                    currentYellTask.setTask_id(s);
-                else {
-                    yellTaskAdapter.setYellTaskArrayList(subTasks);
-                }
+            public void onChanged(YellTask yellTask) {
+                currentYellTask = yellTask;
+                subTasks = yellTask.getSubtasks();
+                yellTaskAdapter.setYellTaskArrayList(subTasks);
             }
         });
         viewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
@@ -171,6 +168,14 @@ public class TaskFragment extends Fragment {
                 dashboard = dashboardCard;
                 try {
                     yellTaskAdapter.setRole(dashboardCard.getUsers());
+                    subTasks = new ArrayList<>();
+                    List<YellTask> temp = dashboard.getTasks();
+                    for (int i=0;i< temp.size();i++) {
+                        if (temp.get(i).getParent_id() != null)
+                            if (temp.get(i).getParent_id().equals(currentYellTask.getTask_id()))
+                                subTasks.add(temp.get(i));
+                    }
+                    yellTaskAdapter.setYellTaskArrayList(subTasks);
                 }
                 catch (Exception e)
                 {
@@ -368,15 +373,6 @@ public class TaskFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void setConfigTaskListener() {
         AppCompatTextView deadlineTask = binding.deadlineTask;
-        DeadlineTimeDialog deadlineTimeDialog = new DeadlineTimeDialog();
-        deadlineTimeDialog.getDateTimeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                deadlineTask.setText(s);
-                currentYellTask.setEnd_time(mobileTime2ServerTime(s));
-                viewModel.editTask(currentYellTask);
-            }
-        });
         deadlineTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -384,6 +380,15 @@ public class TaskFragment extends Fragment {
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
                     return;
                 }
+                DeadlineTimeDialog deadlineTimeDialog = new DeadlineTimeDialog();
+                deadlineTimeDialog.getDateTimeLiveData().observe(getViewLifecycleOwner(), new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        deadlineTask.setText(s);
+                        currentYellTask.setEnd_time(mobileTime2ServerTime(s));
+                        viewModel.editTask(currentYellTask);
+                    }
+                });
                 deadlineTimeDialog.show(getActivity().getSupportFragmentManager(),
                         "DeadlineTimeDialog");
             }
@@ -544,7 +549,7 @@ public class TaskFragment extends Fragment {
                 }
                 while(currentYellTask.getTask_id() == null)
                     ;
-                viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()));
+                viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()),currentYellTask);
             }
         });
     }
