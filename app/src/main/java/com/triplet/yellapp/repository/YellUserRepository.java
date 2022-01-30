@@ -244,6 +244,7 @@ public class YellUserRepository {
     }
 
     public void getNotificationFromServer() {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<List<Notification>> call;
         call = service.getNotification(null);
         call.enqueue(new Callback<List<Notification>>() {
