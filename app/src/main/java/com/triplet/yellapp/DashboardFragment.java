@@ -64,7 +64,6 @@ public class DashboardFragment extends Fragment {
     DashboardCard dashboardCard;
     UsersAdapter usersAdapter = null;
     UsersDetailAdapter usersDetailAdapter = null;
-    List<String> usernames;
     List<YellTask> yellTasks;
     SessionManager sessionManager;
     LoadingDialog loadingDialog;
@@ -75,11 +74,9 @@ public class DashboardFragment extends Fragment {
     TaskAdapter yellTaskAdapter;
 
 
-    public DashboardFragment(DashboardCard dashboardCard, SessionManager sessionManager) {
+    public DashboardFragment(DashboardCard dashboardCard) {
         this.dashboardCard = dashboardCard;
-        this.sessionManager = sessionManager;
         yellTasks = new ArrayList<>();
-        usernames = new ArrayList<>();
     }
 
     @Override
@@ -93,13 +90,7 @@ public class DashboardFragment extends Fragment {
         dashboardViewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
             @Override
             public void onChanged(DashboardCard dashboard) {
-                List<YellTask> temp = dashboard.getTasks();
-                yellTasks = new ArrayList<>();
-                for (int i = 0; i<temp.size();i++) {
-                    if (temp.get(i).getParent_id() == null) {
-                        yellTasks.add(temp.get(i));
-                    }
-                }
+                yellTasks = dashboard.getTasks();
                 if (getActivity() != null) {
                    if (loadingDialog != null)
                        loadingDialog.dismissDialog();
@@ -119,7 +110,6 @@ public class DashboardFragment extends Fragment {
         binding.tvDescriptionDb.setText(dashboardCard.getDescription());
         yellTaskAdapter.setYellTaskArrayList(yellTasks);
         usersAdapter.setData(dashboardCard.getUsers());
-        usersAdapter.setData(dashboardCard.getUsers());
         yellTaskAdapter.setRole(dashboardCard.getUsers());
         usersDetailAdapter.setData(dashboardCard.getUsers());
     }
@@ -132,7 +122,6 @@ public class DashboardFragment extends Fragment {
         View view = binding.getRoot();
         if (!dashboardViewModel.getDashboard(dashboardCard.getDashboard_id()))
             loadingDialog.startLoadingDialog();
-        bindingData();
         if(dashboardCard.getDescription()!=null){
             binding.tvDescriptionDb.setText(dashboardCard.getDescription());
             binding.edtDescriptionDb.setText(dashboardCard.getDescription());
@@ -245,10 +234,7 @@ public class DashboardFragment extends Fragment {
         binding.editUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getPermission(dashboardCard).equals("admin"))
-                    openDialogListShareDashboard();
-                else
-                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                openDialogListShareDashboard();
             }
         });
 
@@ -291,73 +277,6 @@ public class DashboardFragment extends Fragment {
         binding.edtDescriptionDb.setVisibility(View.VISIBLE);
     }
 
-    private void getListTaskFromServer() {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<DashboardCard> call;
-
-        call = service.getDashboard(dashboardCard.getDashboard_id(), "full");
-        call.enqueue(new Callback<DashboardCard>() {
-            @Override
-            public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
-                Log.w("YellGetDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    dashboardCard = response.body();
-                    if(dashboardCard.getTasks() == null)
-                        return;
-                    for(int i = 0; i < dashboardCard.getTasks().size(); i++){
-                        yellTaskAdapter.addYellTask(dashboardCard.getTasks().get(i));
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Call<DashboardCard> call, Throwable t) {
-                Log.w("YellGetDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void addTaskToServer(YellTask yellTask) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<YellTask> call;
-
-        RequestBody requestBody = taskToJson(yellTask);
-
-        call = service.addTask(null, requestBody);
-        call.enqueue(new Callback<YellTask>() {
-            @Override
-            public void onResponse(Call<YellTask> call, Response<YellTask> response) {
-
-                Log.w("YellTaskCreate", "onResponse: " + response);
-
-                if (response.isSuccessful()) {
-                    yellTask.setTask_id(response.body().getTask_id());
-                    yellTaskAdapter.addYellTask(yellTask);
-                    yellTaskAdapter.notifyDataSetChanged();
-                }
-                else {
-                    if (response.code() == 401) {
-                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                        Toast.makeText(getContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                    // TODO
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<YellTask> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-                // TODO:
-            }
-        });
-    }
-
-    private RequestBody taskToJson(YellTask currentYellTask) {
-        String jsonYellTask = moshi.adapter(YellTask.class).toJson(currentYellTask);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
-        return requestBody;
-    }
-
     private void openDialogListShareDashboard() {
         final Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -388,30 +307,34 @@ public class DashboardFragment extends Fragment {
         invite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PopupMenu popupMenu = new PopupMenu(getContext(), invite);
-                popupMenu.getMenuInflater().inflate(R.menu.permission_menu, popupMenu.getMenu());
-                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem) {
-                        String userId = email.getText().toString();
-                        String role = null;
-                        switch (menuItem.getItemId()){
-                            case R.id.menu_edit:
-                                role = "editor";
-                                break;
-                            case R.id.menu_view:
-                                role = "viewer";
-                                break;
+                if (getPermission(dashboardCard).equals("admin")) {
+                    PopupMenu popupMenu = new PopupMenu(getContext(), invite);
+                    popupMenu.getMenuInflater().inflate(R.menu.permission_menu, popupMenu.getMenu());
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            String userId = email.getText().toString();
+                            String role = null;
+                            switch (menuItem.getItemId()){
+                                case R.id.menu_edit:
+                                    role = "editor";
+                                    break;
+                                case R.id.menu_view:
+                                    role = "viewer";
+                                    break;
+                            }
+                            if(role != null && userId.length() > 0)
+                            {
+                                DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getDashboard_id(), userId, role);
+                                dashboardViewModel.inviteSomeone(dbPermission);
+                            }
+                            return false;
                         }
-                        if(role != null && userId.length() > 0)
-                        {
-                            DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getDashboard_id(), userId, role);
-                            dashboardViewModel.inviteSomeone(dbPermission);
-                        }
-                        return false;
-                    }
-                });
-                popupMenu.show();
+                    });
+                    popupMenu.show();
+                }
+                else
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
         });
 

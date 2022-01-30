@@ -224,7 +224,7 @@ public class ListDashboardsFragment extends Fragment {
                 Log.w("YellGetDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
                     AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                    DashboardFragment dashboardFragment = new DashboardFragment(response.body(), sessionManager);
+                    DashboardFragment dashboardFragment = new DashboardFragment(response.body());
                     activity.getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,dashboardFragment)
                             .addToBackStack(null).commit();

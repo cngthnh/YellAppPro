@@ -1,6 +1,8 @@
 package com.triplet.yellapp.adapters;
 
 import android.content.Context;
+import android.icu.util.TimeZone;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.moshi.Moshi;
@@ -20,6 +26,7 @@ import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.text.ParseException;
 import java.util.List;
@@ -34,41 +41,41 @@ import retrofit2.Response;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>{
 
-    private Context mContext = null;
     private List<Notification> mListNotification;
+    private FragmentActivity activity;
+    private UserViewModel userViewModel;
 
-    Moshi moshi = new Moshi.Builder().build();
-    SessionManager sessionManager;
-    ApiService service;
-
-    public NotificationAdapter(Context mContext, SessionManager sessionManager) {
-        this.mContext = mContext;
-        this.sessionManager = sessionManager;
+    public NotificationAdapter(FragmentActivity activity, UserViewModel viewModel) {
+        this.activity = activity;
+        this.userViewModel = viewModel;
     }
 
     public void setData(List<Notification> mListNotification) {
         this.mListNotification = mListNotification;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
+        userViewModel.getNotificationLiveData().observe(activity, new Observer<Notification>() {
+            @Override
+            public void onChanged(Notification notification) {
+                notifyDataSetChanged();
+            }
+        });
         return new NotificationAdapter.NotificationViewHolder(view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         Notification notification = mListNotification.get(position);
 
         holder.message.setText(notification.getMessage());
 
-        try {
-            Date date = new SimpleDateFormat("dd/mm/yyyy HH:mm:ss").parse(notification.getCreatedAt());
-            Log.e("Date", date.toString());
-        } catch (ParseException e) {
-            Log.e("Date", e.getMessage());
-        }
+        holder.timeNotification.setText(serverTime2MobileTime(notification.getCreatedAt()));
 
         if(notification.getRole() == null){
             holder.confirmed.setVisibility(View.GONE);
@@ -79,67 +86,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             holder.confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    confirmInvited(notification);
+                    userViewModel.acceptNotify(notification);
                 }
             });
 
             holder.cancelButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rejectInvited(notification);
+                    userViewModel.reject(notification);
                 }
             });
         }
-    }
-
-    private void rejectInvited(Notification notification) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(Notification.class).toJson(notification);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.rejectInvited(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellReject", "onResponse: " + response);
-                if(response.isSuccessful()){
-                    notification.setRole(null);
-                    notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Toast.makeText(mContext, "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void confirmInvited(Notification notification) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(Notification.class).toJson(notification);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.confirmInvited(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellConfirm", "onResponse: " + response);
-                if(response.isSuccessful()){
-                    notification.setRole(null);
-                    notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Toast.makeText(mContext, "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     @Override
@@ -148,6 +105,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             return mListNotification.size();
         }
         return 0;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String serverTime2MobileTime(String time) {
+        android.icu.text.SimpleDateFormat currentFormat = new android.icu.text.SimpleDateFormat("HH:mm  dd/MM/yyyy");
+        currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        android.icu.text.SimpleDateFormat isoFormat = new android.icu.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            Date date = isoFormat.parse(time);
+            return currentFormat.format(date);
+        } catch (ParseException e) {
+            Log.e("TimeParseError", "Time Parse Error");
+            return null;
+        }
     }
 
     public class NotificationViewHolder extends RecyclerView.ViewHolder{

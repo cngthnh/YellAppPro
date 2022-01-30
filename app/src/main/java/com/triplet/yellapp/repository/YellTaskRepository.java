@@ -218,7 +218,7 @@ public class YellTaskRepository {
     }
 
     public boolean getDashboard(String dashboardId) {
-        DashboardCard object = realm.where(DashboardCard.class).equalTo("id", dashboardId).findFirst();
+        DashboardCard object = realm.where(DashboardCard.class).equalTo("dashboard_id", dashboardId).findFirst();
         if (object == null) {
             getDashboardFromServer(dashboardId);
             return false;

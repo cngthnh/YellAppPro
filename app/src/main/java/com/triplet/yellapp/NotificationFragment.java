@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.squareup.moshi.Moshi;
@@ -25,7 +26,9 @@ import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -36,19 +39,34 @@ import retrofit2.Response;
 
 public class NotificationFragment extends Fragment {
     FragmentNotificationBinding binding;
-    SessionManager sessionManager;
-    ApiService service;
     List<Notification> listNotification;
     NotificationAdapter notificationAdapter;
-    Moshi moshi = new Moshi.Builder().build();
-
+    UserViewModel userViewModel;
 
     public NotificationFragment() {
+    }
+
+    public NotificationFragment(UserViewModel viewModel) {
+        userViewModel = viewModel;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        notificationAdapter = new NotificationAdapter(getActivity(), userViewModel);
+        userViewModel.getListNotificationLivaData().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(List<Notification> notifications) {
+                listNotification = notifications;
+                if (getActivity()!=null) {
+                    bindingData();
+                }
+            }
+        });
+    }
+
+    private void bindingData() {
+        notificationAdapter.setData(listNotification);
     }
 
     @Override
@@ -67,36 +85,8 @@ public class NotificationFragment extends Fragment {
         });
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        binding.recycleView.setAdapter(notificationAdapter);
         binding.recycleView.setLayoutManager(layoutManager);
-
-        sessionManager = SessionManager.getInstance(getActivity().
-                getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
-
-        notificationAdapter = new NotificationAdapter(getContext(), sessionManager);
-
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<List<Notification>> call;
-
-        call = service.getNotification(null);
-        call.enqueue(new Callback<List<Notification>>() {
-            @Override
-            public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
-                Log.w("YellGetNotification", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    listNotification = response.body();
-                    notificationAdapter.setData(listNotification);
-                    notificationAdapter.notifyDataSetChanged();
-                    binding.recycleView.setVisibility(View.VISIBLE);
-                    binding.recycleView.setAdapter(notificationAdapter);
-
-                }
-            }
-            @Override
-            public void onFailure(Call<List<Notification>> call, Throwable t) {
-                Log.w("YellGetNotification", "onFailure: " + t.getMessage() );
-            }
-        });
-
         return view;
     }
 }

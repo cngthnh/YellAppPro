@@ -77,7 +77,7 @@ public class DashboardsHomeAdapter extends RecyclerView.Adapter<DashboardsHomeAd
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                DashboardFragment dashboardFragment = new DashboardFragment(dashboardCard, sessionManager);
+                DashboardFragment dashboardFragment = new DashboardFragment(dashboardCard);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)

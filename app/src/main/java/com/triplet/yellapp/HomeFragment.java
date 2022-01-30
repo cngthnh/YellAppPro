@@ -78,7 +78,6 @@ public class HomeFragment extends Fragment {
                     loadingDialog.dismissDialog();
                 user = userAccountFull;
                 bindingData();
-
             }
         });
         taskViewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);
@@ -121,7 +120,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                NotificationFragment notificationFragment = new NotificationFragment();
+                NotificationFragment notificationFragment = new NotificationFragment(userViewModel);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)

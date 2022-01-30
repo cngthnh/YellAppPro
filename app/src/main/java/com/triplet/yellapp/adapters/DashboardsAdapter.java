@@ -117,7 +117,7 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                DashboardFragment dashboardFragment = new DashboardFragment(dashboardCard, sessionManager);
+                DashboardFragment dashboardFragment = new DashboardFragment(dashboardCard);
                 activity.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragmentContainer,dashboardFragment, "DASHBOARD").addToBackStack(null).commit();
             }

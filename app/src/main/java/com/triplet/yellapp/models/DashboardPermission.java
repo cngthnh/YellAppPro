@@ -8,11 +8,11 @@ import io.realm.annotations.PrimaryKey;
 public class DashboardPermission extends RealmObject {
     @Json(name = "dashboard_id")
     public String dashboard_id;
+    @PrimaryKey
     @Json(name = "uid")
     public String uid;
     @Json(name = "role")
     public String role;
-    @PrimaryKey
     public String id_uid;
 
     public DashboardPermission(String dashboard_id, String uid, String role) {
