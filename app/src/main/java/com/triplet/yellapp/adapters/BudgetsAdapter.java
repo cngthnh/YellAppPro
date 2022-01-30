@@ -190,6 +190,11 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
         return 0;
     }
 
+    public void filterList(List<BudgetCard> filteredList) {
+        mListBudget = filteredList;
+        notifyDataSetChanged();
+    }
+
     public class BudgetsViewHolder extends RecyclerView.ViewHolder{
         private TextView budgetName;
         private TextView balance;

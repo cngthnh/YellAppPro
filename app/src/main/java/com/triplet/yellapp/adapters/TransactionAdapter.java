@@ -1,14 +1,11 @@
 package com.triplet.yellapp.adapters;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,39 +18,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chauthai.swipereveallayout.SwipeRevealLayout;
 import com.chauthai.swipereveallayout.ViewBinderHelper;
-import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
-import com.triplet.yellapp.models.BudgetCard;
-import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.TransactionCard;
-import com.triplet.yellapp.utils.ApiService;
-import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.BudgetViewModel;
 
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>{
 
-    private Context mContext = null;
+    FragmentActivity activity;
     private List<TransactionCard> mListTransaction;
-    private ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
+    private final ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
     SessionManager sessionManager;
-    ApiService service;
-    Moshi moshi = new Moshi.Builder().build();
+    BudgetViewModel budgetViewModel;
 
-    public TransactionAdapter(Context mContext, SessionManager sessionManager) {
-        this.mContext = mContext;
+    public TransactionAdapter(FragmentActivity activity, SessionManager sessionManager, BudgetViewModel budgetViewModel) {
+        this.activity = activity;
         this.sessionManager = sessionManager;
+        this.budgetViewModel = budgetViewModel;
     }
 
     public void setData(List<TransactionCard> mListTransaction) {
@@ -114,7 +102,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     private void openDialogDeleteTransaction(TransactionViewHolder holder, TransactionCard transactionCard) {
-        final Dialog dialog = new Dialog(mContext);
+        final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_delete_dashboard);
 
@@ -148,9 +136,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         deleteTs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteTransactionFromServer(transactionCard);
-                mListTransaction.remove(holder.getAdapterPosition());
-                notifyItemRemoved(holder.getAdapterPosition());
+                budgetViewModel.deleteTransaction(transactionCard);
                 dialog.dismiss();
             }
         });
@@ -165,26 +151,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         dialog.show();
     }
 
-    private void deleteTransactionFromServer(TransactionCard transactionCard) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(TransactionCard.class).toJson(transactionCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.deleteTransaction(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellDeleteTransaction", "onResponse: " + response);
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellDeleteTransaction", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
 
     @Override
     public int getItemCount() {

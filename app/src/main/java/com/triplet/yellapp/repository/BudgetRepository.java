@@ -211,5 +211,58 @@ public class BudgetRepository {
         });
     }
 
+    private void deleteTransactionOnServer(TransactionCard transactionCard) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<InfoMessage> call;
+        RequestBody requestBody = transactionToJson(transactionCard);
+        call = service.deleteTransaction(requestBody);
+        call.enqueue(new Callback<InfoMessage>() {
+            @Override
+            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
+                Log.w("TransactionDeleted", "onResponse: " + response.body().getMessage());
+                if (response.isSuccessful()) {
 
+                    BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
+                    budgetCard.deleteTransaction(transactionCard);
+                    budgetCard.setBalance(budgetCard.getBalance()-transactionCard.getAmount());
+                    budgetCardMutableLiveData.postValue(budgetCard);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(budgetCard);
+                        }
+                    });
+                }
+                else {
+                    if (response.code() == 401) {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                    // TODO
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<InfoMessage> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+                // TODO:
+            }
+        });
+    }
+
+    public void deleteTransaction(TransactionCard transactionCard) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                TransactionCard object = realm.where(TransactionCard.class)
+                        .equalTo("transaction_id",transactionCard.getTran_id()).findFirst();
+                if (object == null)
+                    return;
+                object.deleteFromRealm();
+                Log.w("TransactionDeleted", "Deleted " + transactionCard.getContent()+" on DB");
+            }
+        });
+        deleteTransactionOnServer(transactionCard);
+    }
 }

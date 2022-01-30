@@ -82,6 +82,7 @@
             android:orientation="horizontal"
             android:gravity="center">
             <EditText
+                android:id="@+id/search_listBudget"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"

@@ -2,6 +2,8 @@ package com.triplet.yellapp;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.DashboardsAdapter;
 import com.triplet.yellapp.databinding.FragmentListDashboardsBinding;
+import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.UserAccount;
@@ -99,18 +102,6 @@ public class ListDashboardsFragment extends Fragment {
             }
         });
 
-        /*
-        dashboardViewModel = new ViewModelProvider(this.getActivity(), new DashboardViewModelFactory(list)).get(DashboardViewModel.class);
-        dashboardViewModel.getListDashboardLiveData().observe(this.getActivity(), new Observer<List<DashboardCard>>() {
-            @Override
-            public void onChanged(List<DashboardCard> dashboardCards) {
-                dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
-                dashboardsAdapter.setData(dashboardCards);
-                binding.recycleView.setAdapter(dashboardsAdapter);
-            }
-        });
-
-         */
 
         binding.recycleView.setVisibility(View.VISIBLE);
         binding.recycleView.setAdapter(dashboardsAdapter);
@@ -132,111 +123,35 @@ public class ListDashboardsFragment extends Fragment {
             }
         });
 
+        binding.searchListDashboard.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filter(editable.toString());
+            }
+        });
+
+
         return view;
     }
 
-    private void addDashboardToServer(DashboardCard dashboardCard, View view) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<DashboardCard> call;
-        String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-        call = service.addDashboard(requestBody);
-        call.enqueue(new Callback<DashboardCard>() {
-            @Override
-            public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
-                Log.w("YellCreateDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    String id = response.body().getDashboard_id();
-                    getDb(id, view);
-                } else {
-                    if (response.code() == 401) {
-                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                        Toast.makeText(getContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-
-                }
+    private void filter(String toString) {
+        List<DashboardCard> filteredList = new ArrayList<>();
+        for(DashboardCard item: list){
+            if(item.getName().toLowerCase().contains(toString.toLowerCase())){
+                filteredList.add(item);
             }
-            @Override
-            public void onFailure(Call<DashboardCard> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void addList(DashboardCard dashboardCard) {
-        //dashboardViewModel.addDashboard(dashboardCard);
-    }
-
-
-    private void getListDashboardFromServer() {
-        if (sessionManager.getToken()!=null) {
-            service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-            Call<UserAccount> call;
-            call = service.getUserProfile("compact");
-            call.enqueue(new Callback<UserAccount>() {
-                @Override
-                public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
-                    Log.w("YellGetListDashboard", "onResponse: " + response);
-                    if (response.isSuccessful()) {
-                        List<String> dashboards = response.body().getDashboards();
-                        getListDashboard(dashboards);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<UserAccount> call, Throwable t) {
-                    Log.w("YellGetListDashboard", "onFailure: " + t.getMessage() );
-                }
-            });
         }
+        dashboardsAdapter.filterList(filteredList);
     }
 
-    private void getListDashboard(List<String> dashboards) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<DashboardCard> call;
-        for (int i = 0; i < dashboards.size(); i++)
-        {
-            call = service.getDashboard(dashboards.get(i), "full");
-            call.enqueue(new Callback<DashboardCard>() {
-                @Override
-                public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
-                    Log.w("YellGetDashboard", "onResponse: " + response);
-                    if (response.isSuccessful()) {
-                        list.add(response.body());
-                        dashboardsAdapter.notifyDataSetChanged();
-                    }
-                }
-                @Override
-                public void onFailure(Call<DashboardCard> call, Throwable t) {
-                    Log.w("YellGetDashboard", "onFailure: " + t.getMessage() );
-                }
-            });
-
-        }
-    }
-
-    private void getDb(String id, View view) {
-        Call<DashboardCard> call;
-        call = service.getDashboard(id, "full");
-        call.enqueue(new Callback<DashboardCard>() {
-            @Override
-            public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
-                Log.w("YellGetDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                    DashboardFragment dashboardFragment = new DashboardFragment(response.body(), sessionManager);
-                    activity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,dashboardFragment)
-                            .addToBackStack(null).commit();
-                    list.add(response.body());
-                    dashboardsAdapter.notifyDataSetChanged();
-
-                }
-            }
-            @Override
-            public void onFailure(Call<DashboardCard> call, Throwable t) {
-                Log.w("YellGetDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
 }

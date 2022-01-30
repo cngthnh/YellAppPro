@@ -131,7 +131,6 @@ public class StatisticBudgetFragment extends Fragment {
         updateDataAdapter(dataStatistic, totalIncome, totalOutcome);
         total = budgetCard.getBalance() + totalOutcome;
 
-        binding.percentageOutcome.setText(String.valueOf((totalOutcome/total)));
 
         if(budgetCard.getType() == 0)
         {
@@ -151,7 +150,10 @@ public class StatisticBudgetFragment extends Fragment {
             binding.balanceStatisticIncome.setText(String.valueOf(budgetCard.balance));
         }
 
-        percentageOutcome = (totalOutcome * 100) /total;
+        if(total == 0)
+            percentageOutcome = 0;
+        else
+            percentageOutcome = (totalOutcome * 100) /total;
         binding.circularProgressbarOutcome.setProgress(percentageOutcome);
         binding.percentageOutcome.setText(String.valueOf(percentageOutcome) + "%");
 
@@ -179,7 +181,6 @@ public class StatisticBudgetFragment extends Fragment {
         transactionStatisticAdapterOutcome.setData(listOutcome);
         transactionStatisticAdapterOutcome.notifyDataSetChanged();
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -74,10 +74,18 @@ public class TransactionStatisticAdapter extends RecyclerView.Adapter<Transactio
             return;
         }
 
+        int percentage;
+
         holder.purpose.setText(categoryStatistic.purpose);
         holder.total.setText(String.valueOf(categoryStatistic.getAmount()) + "vnđ");
 
-        int percentage = (Math.abs(categoryStatistic.getAmount())* 100) / categoryStatistic.getTotal();
+        if(categoryStatistic.getTotal()!=0)
+        {
+            percentage = (Math.abs(categoryStatistic.getAmount())* 100) / categoryStatistic.getTotal();
+        }
+        else{
+            percentage = 0;
+        }
         holder.percentageText.setText(String.valueOf(percentage) + "%");
 
         holder.percentageOutcome.setProgress(percentage);
