@@ -52,7 +52,7 @@ public class YellTaskRepository {
     DateFormat df;
     private MutableLiveData<DashboardCard> dashboardCardMutableLiveData;
     private MutableLiveData<YellTask> YellTaskResponseLiveData;
-    private MutableLiveData<String> taskId;
+    private MutableLiveData<YellTask> addYellTaskMutableLiveData;
     private Realm realm;
 
     public YellTaskRepository(Application application) {
@@ -62,13 +62,17 @@ public class YellTaskRepository {
         service = Client.createService(ApiService.class);
         YellTaskResponseLiveData = new MutableLiveData<>();
         dashboardCardMutableLiveData = new MutableLiveData<>();
+        addYellTaskMutableLiveData = new MutableLiveData<>();
         df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
                 .build();
-        taskId = new MutableLiveData<>();
         realm = Realm.getDefaultInstance();
+    }
+
+    public MutableLiveData<YellTask> getAddYellTaskMutableLiveData() {
+        return addYellTaskMutableLiveData;
     }
 
     public void getTaskFromServer(String taskId) {
@@ -139,11 +143,7 @@ public class YellTaskRepository {
         return YellTaskResponseLiveData;
     }
 
-    public MutableLiveData<String> getTaskIdLiveData() {
-        return taskId;
-    }
-
-    public void addTaskToServer(YellTask yellTask) {
+    public void addTaskToServer(YellTask yellTask, YellTask parentTask) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<YellTask> call;
         RequestBody requestBody = taskToJson(yellTask);
@@ -155,18 +155,8 @@ public class YellTaskRepository {
                 if (response.isSuccessful()) {
                     yellTask.setTask_id(response.body().getTask_id());
                     yellTask.last_sync = df.format(new Date());
-                    YellTask parentTask = YellTaskResponseLiveData.getValue();
-                    while (parentTask == null) {
-                        getTaskFromServer(yellTask.getTask_id());
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
                     parentTask.addSubtask(yellTask);
-                    YellTaskResponseLiveData.postValue(parentTask);
+                    addYellTaskMutableLiveData.postValue(parentTask);
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
@@ -316,15 +306,15 @@ public class YellTaskRepository {
         call.enqueue(new Callback<InfoMessage>() {
             @Override
             public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellTaskDeleted", "onResponse: " + response.body().getMessage());
                 if (response.isSuccessful()) {
+                    Log.w("YellTaskDeleted", "onResponse: " + response.body().getMessage());
                 }
                 else {
                     if (response.code() == 401) {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                         Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    // TODO
+                    Log.w("YellTaskDeleted", "Delete Failed ");
                 }
 
             }

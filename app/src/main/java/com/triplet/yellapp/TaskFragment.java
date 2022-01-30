@@ -149,27 +149,17 @@ public class TaskFragment extends Fragment {
                         }
                         binding.taskName.setText(yellTask.getName());
                         binding.contentEditText.setText(yellTask.getContent());
-                        yellTaskAdapter.setYellTaskArrayList(subTasks);
-                        subTasks = new ArrayList<>();
-                        List<YellTask> temp = dashboard.getTasks();
-                        for (int i=0;i< temp.size();i++) {
-                            if (temp.get(i).getParent_id() != null)
-                                if (temp.get(i).getParent_id().equals(currentYellTask.getTask_id()))
-                                    subTasks.add(temp.get(i));
-                        }
-                        yellTaskAdapter.setYellTaskArrayList(subTasks);
+                        yellTaskAdapter.setYellTaskArrayList(currentYellTask.getSubtasks());
                     }
                 }
             }
         });
-        viewModel.getTaskIdLiveData().observe(this, new Observer<String>() {
+        viewModel.getAddYellTaskLiveData().observe(this, new Observer<YellTask>() {
             @Override
-            public void onChanged(String s) {
-                if (currentYellTask.getTask_id() == null)
-                    currentYellTask.setTask_id(s);
-                else {
-                    yellTaskAdapter.setYellTaskArrayList(subTasks);
-                }
+            public void onChanged(YellTask yellTask) {
+                currentYellTask = yellTask;
+                subTasks = yellTask.getSubtasks();
+                yellTaskAdapter.setYellTaskArrayList(subTasks);
             }
         });
         viewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
@@ -559,7 +549,7 @@ public class TaskFragment extends Fragment {
                 }
                 while(currentYellTask.getTask_id() == null)
                     ;
-                viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()));
+                viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()),currentYellTask);
             }
         });
     }
