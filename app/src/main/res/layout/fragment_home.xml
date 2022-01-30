@@ -8,10 +8,11 @@
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/headerCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="-30dp"
-        android:backgroundTint="@color/yellow_primary"
+        android:backgroundTint="@color/darker_gray"
         app:cardCornerRadius="30dp"
         app:cardElevation="0dp"
         app:contentPaddingBottom="50dp"
@@ -22,18 +23,31 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/accountTitle"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="25dp"
-                android:layout_marginStart="25dp"
-                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:text="Hi,"
-                android:textColor="@color/dark_yellow"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/yell" />
+
+                <TextView
+                    android:id="@+id/accountTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Hi,"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -49,25 +63,25 @@
                     android:layout_height="30dp"
                     android:layout_marginHorizontal="10dp"
                     android:adjustViewBounds="true"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:padding="0dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_notifications"
-                    app:tint="@color/dark_yellow"
-                    android:background="?selectableItemBackgroundBorderless"/>
+                    app:tint="@color/white" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="50dp"
-                    app:cardElevation="0dp"
-                    android:focusable="true">
+                    app:cardElevation="0dp">
 
                     <ImageView
                         android:id="@+id/avatarImg"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/sample_avatar" />
+                        android:src="@drawable/ic_account" />
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
         </LinearLayout>
@@ -78,7 +92,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="25dp"
-        android:layout_marginTop="85dp"
+        android:layout_below="@id/headerCard"
+        android:layout_marginTop="-45dp"
         app:cardCornerRadius="10dp"
         android:animateLayoutChanges="true"
         app:cardElevation="3dp">
@@ -110,7 +125,7 @@
                     android:textStyle="bold"
                     android:textSize="17sp"
                     android:layout_marginTop="15dp"
-                    android:text="Còn 3 ngày 2 giờ nữa">
+                    android:text="Bạn có thời gian rảnh">
 
                 </TextView>
                 <TextView
@@ -120,11 +135,12 @@
                     android:textColor="?titleTextColor"
                     android:layout_marginBottom="15dp"
                     android:textStyle="bold"
-                    android:text="Thiết kế UI Prototype">
+                    android:text="Không có công việc nào gần đến hạn">
 
                 </TextView>
             </LinearLayout>
             <ImageButton
+                android:visibility="gone"
                 android:id="@+id/highLightTaskCompleteBtn"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="35dp"

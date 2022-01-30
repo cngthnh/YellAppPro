@@ -95,6 +95,7 @@ public class ListBudgetsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.yellow_primary));
         sessionManager = SessionManager.getInstance(getActivity().
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
         // Inflate the layout for this fragment

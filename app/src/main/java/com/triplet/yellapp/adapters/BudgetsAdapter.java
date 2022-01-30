@@ -100,7 +100,10 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 BudgetsFragment budgetsFragment = new BudgetsFragment(budgetCard, sessionManager);
                 activity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainer,budgetsFragment, "BUDGET").addToBackStack(null).commit();
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer,budgetsFragment, "BUDGET")
+                        .addToBackStack(null).commit();
             }
         });
 

@@ -17,6 +17,11 @@
         <item name="itemTextColor">@color/dark_yellow</item>
         <item name="titleTextColor">@color/title</item>
         <item name="cardBackgroundColor">@color/card_background</item>
-        <item name="tabBackground">@color/white</item>
+        <item name="popupMenuBackground">@color/white</item>
+    </style>
+    <!-- Splash theme -->
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:windowBackground">@drawable/splash</item>
     </style>
 </resources>

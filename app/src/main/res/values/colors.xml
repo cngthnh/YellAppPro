@@ -12,7 +12,8 @@
     <color name="orange">#F9861D</color>
     <color name="blue_secondary">#03A9F4</color>
     <color name="blue_secondary_var">#2196F3</color>
-    <color name="dark_gray">#353535</color>
+    <color name="dark_gray">#303030</color>
+    <color name="darker_gray">#202020</color>
     <color name="green">#2ECC71</color>
     <color name="light_gray">#ecf0f1</color>
     <color name="dark_yellow">#6E4F09</color>

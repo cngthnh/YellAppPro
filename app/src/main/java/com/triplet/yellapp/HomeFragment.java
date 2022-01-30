@@ -99,6 +99,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         if(!userViewModel.getUser())
@@ -245,6 +246,7 @@ public class HomeFragment extends Fragment {
             binding.highLightTaskCompleteBtn.setImageResource(R.drawable.ic_check_circle_line);
             binding.highLightTaskCompleteBtn.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.icon_tint)));
             taskViewModel.getTask(nearDeadlineTask.task_id);
+            binding.highLightTaskCompleteBtn.setVisibility(View.VISIBLE);
         } else {
             binding.highlightTaskTitle.setText("Không có công việc nào gần đến hạn");
             binding.highlightTaskDuration.setText("Bạn có thời gian rảnh");

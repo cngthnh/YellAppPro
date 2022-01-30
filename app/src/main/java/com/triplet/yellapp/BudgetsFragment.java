@@ -74,7 +74,6 @@ public class BudgetsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         budgetViewModel.init();
         loadingDialog = new LoadingDialog(getActivity());
@@ -108,6 +107,7 @@ public class BudgetsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.yellow_primary));
         binding = FragmentBudgetBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         if (!budgetViewModel.getBudget(budgetCard.getId()))
