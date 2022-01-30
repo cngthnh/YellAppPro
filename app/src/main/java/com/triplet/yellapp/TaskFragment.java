@@ -1,5 +1,7 @@
 package com.triplet.yellapp;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,6 +35,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.triplet.yellapp.adapters.TaskAdapter;
 import com.triplet.yellapp.databinding.FragmentTaskBinding;
 import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.viewmodels.DashboardViewModel;
 import com.triplet.yellapp.viewmodels.YellTaskViewModel;
@@ -62,6 +66,7 @@ public class TaskFragment extends Fragment {
     YellTaskViewModel viewModel;
     TaskAdapter yellTaskAdapter;
     LoadingDialog loadingDialog;
+    DashboardCard dashboard;
 
     // TODO: Rename and change types of parameters
     private String previousTaskName;
@@ -158,6 +163,7 @@ public class TaskFragment extends Fragment {
         viewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
             @Override
             public void onChanged(DashboardCard dashboardCard) {
+                dashboard = dashboardCard;
                 List<YellTask> list = dashboardCard.getTasks();
                 try {
                     subTasks = new ArrayList<>();
@@ -223,6 +229,10 @@ public class TaskFragment extends Fragment {
         editNameTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if ((String)taskIcon.getTag() == "false") {
                     taskName.setEnabled(true);
                     taskName.requestFocusFromTouch();
@@ -295,6 +305,10 @@ public class TaskFragment extends Fragment {
         deleteTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if ((String)taskIcon.getTag() == "true") {
                     taskName.setEnabled(false);
                     taskName.setText(currentName);
@@ -336,6 +350,10 @@ public class TaskFragment extends Fragment {
         taskIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 BottomSheetIconPicker bottomSheetIconPicker = new BottomSheetIconPicker();
                 bottomSheetIconPicker.show(getActivity().getSupportFragmentManager(),"Icon Picker");
             }
@@ -366,6 +384,10 @@ public class TaskFragment extends Fragment {
         deadlineTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 deadlineTimeDialog.show(getActivity().getSupportFragmentManager(),
                         "DeadlineTimeDialog");
             }
@@ -374,6 +396,10 @@ public class TaskFragment extends Fragment {
         priority.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 String [] priorities = new String[]{"Thấp","Thường","Cao"};
                 MaterialAlertDialogBuilder priorityDialog = new MaterialAlertDialogBuilder(getContext())
                         .setTitle("Độ ưu tiên")
@@ -392,6 +418,10 @@ public class TaskFragment extends Fragment {
         status.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 String [] statuses = new String[]{"Chưa hoàn thành","Đã hoàn thành"};
                 MaterialAlertDialogBuilder statusDialog = new MaterialAlertDialogBuilder(getContext())
                         .setTitle("Trạng thái")
@@ -413,6 +443,10 @@ public class TaskFragment extends Fragment {
         editContent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (editContentDiscard.getVisibility() == View.GONE) {
                     content.setEnabled(true);
                     content.requestFocusFromTouch();
@@ -508,6 +542,10 @@ public class TaskFragment extends Fragment {
         binding.addSubTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkPermission()) {
+                    Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 while(currentYellTask.getTask_id() == null)
                     ;
                 viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()));
@@ -517,7 +555,7 @@ public class TaskFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String serverTime2MobileTime(String time) {
-        SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/YYYY");
+        SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/yyyy");
         currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -532,7 +570,7 @@ public class TaskFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String mobileTime2ServerTime(String time) {
-        SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/YYYY");
+        SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/yyyy");
         currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -543,6 +581,19 @@ public class TaskFragment extends Fragment {
             Log.e("TimeParseError", "Time Parse Error");
             return null;
         }
+    }
+
+    private boolean checkPermission() {
+        String uid = getActivity().getSharedPreferences(getActivity().getResources().getString(R.string.yell_sp), MODE_PRIVATE)
+                .getString("uid","n");
+        List<DashboardPermission> users = dashboard.getUsers();
+        for (int i = 0;i<users.size();i++) {
+            if (uid.equals(users.get(i).getUid()))
+                if ((users.get(i).getRole().equals("admin"))||(users.get(i).getRole().equals("editor"))) {
+                    return true;
+                }
+        }
+        return false;
     }
 
 }
