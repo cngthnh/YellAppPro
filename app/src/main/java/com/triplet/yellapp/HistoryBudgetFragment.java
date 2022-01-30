@@ -31,6 +31,7 @@ public class HistoryBudgetFragment extends Fragment {
     SessionManager sessionManager;
     BudgetViewModel budgetViewModel;
     LoadingDialog loadingDialog;
+    int balance;
 
     public HistoryBudgetFragment(BudgetViewModel budgetViewModel) {
         this.budgetViewModel = budgetViewModel;
@@ -50,7 +51,7 @@ public class HistoryBudgetFragment extends Fragment {
                 for (int i = 0; i<temp.size();i++) {
                     transactionCardList.add(temp.get(i));
                 }
-
+                setBalance(budget);
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -61,8 +62,12 @@ public class HistoryBudgetFragment extends Fragment {
         transactionAdapter = new TransactionAdapter(getActivity(), sessionManager, budgetViewModel);
     }
 
+    private void setBalance(BudgetCard budget) {
+        balance = budget.getBalance();
+    }
+
     private void bindingData() {
-        transactionAdapter.setData(transactionCardList);
+        transactionAdapter.setData(transactionCardList, balance);
         transactionAdapter.notifyDataSetChanged();
     }
     @Override
