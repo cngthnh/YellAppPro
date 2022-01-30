@@ -10,23 +10,27 @@
     android:layout_marginBottom="5dp"
     >
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/deleteTransactionItem"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:cardCornerRadius="10dp"
-        app:cardBackgroundColor="@color/red"
-        >
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="24dp"
-            android:padding="0dp"
-            android:src="@drawable/ic_delete"
-            android:scaleType="fitCenter"
-            app:tint="@color/white"
-            android:layout_gravity="center"/>
-    </androidx.cardview.widget.CardView>
+        android:layout_height="match_parent">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/deleteTransactionItem"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@color/red"
+            android:layout_marginStart="10dp">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="24dp"
+                android:padding="0dp"
+                android:src="@drawable/ic_delete"
+                android:scaleType="fitCenter"
+                app:tint="@color/white"
+                android:layout_gravity="center"/>
+        </androidx.cardview.widget.CardView>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/item_layout_transaction"
@@ -44,7 +48,7 @@
 
             <ImageView
                 android:id="@+id/categoryImg"
-                android:layout_width="50dp"
+                android:layout_width="46dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_eating"/>
 
@@ -61,7 +65,7 @@
                     android:text="Du lịch"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"
-                    android:paddingStart="20dp"
+                    android:paddingStart="15dp"
                     android:textSize="18dp"/>
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/contentTransaction"
@@ -70,7 +74,7 @@
                     android:text="Du lịch Đà Lạt"
                     android:fontFamily="@font/roboto_regular"
                     android:textColor="@color/black"
-                    android:paddingStart="20dp"
+                    android:paddingStart="15dp"
                     android:textSize="18dp"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>

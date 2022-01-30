@@ -168,7 +168,8 @@ public class BudgetsFragment extends Fragment {
         MaterialButton saveBt = dialog.findViewById(R.id.transactionSaveBtn);
         MaterialButton category = dialog.findViewById(R.id.categoryTransaction);
 
-        dialog.findViewById(R.id.categoryContainer).setVisibility(View.GONE);
+        dialog.findViewById(R.id.outcomeCategoryPicker).setVisibility(View.GONE);
+        dialog.findViewById(R.id.incomeCategoryPicker).setVisibility(View.GONE);
         dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
 
         TransactionCard newTransaction = new TransactionCard();
@@ -176,11 +177,17 @@ public class BudgetsFragment extends Fragment {
         typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.rbIncome){
+                if (i == R.id.rbIncome){
                     newTransaction.setType(1);
+                    newTransaction.setPurpose(getResources().getString(R.string.savings));
+                    category.setIcon(getResources().getDrawable(R.drawable.ic_savings));
+                    category.setText(R.string.savings);
                 }
                 else if(i == R.id.rbOutcome){
                     newTransaction.setType(0);
+                    newTransaction.setPurpose(getResources().getString(R.string.eating));
+                    category.setIcon(getResources().getDrawable(R.drawable.ic_pizza));
+                    category.setText(R.string.eating);
                 }
             }
         });
@@ -193,27 +200,46 @@ public class BudgetsFragment extends Fragment {
                 }
                 else if(newTransaction.getType() == 0)
                 {
-                    androidx.appcompat.widget.LinearLayoutCompat  categoryLayout = (androidx.appcompat.widget.LinearLayoutCompat ) dialog.findViewById(R.id.categoryContainer);
+                    androidx.appcompat.widget.LinearLayoutCompat  categoryLayout = (androidx.appcompat.widget.LinearLayoutCompat ) dialog.findViewById(R.id.outcomeCategoryPicker);
                     dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.GONE);
+                    dialog.findViewById(R.id.incomeCategoryPicker).setVisibility(View.GONE);
                     categoryLayout.setVisibility(View.VISIBLE);
                     TransactionCard type = new TransactionCard();
-                    RadioGroup typeGroup = categoryLayout.findViewById(R.id.typeGroup);
+                    RadioGroup categoryGroup = categoryLayout.findViewById(R.id.outcomeCategoryGroup);
                     MaterialButton saveBt = categoryLayout.findViewById(R.id.btn_save_category);
-                    typeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    categoryGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                            if (i == R.id.rbEating)
-                                type.setPurpose("Ăn uống");
-                            else if (i == R.id.rbHangout)
-                                type.setPurpose("Cà phê");
-                            else if (i == R.id.rbBuying)
-                                type.setPurpose("Mua sắm");
-                            else if (i == R.id.rbTransport)
-                                type.setPurpose("Di chuyển");
-                            else if (i == R.id.rbCasual)
-                                type.setPurpose("Sinh hoạt hằng ngày");
-                            else if (i == R.id.rbTravel)
-                                type.setPurpose("Du lịch");
+                            if (i == R.id.rbEating) {
+                                type.setPurpose(getResources().getString(R.string.eating));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_pizza));
+                                category.setText(R.string.eating);
+                            }
+                            else if (i == R.id.rbHangout) {
+                                type.setPurpose(getResources().getString(R.string.hangout));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_coffee));
+                                category.setText(R.string.hangout);
+                            }
+                            else if (i == R.id.rbBuying) {
+                                type.setPurpose(getResources().getString(R.string.shopping));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_basket));
+                                category.setText(R.string.shopping);
+                            }
+                            else if (i == R.id.rbTransport) {
+                                type.setPurpose(getResources().getString(R.string.transport));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_car_alt));
+                                category.setText(R.string.transport);
+                            }
+                            else if (i == R.id.rbCasual) {
+                                type.setPurpose(getResources().getString(R.string.daily));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_home_line));
+                                category.setText(R.string.daily);
+                            }
+                            else if (i == R.id.rbTravel) {
+                                type.setPurpose(getResources().getString(R.string.travel));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_plane));
+                                category.setText(R.string.travel);
+                            }
                         }
                     });
 
@@ -221,19 +247,64 @@ public class BudgetsFragment extends Fragment {
                         @Override
                         public void onClick(View view) {
                             if(type.getPurpose()==null){
-                                newTransaction.setPurpose("Ăn uống");
+                                newTransaction.setPurpose(getResources().getString(R.string.eating));
                             }
                             else {
                                 newTransaction.setPurpose(type.getPurpose());
                             }
-                            dialog.findViewById(R.id.categoryContainer).setVisibility(View.GONE);
+                            dialog.findViewById(R.id.outcomeCategoryPicker).setVisibility(View.GONE);
                             dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
                         }
                     });
 
                 }
                 else {
-                    //openDialogIncomeCategory();
+                    androidx.appcompat.widget.LinearLayoutCompat  categoryLayout = (androidx.appcompat.widget.LinearLayoutCompat ) dialog.findViewById(R.id.incomeCategoryPicker);
+                    dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.GONE);
+                    dialog.findViewById(R.id.outcomeCategoryPicker).setVisibility(View.GONE);
+                    categoryLayout.setVisibility(View.VISIBLE);
+                    TransactionCard type = new TransactionCard();
+                    RadioGroup categoryGroup = categoryLayout.findViewById(R.id.incomeCategoryGroup);
+                    MaterialButton saveBt = categoryLayout.findViewById(R.id.btn_save_category);
+                    categoryGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                            if (i == R.id.rbSalary) {
+                                type.setPurpose(getResources().getString(R.string.salary));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_salary));
+                                category.setText(R.string.salary);
+                            }
+                            else if (i == R.id.rbSavings) {
+                                type.setPurpose(getResources().getString(R.string.savings));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_savings));
+                                category.setText(R.string.savings);
+                            }
+                            else if (i == R.id.rbDealing) {
+                                type.setPurpose(getResources().getString(R.string.dealing));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_dealing));
+                                category.setText(R.string.dealing);
+                            }
+                            else if (i == R.id.rbInterest) {
+                                type.setPurpose(getResources().getString(R.string.interest));
+                                category.setIcon(getResources().getDrawable(R.drawable.ic_interest));
+                                category.setText(R.string.interest);
+                            }
+                        }
+                    });
+
+                    saveBt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(type.getPurpose()==null){
+                                newTransaction.setPurpose(getResources().getString(R.string.savings));
+                            }
+                            else {
+                                newTransaction.setPurpose(type.getPurpose());
+                            }
+                            dialog.findViewById(R.id.incomeCategoryPicker).setVisibility(View.GONE);
+                            dialog.findViewById(R.id.makeTransactionContainer).setVisibility(View.VISIBLE);
+                        }
+                    });
                 }
             }
         });

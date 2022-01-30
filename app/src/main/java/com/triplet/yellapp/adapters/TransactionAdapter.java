@@ -119,7 +119,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         TextView cancelDeleteTs = dialog.findViewById(R.id.cancel_delete_db);
 
 
-        String elementS = "Bạn có chắc là muốn xoá giao dịch";
+        String elementS = "Bạn có chắc là muốn xoá giao dịch ";
         String s = elementS + transactionCard.getContent() + " không?";
 
         Spannable spannable = new SpannableString(s);
