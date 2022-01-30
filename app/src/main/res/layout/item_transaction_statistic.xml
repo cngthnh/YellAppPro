@@ -61,7 +61,7 @@
                 >
                 <ProgressBar
 
-                    android:id="@+id/circularPercentageStatistic"
+                    android:id="@+id/circularPercentageStatisticOutcome"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -70,6 +70,19 @@
                     android:progress="60"
                     android:progressDrawable="@drawable/circular_outcome"
                     android:secondaryProgress="100" />
+
+                <ProgressBar
+
+                    android:id="@+id/circularPercentageStatisticIncome"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="60"
+                    android:progressDrawable="@drawable/circular_income"
+                    android:secondaryProgress="100"
+                    android:visibility="invisible"/>
 
                 <TextView
                     android:id="@+id/percentageCategory"

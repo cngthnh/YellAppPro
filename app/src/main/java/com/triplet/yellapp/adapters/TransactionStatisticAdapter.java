@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -73,40 +74,70 @@ public class TransactionStatisticAdapter extends RecyclerView.Adapter<Transactio
             return;
         }
 
-        if(categoryStatistic.getPurpose().equals("Ăn uống"))
-            holder.categoryImg.setImageResource(R.drawable.ic_pizza);
-        else if(categoryStatistic.getPurpose().equals("Mua sắm"))
-            holder.categoryImg.setImageResource(R.drawable.ic_basket);
-        else if(categoryStatistic.getPurpose().equals("Sinh hoạt hằng ngày"))
-            holder.categoryImg.setImageResource(R.drawable.ic_home_line);
-        else if(categoryStatistic.getPurpose().equals("Cà phê"))
-            holder.categoryImg .setImageResource(R.drawable.ic_coffee);
-        else if(categoryStatistic.getPurpose().equals("Di chuyển"))
-            holder.categoryImg.setImageResource(R.drawable.ic_car_alt);
-        else if(categoryStatistic.getPurpose().equals("Du lịch"))
-            holder.categoryImg.setImageResource(R.drawable.ic_plane);
-        else if(categoryStatistic.getPurpose().equals("Lương tháng")) {
-            holder.categoryImg.setImageResource(R.drawable.ic_salary);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
-            //holder.percentage.setProgressDrawable();
-        }else if(categoryStatistic.getPurpose().equals("Tiết kiệm")) {
-            holder.categoryImg.setImageResource(R.drawable.ic_savings);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
-
-        }else if(categoryStatistic.getPurpose().equals("Bán đồ cũ")) {
-            holder.categoryImg.setImageResource(R.drawable.ic_dealing);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
-        }else if(categoryStatistic.getPurpose().equals("Tiền lời")) {
-            holder.categoryImg.setImageResource(R.drawable.ic_interest);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
-        }
-
         holder.purpose.setText(categoryStatistic.purpose);
         holder.total.setText(String.valueOf(categoryStatistic.getAmount()) + "vnđ");
 
         int percentage = (Math.abs(categoryStatistic.getAmount())* 100) / categoryStatistic.getTotal();
         holder.percentageText.setText(String.valueOf(percentage) + "%");
-        holder.percentage.setProgress(percentage);
+
+        holder.percentageOutcome.setProgress(percentage);
+        holder.percentageIncome.setProgress(percentage);
+
+        if(categoryStatistic.getPurpose().equals("Ăn uống")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_pizza);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Mua sắm")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_basket);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Sinh hoạt hằng ngày")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_home_line);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Cà phê")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_coffee);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Di chuyển")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_car_alt);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Du lịch")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_plane);
+            holder.percentageIncome.setVisibility(View.INVISIBLE);
+            holder.percentageOutcome.setVisibility(View.VISIBLE);
+        }
+        else if(categoryStatistic.getPurpose().equals("Lương tháng")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_salary);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.percentageIncome.setVisibility(View.VISIBLE);
+            holder.percentageOutcome.setVisibility(View.INVISIBLE);
+
+        }else if(categoryStatistic.getPurpose().equals("Tiết kiệm")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_savings);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.percentageIncome.setVisibility(View.VISIBLE);
+            holder.percentageOutcome.setVisibility(View.INVISIBLE);
+
+        }else if(categoryStatistic.getPurpose().equals("Bán đồ cũ")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_dealing);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.percentageIncome.setVisibility(View.VISIBLE);
+            holder.percentageOutcome.setVisibility(View.INVISIBLE);
+        }else if(categoryStatistic.getPurpose().equals("Tiền lời")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_interest);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.percentageIncome.setVisibility(View.VISIBLE);
+            holder.percentageOutcome.setVisibility(View.INVISIBLE);
+        }
+
+
 
     }
 
@@ -122,14 +153,16 @@ public class TransactionStatisticAdapter extends RecyclerView.Adapter<Transactio
         private ImageView categoryImg;
         private AppCompatTextView purpose;
         private AppCompatTextView total;
-        private ProgressBar percentage;
+        private ProgressBar percentageIncome;
+        private ProgressBar percentageOutcome;
         private TextView percentageText;
         public TransactionStatisticViewHolder(@NonNull View itemView) {
             super(itemView);
             categoryImg = itemView.findViewById((R.id.category_img_statistic));
             purpose = itemView.findViewById((R.id.transactionTypeItem));
             total = itemView.findViewById((R.id.total_amount_type_transaction));
-            percentage = itemView.findViewById(R.id.circularPercentageStatistic);
+            percentageOutcome = itemView.findViewById(R.id.circularPercentageStatisticOutcome);
+            percentageIncome = itemView.findViewById(R.id.circularPercentageStatisticIncome);
             percentageText = itemView.findViewById(R.id.percentageCategory);
         }
     }
