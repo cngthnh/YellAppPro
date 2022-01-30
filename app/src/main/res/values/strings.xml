@@ -44,4 +44,8 @@
     <string name="daily">Sinh hoạt hằng ngày</string>
     <string name="hangout">Cà phê</string>
     <string name="transport">Di chuyển</string>
+    <string name="salary">Lương tháng</string>
+    <string name="savings">Tiết kiệm</string>
+    <string name="dealing">Bán đồ cũ</string>
+    <string name="interest">Tiền lời</string>
 </resources>
