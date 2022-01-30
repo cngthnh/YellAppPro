@@ -11,13 +11,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
-import com.triplet.yellapp.adapters.DashboardsAdapter;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.InfoMessage;
-import com.triplet.yellapp.models.UserAccount;
-import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
@@ -28,12 +25,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -100,7 +95,7 @@ public class DashboardRepository {
     }
 
     public boolean getDashboard(String dashboardId) {
-        DashboardCard object = realm.where(DashboardCard.class).equalTo("id", dashboardId).findFirst();
+        DashboardCard object = realm.where(DashboardCard.class).equalTo("dashboard_id", dashboardId).findFirst();
         if (object == null) {
             getDashboardFromServer(dashboardId);
             return false;
@@ -169,8 +164,9 @@ public class DashboardRepository {
         call.enqueue(new Callback<InfoMessage>() {
             @Override
             public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellDeleteDashboard", "onResponse: " + response);
+                Log.w("Dashboard: ", "DeleteCommandResponse");
                 if (response.isSuccessful()) {
+                    Log.w("Dashboard: ", "Deleted Successfully");
                 }
             }
 
@@ -185,10 +181,11 @@ public class DashboardRepository {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                DashboardCard object = realm.where(DashboardCard.class).equalTo("id",dashboardCard.getId()).findFirst();
+                DashboardCard object = realm.where(DashboardCard.class).equalTo("dashboard_id",dashboardCard.getDashboard_id()).findFirst();
                 if (object == null)
                     return;
                 object.deleteFromRealm();
+                Log.w("DashboardOnRealm: ", "Deleted " + dashboardCard.getName());
             }
         });
         deleteDashboardFromServer(dashboardCard);
@@ -300,8 +297,8 @@ public class DashboardRepository {
     }
 
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
-        String jsonYellTask = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
+        String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
         return requestBody;
     }
 

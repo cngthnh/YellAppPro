@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
-import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.utils.ApiService;
@@ -73,10 +72,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         if(notification.getRole() == null){
             holder.confirmed.setVisibility(View.GONE);
-            holder.unconfirm.setVisibility(View.GONE);
+            holder.unconfirmed.setVisibility(View.GONE);
         }
         else{
-            holder.unconfirm.setVisibility(View.VISIBLE);
+            holder.unconfirmed.setVisibility(View.VISIBLE);
             holder.confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -156,7 +155,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         TextView message;
         TextView timeNotification;
         TextView confirmed;
-        LinearLayout unconfirm;
+        LinearLayout unconfirmed;
         CardView confirmButton;
         CardView cancelButton;
 
@@ -165,7 +164,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             message = itemView.findViewById(R.id.message);
             timeNotification = itemView.findViewById(R.id.time_noti);
             confirmed = itemView.findViewById(R.id.confirm);
-            unconfirm = itemView.findViewById(R.id.unconfirm);
+            unconfirmed = itemView.findViewById(R.id.unconfirm);
             confirmButton = itemView.findViewById(R.id.confirm_bt);
             cancelButton = itemView.findViewById(R.id.cancel_bt);
         }

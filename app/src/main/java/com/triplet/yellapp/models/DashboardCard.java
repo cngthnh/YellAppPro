@@ -2,9 +2,6 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
-import java.io.Serializable;
-import java.util.List;
-
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -12,7 +9,7 @@ import io.realm.annotations.PrimaryKey;
 public class DashboardCard extends RealmObject {
     @PrimaryKey
     @Json(name = "dashboard_id")
-    public String id;
+    public String dashboard_id;
     @Json(name = "name")
     public String name;
     @Json(name = "description")
@@ -33,20 +30,20 @@ public class DashboardCard extends RealmObject {
         this.name = name;
     }
 
-    public DashboardCard(String id, String name, String description, RealmList<YellTask> tasks, RealmList<DashboardPermission> users) {
-        this.id = id;
+    public DashboardCard(String dashboard_id, String name, String description, RealmList<YellTask> tasks, RealmList<DashboardPermission> users) {
+        this.dashboard_id = dashboard_id;
         this.name = name;
         //this.description = description;
         this.tasks = tasks;
         this.users = users;
     }
 
-    public String getId() {
-        return id;
+    public String getDashboard_id() {
+        return dashboard_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDashboard_id(String dashboard_id) {
+        this.dashboard_id = dashboard_id;
     }
 
     public String getName() {

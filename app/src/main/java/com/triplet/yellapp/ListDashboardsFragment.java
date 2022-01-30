@@ -146,7 +146,7 @@ public class ListDashboardsFragment extends Fragment {
             public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    String id = response.body().getId();
+                    String id = response.body().getDashboard_id();
                     getDb(id, view);
                 } else {
                     if (response.code() == 401) {

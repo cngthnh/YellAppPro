@@ -28,18 +28,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.moshi.Moshi;
-import com.triplet.yellapp.adapters.DashboardsAdapter;
 import com.triplet.yellapp.adapters.TaskAdapter;
 import com.triplet.yellapp.adapters.UsersAdapter;
 import com.triplet.yellapp.adapters.UsersDetailAdapter;
@@ -47,19 +43,15 @@ import com.triplet.yellapp.databinding.FragmentDashboardBinding;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
-import com.triplet.yellapp.models.InfoMessage;
-import com.triplet.yellapp.models.UserAccount;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.MySpannable;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.DashboardViewModel;
-import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -138,7 +130,7 @@ public class DashboardFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(inflater, container, false );
         View view = binding.getRoot();
-        if (!dashboardViewModel.getDashboard(dashboardCard.getId()))
+        if (!dashboardViewModel.getDashboard(dashboardCard.getDashboard_id()))
             loadingDialog.startLoadingDialog();
         bindingData();
         if(dashboardCard.getDescription()!=null){
@@ -278,7 +270,7 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getPermission(dashboardCard).equals("admin"))
-                    dashboardViewModel.addYellTask(new YellTask(dashboardCard.getId(),"Untitled"));
+                    dashboardViewModel.addYellTask(new YellTask(dashboardCard.getDashboard_id(),"Untitled"));
                 else
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
             }
@@ -303,7 +295,7 @@ public class DashboardFragment extends Fragment {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<DashboardCard> call;
 
-        call = service.getDashboard(dashboardCard.getId(), "full");
+        call = service.getDashboard(dashboardCard.getDashboard_id(), "full");
         call.enqueue(new Callback<DashboardCard>() {
             @Override
             public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
@@ -413,7 +405,7 @@ public class DashboardFragment extends Fragment {
                         }
                         if(role != null && userId.length() > 0)
                         {
-                            DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getId(), userId, role);
+                            DashboardPermission dbPermission = new DashboardPermission(dashboardCard.getDashboard_id(), userId, role);
                             dashboardViewModel.inviteSomeone(dbPermission);
                         }
                         return false;

@@ -306,7 +306,7 @@ public class YellTaskRepository {
         call.enqueue(new Callback<InfoMessage>() {
             @Override
             public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellTaskDeleted", "onResponse: " + response.body());
+                Log.w("YellTaskDeleted", "onResponse: " + response.body().getMessage());
                 if (response.isSuccessful()) {
                 }
                 else {
@@ -335,6 +335,7 @@ public class YellTaskRepository {
                 if (object == null)
                     return;
                 object.deleteFromRealm();
+                Log.w("YellTaskDeletedOnServer", "Deleted " + yellTask.getName()+" on DB");
             }
         });
         deleteTaskOnServer(yellTask);

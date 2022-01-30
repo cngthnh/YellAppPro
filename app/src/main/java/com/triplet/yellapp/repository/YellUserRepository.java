@@ -3,23 +3,19 @@ package com.triplet.yellapp.repository;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Application;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 
 import com.squareup.moshi.Moshi;
-import com.triplet.yellapp.LoginActivity;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.TransactionCard;
-import com.triplet.yellapp.models.UserAccount;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
@@ -30,7 +26,6 @@ import com.triplet.yellapp.utils.SessionManager;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -166,10 +161,10 @@ public class YellUserRepository {
             public void onResponse(Call<DashboardCard> call, Response<DashboardCard> response) {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    dashboardCard.setId(response.body().getId());
+                    dashboardCard.setDashboard_id(response.body().getDashboard_id());
                     dashboardCard.last_sync = df.format(new Date());
                     RealmList<DashboardPermission> dashboardPermissions = new RealmList<>();
-                    dashboardPermissions.add(new DashboardPermission(dashboardCard.getId(),uid,"admin"));
+                    dashboardPermissions.add(new DashboardPermission(dashboardCard.getDashboard_id(),uid,"admin"));
                     dashboardCard.setUsers(dashboardPermissions);
                     UserAccountFull userAccountFull = yellUserLiveData.getValue();
                     userAccountFull.addDashboard(dashboardCard);
