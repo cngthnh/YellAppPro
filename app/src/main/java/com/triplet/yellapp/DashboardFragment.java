@@ -87,11 +87,16 @@ public class DashboardFragment extends Fragment {
         dashboardViewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
             @Override
             public void onChanged(DashboardCard dashboard) {
-                yellTasks = new ArrayList<>();
-                List<YellTask> temp = dashboard.getTasks();
-                for (int i=0;i< temp.size();i++) {
-                    if (temp.get(i).getParent_id() == null)
-                        yellTasks.add(temp.get(i));
+                try {
+                    yellTasks = new ArrayList<>();
+                    List<YellTask> temp = dashboard.getTasks();
+                    for (int i=0;i< temp.size();i++) {
+                        if (temp.get(i).getParent_id() == null)
+                            yellTasks.add(temp.get(i));
+                    }
+                }
+                catch (Exception e) {
+                    dashboardViewModel.getDashboard(dashboardCard.getDashboard_id());
                 }
                 if (getActivity() != null) {
                    if (loadingDialog != null)
