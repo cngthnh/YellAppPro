@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.triplet.yellapp.adapters.TransactionAdapter;
@@ -16,7 +18,9 @@ import com.triplet.yellapp.databinding.FragmentBudgetHistoryBinding;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.BudgetViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HistoryBudgetFragment extends Fragment {
@@ -24,23 +28,50 @@ public class HistoryBudgetFragment extends Fragment {
     FragmentBudgetHistoryBinding binding;
     TransactionAdapter transactionAdapter;
     SessionManager sessionManager;
+    BudgetViewModel budgetViewModel;
+    LoadingDialog loadingDialog;
 
-    public HistoryBudgetFragment(List<TransactionCard> transactionCardList) {
-        this.transactionCardList = transactionCardList;
+    public HistoryBudgetFragment(BudgetViewModel budgetViewModel) {
+        this.budgetViewModel = budgetViewModel;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        loadingDialog = new LoadingDialog(getActivity());
+        sessionManager = SessionManager.getInstance(getActivity().
+                getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
+        budgetViewModel.getBudgetCardLiveData().observe(this, new Observer<BudgetCard>() {
+            @Override
+            public void onChanged(BudgetCard budget) {
+                List<TransactionCard> temp = budget.getTransactionsList();
+                transactionCardList = new ArrayList<>();
+                for (int i = 0; i<temp.size();i++) {
+                    transactionCardList.add(temp.get(i));
+                }
+
+                if (getActivity() != null) {
+                    if (loadingDialog != null)
+                        loadingDialog.dismissDialog();
+                    bindingData();
+                }
+            }
+        });
+        transactionAdapter = new TransactionAdapter(getContext(), sessionManager);
+    }
+
+    private void bindingData() {
+        transactionAdapter.setData(transactionCardList);
+        transactionAdapter.notifyDataSetChanged();
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentBudgetHistoryBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-        sessionManager = SessionManager.getInstance(getActivity().
-                getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
+        bindingData();
 
-
-        transactionAdapter = new TransactionAdapter(getContext(), sessionManager);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        transactionAdapter.setData(this.transactionCardList);
 
         binding.recycleViewTransaction.setLayoutManager(layoutManager);
         binding.recycleViewTransaction.setAdapter(transactionAdapter);

@@ -23,6 +23,8 @@ import android.widget.Toast;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.button.MaterialButton;
@@ -31,11 +33,20 @@ import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.ViewPagerBudgetAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetBinding;
 import com.triplet.yellapp.models.BudgetCard;
+import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.TransactionCard;
+import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.BudgetViewModel;
+import com.triplet.yellapp.viewmodels.DashboardViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -46,10 +57,13 @@ import retrofit2.Response;
 public class BudgetsFragment extends Fragment {
     FragmentBudgetBinding binding;
     BudgetCard budgetCard;
-
+    BudgetViewModel budgetViewModel;
     SessionManager sessionManager;
     ApiService service;
     Moshi moshi = new Moshi.Builder().build();
+    LoadingDialog loadingDialog;
+    List<TransactionCard> transactionCards;
+    ViewPagerBudgetAdapter viewPagerBudgetAdapter;
 
 
     public BudgetsFragment(BudgetCard budgetCard, SessionManager sessionManager) {
@@ -60,20 +74,45 @@ public class BudgetsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
+        budgetViewModel.init();
+        loadingDialog = new LoadingDialog(getActivity());
+
+        budgetViewModel.getBudgetCardLiveData().observe(this, new Observer<BudgetCard>() {
+            @Override
+            public void onChanged(BudgetCard budget) {
+                List<TransactionCard> temp = budget.getTransactionsList();
+                transactionCards = new ArrayList<>();
+                for (int i = 0; i<temp.size();i++) {
+                    transactionCards.add(temp.get(i));
+                }
+
+                if (getActivity() != null) {
+                    if (loadingDialog != null)
+                        loadingDialog.dismissDialog();
+                    budgetCard = budget;
+                    bindingData();
+                }
+            }
+        });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    private void bindingData() {
+        binding.budgetName.setText(budgetCard.getName());
+        binding.budgetBalance.setText(String.valueOf(budgetCard.getBalance()));
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentBudgetBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-        binding.budgetName.setText(budgetCard.getName());
-        binding.budgetBalance.setText(String.valueOf(budgetCard.getBalance()));
-
-
+        if (!budgetViewModel.getBudget(budgetCard.getId()))
+            loadingDialog.startLoadingDialog();
+        bindingData();
         binding.backBudget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,8 +122,8 @@ public class BudgetsFragment extends Fragment {
             }
         });
 
-        ViewPagerBudgetAdapter viewPagerBudgetAdapter = new ViewPagerBudgetAdapter(
-                getActivity().getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, budgetCard.getTransactionsList());
+        viewPagerBudgetAdapter = new ViewPagerBudgetAdapter(
+                getActivity().getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, budgetViewModel);
         binding.viewpager.setAdapter(viewPagerBudgetAdapter);
 
         binding.tablayout.setupWithViewPager(binding.viewpager);
@@ -170,7 +209,7 @@ public class BudgetsFragment extends Fragment {
                             else if (i == R.id.rbBuying)
                                 type.setPurpose("Mua sắm");
                             else if (i == R.id.rbTransport)
-                                type.setPurpose("Đi lại");
+                                type.setPurpose("Di chuyển");
                             else if (i == R.id.rbCasual)
                                 type.setPurpose("Sinh hoạt hằng ngày");
                             else if (i == R.id.rbTravel)
@@ -216,7 +255,9 @@ public class BudgetsFragment extends Fragment {
                     newTransaction.setBudget_id(budgetCard.getId());
                     newTransaction.setContent(content.getText().toString());
                     newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
-                    addTransactionToServer(newTransaction, dialog);
+
+                    budgetViewModel.addTransaction(newTransaction);
+                    //addTransactionToServer(newTransaction, dialog);
                     dialog.dismiss();
                 }
             }

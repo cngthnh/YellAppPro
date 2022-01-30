@@ -38,4 +38,10 @@
     <string name="create_budget">Tạo sổ tay chi tiêu</string>
     <string name="create_new_budget">Tạo sổ tay chi tiêu</string>
 
+    <string name="eating">Ăn uống</string>
+    <string name="travel">Du lịch</string>
+    <string name="shopping">Mua sắm</string>
+    <string name="daily">Sinh hoạt hằng ngày</string>
+    <string name="hangout">Cà phê</string>
+    <string name="transport">Di chuyển</string>
 </resources>
