@@ -188,6 +188,7 @@ public class BudgetRepository {
                     transactionCard.last_sync = df.format(new Date());
                     BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
                     budgetCard.addTransaction(transactionCard);
+                    budgetCard.setBalance(budgetCard.getBalance()+transactionCard.getAmount());
                     budgetCardMutableLiveData.postValue(budgetCard);
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override

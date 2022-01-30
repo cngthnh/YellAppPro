@@ -2,6 +2,7 @@ package com.triplet.yellapp.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.text.Spannable;
@@ -89,6 +90,24 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             holder.categoryImg.setImageResource(R.drawable.ic_car_alt);
         else if(transactionCard.getPurpose().equals("Du lịch"))
             holder.categoryImg.setImageResource(R.drawable.ic_plane);
+        else if(transactionCard.getPurpose().equals("Lương tháng")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_salary);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Tiết kiệm")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_savings);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Bán đồ cũ")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_dealing);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Tiền lời")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_interest);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }
+
 
 
         viewBinderHelper.bind(holder.swipeRevealLayout, String.valueOf(1));

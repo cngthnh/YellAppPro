@@ -2,16 +2,339 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:gravity="center"
-    >
-    <TextView
+    android:gravity="center">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Thống kê"
-        android:gravity="center_horizontal"
-        />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:layout_marginHorizontal="5dp"
+            >
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/incomeBtn_statistic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/blue"
+                android:text="Thu nhập"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                app:cornerRadius="30dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/outcomeBtn_statistic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:backgroundTint="@color/icon_tint"
+                android:textColor="@color/background_grey"
+                android:text="Chi tiêu"
+                android:textSize="11sp"
+                app:cornerRadius="30dp" />
+
+
+        </LinearLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+                <LinearLayout
+                    android:id="@+id/income_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:id="@+id/layout_percentage_income"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="7">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:background="@color/white"
+                            android:layout_weight="3"
+                            android:layout_marginStart="5dp"
+                            >
+
+                            <ProgressBar
+
+                                android:id="@+id/circularProgressbarIncome"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:indeterminate="false"
+                                android:max="100"
+                                android:progress="60"
+                                android:progressDrawable="@drawable/circular_income"
+                                android:secondaryProgress="100" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center_vertical"
+                                >
+                                <TextView
+                                    android:id="@+id/typeStatisticIncome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:text="Tiết kiệm"
+                                    android:fontFamily="@font/roboto_medium"
+                                    android:textColor="@color/icon_tint"
+                                    android:textSize="14sp" />
+                                <TextView
+                                    android:id="@+id/percentageIncome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:text="60%"
+                                    android:fontFamily="@font/roboto_medium"
+                                    android:textColor="@color/background_dark_card"
+                                    android:textSize="30sp" />
+                            </LinearLayout>
+
+
+                        </FrameLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="4"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="5dp"
+                            >
+
+                            <TextView
+                                android:id="@+id/title_threshold_statistic_income"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Mục tiêu tiết kiệm"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/roboto_bold"
+                                android:textSize="16sp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/threshold_statistic_income"
+                                android:text="0đ"
+                                android:fontFamily="@font/roboto_regular"
+                                android:textSize="20sp"/>
+
+                            <TextView
+                                android:id="@+id/title_balance_statistic_income"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tổng thu nhập"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/roboto_bold"
+                                android:textSize="16sp"
+                                android:layout_marginTop="10dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/balance_statistic_income"
+                                android:text="20.000.000đ"
+                                android:fontFamily="@font/roboto_regular"
+                                android:textSize="20sp"/>
+
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+                    <View
+                        android:id="@+id/line_statistic"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/grey"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Chi tiết"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textSize="20sp"
+                        android:textColor="@color/black"
+                        android:paddingHorizontal="15dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycleView_statistic_income"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:paddingHorizontal="15dp"
+                        >
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/outcome_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="5dp"
+                        android:weightSum="7">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:background="@color/white"
+                            android:layout_weight="3"
+                            >
+
+                            <ProgressBar
+
+                                android:id="@+id/circularProgressbarOutcome"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:indeterminate="false"
+                                android:max="100"
+                                android:progress="60"
+                                android:progressDrawable="@drawable/circular_outcome"
+                                android:secondaryProgress="100" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:id="@+id/typeStatisticOutcome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:text="Chi tiêu"
+                                    android:fontFamily="@font/roboto_medium"
+                                    android:textColor="@color/icon_tint"
+                                    android:textSize="14sp" />
+                                <TextView
+                                    android:id="@+id/percentageOutcome"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:text="60%"
+                                    android:fontFamily="@font/roboto_medium"
+                                    android:textColor="@color/background_dark_card"
+                                    android:textSize="30sp" />
+                            </LinearLayout>
+
+
+                        </FrameLayout>
+
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="4"
+                            android:layout_marginStart="20dp"
+                            >
+
+                            <TextView
+                                android:id="@+id/title_total_budget"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tổng ngân sách"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/roboto_bold"
+                                android:textSize="16sp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/total_budget_outcome"
+                                android:text="0đ"
+                                android:fontFamily="@font/roboto_regular"
+                                android:textSize="20sp"/>
+
+                            <TextView
+                                android:id="@+id/title_balance_statistic"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tổng chi tiêu"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/roboto_bold"
+                                android:textSize="16sp"
+                                android:layout_marginTop="10dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/total_outcome_statistic"
+                                android:text="20.000.000đ"
+                                android:fontFamily="@font/roboto_regular"
+                                android:textSize="20sp"/>
+
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/grey"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Chi tiết"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textSize="20sp"
+                        android:textColor="@color/black"
+                        android:paddingHorizontal="15dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycleView_statistic_outcome"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:paddingHorizontal="15dp"
+                        >
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                </LinearLayout>
+            </FrameLayout>
+        </androidx.core.widget.NestedScrollView>
+
+
+
+
+    </LinearLayout>
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

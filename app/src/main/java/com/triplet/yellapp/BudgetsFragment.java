@@ -87,7 +87,7 @@ public class BudgetsFragment extends Fragment {
                 for (int i = 0; i<temp.size();i++) {
                     transactionCards.add(temp.get(i));
                 }
-
+                budgetCard.setBalance(budget.getBalance());
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -325,11 +325,20 @@ public class BudgetsFragment extends Fragment {
                 else {
                     newTransaction.setBudget_id(budgetCard.getId());
                     newTransaction.setContent(content.getText().toString());
-                    newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
+                    if(newTransaction.getType() == 0)
+                        newTransaction.setAmount(-Integer.parseInt(amount.getText().toString()));
+                    else
+                        newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
 
-                    budgetViewModel.addTransaction(newTransaction);
+                    if(Math.abs(newTransaction.getAmount()) > budgetCard.balance)
+                        Toast.makeText(getContext(), "Số dư còn lại của tài khoản không đủ để thực hiện giao dịch này",
+                                Toast.LENGTH_LONG).show();
+                    else {
+                        budgetViewModel.addTransaction(newTransaction);
+                        dialog.dismiss();
+                    }
                     //addTransactionToServer(newTransaction, dialog);
-                    dialog.dismiss();
+
                 }
             }
         });
