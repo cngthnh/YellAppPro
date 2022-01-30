@@ -153,16 +153,22 @@ public class YellTaskRepository {
                 if (response.isSuccessful()) {
                     yellTask.setTask_id(response.body().getTask_id());
                     yellTask.last_sync = df.format(new Date());
-                    DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
-                    if (dashboardCard == null) {
-                        getDashboardFromServer(response.body().getDashboard_id());
+                    YellTask parentTask = YellTaskResponseLiveData.getValue();
+                    while (parentTask == null) {
+                        getTaskFromServer(yellTask.getTask_id());
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    dashboardCard.addTask(yellTask);
-                    dashboardCardMutableLiveData.postValue(dashboardCard);
+
+                    parentTask.addSubtask(yellTask);
+                    YellTaskResponseLiveData.postValue(parentTask);
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            realm.copyToRealmOrUpdate(dashboardCard);
+                            realm.copyToRealmOrUpdate(parentTask);
                         }
                     });
                 } else {

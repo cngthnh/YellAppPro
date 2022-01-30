@@ -161,8 +161,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.taskName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TaskFragment fragment = TaskFragment.newInstance(yellTask.getName(),
-                        yellTask.getDashboard_id(), yellTask.getTask_id(), parentName, yellTask.getParent_id());
+                TaskFragment fragment = new TaskFragment(yellTask,parentName);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)

@@ -74,6 +74,10 @@ public class TaskFragment extends Fragment {
     public TaskFragment() {
         // Required empty public constructor
     }
+    public TaskFragment(YellTask yellTask, String parentName) {
+        this.currentYellTask = yellTask;
+        previousTaskName = parentName;
+    }
 
     /**
      * Use this factory method to create a new instance of
@@ -113,13 +117,13 @@ public class TaskFragment extends Fragment {
         subTasks = new ArrayList<>();
         loadingDialog = new LoadingDialog(getActivity());
         viewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);
-        currentYellTask = new YellTask();
         viewModel.init();
         viewModel.getYellTaskLiveData().observe(this, new Observer<YellTask>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(YellTask yellTask) {
                 currentYellTask = yellTask;
+                subTasks = currentYellTask.getSubtasks();
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -146,6 +150,7 @@ public class TaskFragment extends Fragment {
                         }
                         binding.taskName.setText(yellTask.getName());
                         binding.contentEditText.setText(yellTask.getContent());
+                        yellTaskAdapter.setYellTaskArrayList(subTasks);
                     }
                 }
             }
@@ -164,14 +169,8 @@ public class TaskFragment extends Fragment {
             @Override
             public void onChanged(DashboardCard dashboardCard) {
                 dashboard = dashboardCard;
-                List<YellTask> list = dashboardCard.getTasks();
                 try {
-                    subTasks = new ArrayList<>();
-                    for (int i = 0; i< list.size();i++)
-                        if (list.get(i).getParent_id() != null)
-                            if (list.get(i).getParent_id().equals(currentYellTask.getTask_id()))
-                                subTasks.add(list.get(i));
-                    yellTaskAdapter.setYellTaskArrayList(subTasks);
+                    yellTaskAdapter.setRole(dashboardCard.getUsers());
                 }
                 catch (Exception e)
                 {
@@ -181,13 +180,8 @@ public class TaskFragment extends Fragment {
             }
         });
         yellTaskAdapter = new TaskAdapter(getActivity());
-        if (getArguments() != null) {
-            currentYellTask.setName(getArguments().getString(ARG_PARAM1));
-            currentYellTask.setDashboard_id(getArguments().getString(ARG_PARAM2));
-            currentYellTask.setTask_id(getArguments().getString(ARG_PARAM3));
-            previousTaskName = getArguments().getString(ARG_PARAM4);
-            currentYellTask.setParent_id(getArguments().getString(ARG_PARAM5));
-        }
+        yellTaskAdapter.setParentName(currentYellTask.getName());
+        viewModel.getDashboard(currentYellTask.getDashboard_id());
     }
 
 
@@ -202,7 +196,6 @@ public class TaskFragment extends Fragment {
         View view = binding.getRoot();
         if (!viewModel.getTask(currentYellTask.getTask_id()))
             loadingDialog.startLoadingDialog();
-        viewModel.getDashboard(currentYellTask.getDashboard_id());
         setToolbarTaskListener();
         setConfigTaskListener();
         return view;
@@ -295,6 +288,7 @@ public class TaskFragment extends Fragment {
                 }
                 else {
                     taskName.setError(null);
+                    yellTaskAdapter.setParentName(s.toString());
                     editNameTask.setClickable(true);
                     if (taskIcon.getTag() == "true")
                         editNameTask.setColorFilter(getResources().getColor(R.color.green));
@@ -367,6 +361,8 @@ public class TaskFragment extends Fragment {
                 }
             }
         });
+        if (previousTaskName != null)
+            binding.previousTask.setText(previousTaskName);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -586,12 +582,18 @@ public class TaskFragment extends Fragment {
     private boolean checkPermission() {
         String uid = getActivity().getSharedPreferences(getActivity().getResources().getString(R.string.yell_sp), MODE_PRIVATE)
                 .getString("uid","n");
-        List<DashboardPermission> users = dashboard.getUsers();
-        for (int i = 0;i<users.size();i++) {
-            if (uid.equals(users.get(i).getUid()))
-                if ((users.get(i).getRole().equals("admin"))||(users.get(i).getRole().equals("editor"))) {
-                    return true;
-                }
+        try {
+            List<DashboardPermission> users = dashboard.getUsers();
+            for (int i = 0;i<users.size();i++) {
+                if (uid.equals(users.get(i).getUid()))
+                    if ((users.get(i).getRole().equals("admin"))||(users.get(i).getRole().equals("editor"))) {
+                        return true;
+                    }
+            }
+        }
+        catch (Exception e) {
+            viewModel.getDashboard(currentYellTask.getDashboard_id());
+            return checkPermission();
         }
         return false;
     }

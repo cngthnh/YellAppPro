@@ -3,7 +3,9 @@ package com.triplet.yellapp.models;
 import com.squareup.moshi.Json;
 
 import java.util.Date;
+import java.util.List;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.LinkingObjects;
 import io.realm.annotations.PrimaryKey;
@@ -27,6 +29,8 @@ public class YellTask extends RealmObject {
     public String parent_id;
     @Json(name = "start_time")
     public String start_time;
+    @Json(name = "subtasks")
+    public RealmList<YellTask> subtasks;
     @Json(name = "end_time")
     public String end_time;
     @Json(name = "labels")
@@ -108,6 +112,12 @@ public class YellTask extends RealmObject {
         this.end_time = null;
         this.labels = null;
         this.content = null;
+    }
+
+    public void addSubtask(YellTask subtask) {
+        if (subtasks == null)
+            subtasks = new RealmList<>();
+        subtasks.add(subtask);
     }
 
     public String getDashboard_id() {
@@ -196,5 +206,12 @@ public class YellTask extends RealmObject {
 
     public void setContent(String content) {
         this.content = content;
+    }
+    public List<YellTask> getSubtasks() {
+        return subtasks;
+    }
+
+    public void setSubtasks(RealmList<YellTask> subtasks) {
+        this.subtasks = subtasks;
     }
 }
