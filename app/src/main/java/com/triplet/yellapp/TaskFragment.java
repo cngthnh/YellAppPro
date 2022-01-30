@@ -154,7 +154,7 @@ public class TaskFragment extends Fragment {
                         List<YellTask> temp = dashboard.getTasks();
                         for (int i=0;i< temp.size();i++) {
                             if (temp.get(i).getParent_id() != null)
-                                if (temp.get(i).getParent_id() == currentYellTask.getTask_id())
+                                if (temp.get(i).getParent_id().equals(currentYellTask.getTask_id()))
                                     subTasks.add(temp.get(i));
                         }
                         yellTaskAdapter.setYellTaskArrayList(subTasks);
@@ -182,7 +182,7 @@ public class TaskFragment extends Fragment {
                     List<YellTask> temp = dashboard.getTasks();
                     for (int i=0;i< temp.size();i++) {
                         if (temp.get(i).getParent_id() != null)
-                            if (temp.get(i).getParent_id() == currentYellTask.getTask_id())
+                            if (temp.get(i).getParent_id().equals(currentYellTask.getTask_id()))
                                 subTasks.add(temp.get(i));
                     }
                     yellTaskAdapter.setYellTaskArrayList(subTasks);

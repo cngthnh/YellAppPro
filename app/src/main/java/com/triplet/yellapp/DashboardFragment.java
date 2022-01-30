@@ -262,7 +262,7 @@ public class DashboardFragment extends Fragment {
         binding.fabDashboard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getPermission(dashboardCard).equals("admin"))
+                if (getPermission(dashboardCard).equals("admin")||(getPermission(dashboardCard).equals("editor")))
                     dashboardViewModel.addYellTask(new YellTask(dashboardCard.getDashboard_id(),"Untitled"));
                 else
                     Toast.makeText(getContext(), "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
