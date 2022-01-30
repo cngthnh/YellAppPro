@@ -3,5 +3,5 @@
     android:shape="rectangle">
     <corners android:topRightRadius="30dp"
         android:topLeftRadius="30dp"/>
-    <solid android:color="?colorOnPrimary" />
+    <solid android:color="?popupMenuBackground" />
 </shape>

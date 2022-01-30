@@ -5,8 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/yellow_primary">
+    android:background="@color/darker_gray">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toTopOf="@id/formContainer"
+        android:src="@drawable/yell"
+        android:layout_marginBottom="20dp"/>
     <androidx.cardview.widget.CardView
         android:id="@+id/formContainer"
         android:layout_width="match_parent"

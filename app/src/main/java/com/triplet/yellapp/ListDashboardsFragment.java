@@ -74,6 +74,7 @@ public class ListDashboardsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.yellow_primary));
         binding = FragmentListDashboardsBinding.inflate(inflater, container, false );
         View view = binding.getRoot();
         if(!userViewModel.getUser())
