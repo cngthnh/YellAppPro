@@ -255,10 +255,12 @@ public class YellUserRepository {
                     getUserFromServer();
                     Log.w("YellGetNotification", "Get Notification Successfully " + response);
                 }
+                listNotificationLiveData.postValue(response.body());
             }
             @Override
             public void onFailure(Call<List<Notification>> call, Throwable t) {
                 Log.w("YellGetNotification", "onFailure: " + t.getMessage() );
+                listNotificationLiveData.postValue(null);
             }
         });
     }

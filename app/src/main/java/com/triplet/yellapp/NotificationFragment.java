@@ -42,6 +42,7 @@ public class NotificationFragment extends Fragment {
     List<Notification> listNotification;
     NotificationAdapter notificationAdapter;
     UserViewModel userViewModel;
+    LoadingDialog loadingDialog;
 
     public NotificationFragment() {
     }
@@ -54,12 +55,15 @@ public class NotificationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         notificationAdapter = new NotificationAdapter(getActivity(), userViewModel);
+        loadingDialog = new LoadingDialog(getActivity());
         userViewModel.getListNotificationLivaData().observe(this, new Observer<List<Notification>>() {
             @Override
             public void onChanged(List<Notification> notifications) {
                 listNotification = notifications;
                 if (getActivity()!=null) {
                     bindingData();
+                    if (loadingDialog != null)
+                        loadingDialog.dismissDialog();
                 }
             }
         });
@@ -75,7 +79,8 @@ public class NotificationFragment extends Fragment {
         binding = FragmentNotificationBinding.inflate(inflater, container,false);
         getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.yellow_primary));
         View view = binding.getRoot();
-
+        loadingDialog.startLoadingDialog();
+        userViewModel.getNotification();
         binding.backNotification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

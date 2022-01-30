@@ -59,18 +59,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
-        userViewModel.getNotificationLiveData().observe(activity, new Observer<Notification>() {
-            @Override
-            public void onChanged(Notification notification) {
-                notifyDataSetChanged();
-            }
-        });
         return new NotificationAdapter.NotificationViewHolder(view);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        userViewModel.getNotificationLiveData().observe(activity, new Observer<Notification>() {
+            @Override
+            public void onChanged(Notification notification) {
+                notifyDataSetChanged();
+            }
+        });
         Notification notification = mListNotification.get(position);
 
         holder.message.setText(notification.getMessage());
