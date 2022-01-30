@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -76,6 +77,38 @@ public class HistoryBudgetFragment extends Fragment {
         binding.recycleViewTransaction.setLayoutManager(layoutManager);
         binding.recycleViewTransaction.setAdapter(transactionAdapter);
 
+        binding.spinnerHistory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String text = adapterView.getItemAtPosition(i).toString();
+                filter(text);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         return view;
+    }
+
+    private void filter(String text) {
+        List<TransactionCard> filteredList = new ArrayList<>();
+        for(TransactionCard item: transactionCardList){
+            if(text.equals("Chi tiêu"))
+            {
+                if(item.getAmount() < 0)
+                    filteredList.add(item);
+            }
+            else if(text.equals("Thu nhập")) {
+                if (item.getAmount() > 0)
+                    filteredList.add(item);
+            }
+            else{
+                filteredList = transactionCardList;
+                break;
+            }
+        }
+        transactionAdapter.filterList(filteredList);
     }
 }

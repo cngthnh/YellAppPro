@@ -160,6 +160,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return 0;
     }
 
+    public void filterList(List<TransactionCard> filteredList) {
+        mListTransaction = filteredList;
+        notifyDataSetChanged();
+    }
+
     public class TransactionViewHolder extends RecyclerView.ViewHolder{
         private ImageView categoryImg;
         private AppCompatTextView nameTrans;
