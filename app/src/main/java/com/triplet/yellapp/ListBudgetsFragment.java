@@ -6,6 +6,8 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -123,11 +125,6 @@ public class ListBudgetsFragment extends Fragment {
         });
 
 
-        //getListBudgetsFromServer();
-
-        //budgetsAdapter.setData(list);
-        //budgetsAdapter.notifyDataSetChanged();
-
         binding.recycleView.setVisibility(View.VISIBLE);
         binding.recycleView.setAdapter(budgetsAdapter);
 
@@ -147,8 +144,34 @@ public class ListBudgetsFragment extends Fragment {
             }
         });
 
+        binding.searchListBudget.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filter(editable.toString());
+            }
+        });
 
         return view;
+    }
+
+    private void filter(String toString) {
+        List<BudgetCard> filteredList = new ArrayList<>();
+        for(BudgetCard item: list){
+            if(item.getName().toLowerCase().contains(toString.toLowerCase())){
+                filteredList.add(item);
+            }
+        }
+        budgetsAdapter.filterList(filteredList);
     }
 
 
@@ -246,87 +269,5 @@ public class ListBudgetsFragment extends Fragment {
         dialog.show();
     }
 
-    private void addBudgetToServer(BudgetCard newBudget, Dialog dialog) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<BudgetCard> call;
-
-        String json = moshi.adapter(BudgetCard.class).toJson(newBudget);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.createBudget(requestBody);
-        call.enqueue(new Callback<BudgetCard>() {
-            @Override
-            public void onResponse(Call<BudgetCard> call, Response<BudgetCard> response) {
-
-                Log.w("BudgetCreate", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    dialog.dismiss();
-                    newBudget.setId(response.body().getId());
-                    list.add(newBudget);
-                    budgetsAdapter.notifyDataSetChanged();
-                    Toast.makeText(getContext(), "Tạo thành công", Toast.LENGTH_LONG).show();
-                } else {
-
-                    ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(getActivity(), "Tạo thất bại: " + apiError.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BudgetCard> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-                Log.w("YellCreateBudget", "onFailure: " + t.getMessage());
-            }
-        });
-    }
-
-    private void getListBudgetsFromServer() {
-        if (sessionManager.getToken()!=null) {
-            service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-            Call<UserAccount> call;
-            call = service.getUserProfile("compact");
-            call.enqueue(new Callback<UserAccount>() {
-                @Override
-                public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
-                    Log.w("YellBudgetGet", "onResponse: " + response);
-                    if (response.isSuccessful()) {
-                        getListBudget(response.body().getBudgets());
-                    } else {
-                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                        Toast.makeText(getActivity(), apiError.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<UserAccount> call, Throwable t) {
-                    Log.w("YellBudgetFromUser", "onFailure: " + t.getMessage() );
-                }
-            });
-        }
-    }
-    private void getListBudget(List<String> budget){
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<BudgetCard> call;
-        for (int i = 0; i < budget.size(); i++)
-        {
-            call = service.getBudget (budget.get(i), "full");
-            call.enqueue(new Callback<BudgetCard>() {
-                @Override
-                public void onResponse(Call<BudgetCard> call, Response<BudgetCard> response) {
-                    Log.w("YellGetBudget", "onResponse: " + response);
-                    if (response.isSuccessful()) {
-                        list.add(response.body());
-                        budgetsAdapter.notifyDataSetChanged();
-                    }
-                }
-                @Override
-                public void onFailure(Call<BudgetCard> call, Throwable t) {
-                    Log.w("YellGetBudget", "onFailure: " + t.getMessage() );
-                }
-            });
-
-        }
-
-    }
 
 }

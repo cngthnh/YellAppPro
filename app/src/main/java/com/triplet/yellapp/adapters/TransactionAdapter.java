@@ -1,13 +1,11 @@
 package com.triplet.yellapp.adapters;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,47 +14,42 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chauthai.swipereveallayout.SwipeRevealLayout;
 import com.chauthai.swipereveallayout.ViewBinderHelper;
-import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.R;
-import com.triplet.yellapp.models.BudgetCard;
-import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.TransactionCard;
-import com.triplet.yellapp.utils.ApiService;
-import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.BudgetViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>{
 
-    private Context mContext = null;
+    FragmentActivity activity;
     private List<TransactionCard> mListTransaction;
-    private ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
+    private final ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
     SessionManager sessionManager;
-    ApiService service;
-    Moshi moshi = new Moshi.Builder().build();
+    BudgetViewModel budgetViewModel;
+    int balance;
 
-    public TransactionAdapter(Context mContext, SessionManager sessionManager) {
-        this.mContext = mContext;
+    public TransactionAdapter(FragmentActivity activity, SessionManager sessionManager, BudgetViewModel budgetViewModel) {
+        this.activity = activity;
         this.sessionManager = sessionManager;
+        this.budgetViewModel = budgetViewModel;
     }
 
-    public void setData(List<TransactionCard> mListTransaction) {
+    public void setData(List<TransactionCard> mListTransaction, int balance) {
         this.mListTransaction = mListTransaction;
+        this.balance = balance;
     }
 
     @NonNull
@@ -77,26 +70,69 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         holder.content.setText(transactionCard.getContent());
         holder.amount.setText(String.valueOf(transactionCard.getAmount()));
 
-        if(transactionCard.getPurpose().equals("Ăn uống"))
+        if(transactionCard.getPurpose().equals("Ăn uống")) {
             holder.categoryImg.setImageResource(R.drawable.ic_pizza);
-        else if(transactionCard.getPurpose().equals("Mua sắm"))
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Mua sắm")) {
             holder.categoryImg.setImageResource(R.drawable.ic_basket);
-        else if(transactionCard.getPurpose().equals("Sinh hoạt hằng ngày"))
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Sinh hoạt hằng ngày")) {
             holder.categoryImg.setImageResource(R.drawable.ic_home_line);
-        else if(transactionCard.getPurpose().equals("Cà phê"))
-            holder.categoryImg .setImageResource(R.drawable.ic_coffee);
-        else if(transactionCard.getPurpose().equals("Di chuyển"))
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Cà phê")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_coffee);
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Di chuyển")) {
             holder.categoryImg.setImageResource(R.drawable.ic_car_alt);
-        else if(transactionCard.getPurpose().equals("Du lịch"))
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Du lịch")) {
             holder.categoryImg.setImageResource(R.drawable.ic_plane);
+            holder.categoryImg.setColorFilter(Color.rgb(255, 152, 0));
+            holder.amount.setTextColor(Color.rgb(255,152,0));
+        }
+        else if(transactionCard.getPurpose().equals("Lương tháng")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_salary);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Tiết kiệm")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_savings);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Bán đồ cũ")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_dealing);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }else if(transactionCard.getPurpose().equals("Tiền lời")) {
+            holder.categoryImg.setImageResource(R.drawable.ic_interest);
+            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.amount.setTextColor(Color.rgb(4,69,173));
+        }
 
 
         viewBinderHelper.bind(holder.swipeRevealLayout, String.valueOf(1));
-        holder.deleteLayout.setOnClickListener(view -> openDialogDeleteTransaction(holder, transactionCard));
+        holder.deleteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(balance > transactionCard.getAmount())
+                    openDialogDeleteTransaction(holder, transactionCard);
+                else
+                    Toast.makeText(activity, "Không thể xoá giao dịch lớn hơn số dư hiện tại", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void openDialogDeleteTransaction(TransactionViewHolder holder, TransactionCard transactionCard) {
-        final Dialog dialog = new Dialog(mContext);
+        final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_delete_dashboard);
 
@@ -130,9 +166,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         deleteTs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteTransactionFromServer(transactionCard);
-                mListTransaction.remove(holder.getAdapterPosition());
-                notifyItemRemoved(holder.getAdapterPosition());
+                budgetViewModel.deleteTransaction(transactionCard);
                 dialog.dismiss();
             }
         });
@@ -147,26 +181,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         dialog.show();
     }
 
-    private void deleteTransactionFromServer(TransactionCard transactionCard) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(TransactionCard.class).toJson(transactionCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.deleteTransaction(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellDeleteTransaction", "onResponse: " + response);
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellDeleteTransaction", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
 
     @Override
     public int getItemCount() {
@@ -174,6 +188,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             return mListTransaction.size();
         }
         return 0;
+    }
+
+    public void filterList(List<TransactionCard> filteredList) {
+        mListTransaction = filteredList;
+        notifyDataSetChanged();
     }
 
     public class TransactionViewHolder extends RecyclerView.ViewHolder{

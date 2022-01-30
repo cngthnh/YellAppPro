@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -30,6 +31,7 @@ public class HistoryBudgetFragment extends Fragment {
     SessionManager sessionManager;
     BudgetViewModel budgetViewModel;
     LoadingDialog loadingDialog;
+    int balance;
 
     public HistoryBudgetFragment(BudgetViewModel budgetViewModel) {
         this.budgetViewModel = budgetViewModel;
@@ -49,7 +51,7 @@ public class HistoryBudgetFragment extends Fragment {
                 for (int i = 0; i<temp.size();i++) {
                     transactionCardList.add(temp.get(i));
                 }
-
+                setBalance(budget);
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -57,11 +59,15 @@ public class HistoryBudgetFragment extends Fragment {
                 }
             }
         });
-        transactionAdapter = new TransactionAdapter(getContext(), sessionManager);
+        transactionAdapter = new TransactionAdapter(getActivity(), sessionManager, budgetViewModel);
+    }
+
+    private void setBalance(BudgetCard budget) {
+        balance = budget.getBalance();
     }
 
     private void bindingData() {
-        transactionAdapter.setData(transactionCardList);
+        transactionAdapter.setData(transactionCardList, balance);
         transactionAdapter.notifyDataSetChanged();
     }
     @Override
@@ -76,6 +82,38 @@ public class HistoryBudgetFragment extends Fragment {
         binding.recycleViewTransaction.setLayoutManager(layoutManager);
         binding.recycleViewTransaction.setAdapter(transactionAdapter);
 
+        binding.spinnerHistory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String text = adapterView.getItemAtPosition(i).toString();
+                filter(text);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         return view;
+    }
+
+    private void filter(String text) {
+        List<TransactionCard> filteredList = new ArrayList<>();
+        for(TransactionCard item: transactionCardList){
+            if(text.equals("Chi tiêu"))
+            {
+                if(item.getAmount() < 0)
+                    filteredList.add(item);
+            }
+            else if(text.equals("Thu nhập")) {
+                if (item.getAmount() > 0)
+                    filteredList.add(item);
+            }
+            else{
+                filteredList = transactionCardList;
+                break;
+            }
+        }
+        transactionAdapter.filterList(filteredList);
     }
 }

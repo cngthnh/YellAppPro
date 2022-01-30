@@ -105,6 +105,12 @@ public class BudgetCard extends RealmObject {
             transactions = new RealmList<>();
         transactions.add(transactionCard);
     }
+
+    public void deleteTransaction(TransactionCard transactionCard) {
+        if (transactions == null)
+            return;
+        transactions.remove(transactionCard);
+    }
     public String getUpdated_at() { return updated_at;}
     public void setUpdated_at(String updated_at) {
         this.updated_at = updated_at;

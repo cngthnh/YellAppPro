@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/swipeTransaction"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:mode="same_level"
+    app:dragEdge="right"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    >
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:cardElevation="0dp"
+        >
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="15dp">
+
+            <ImageView
+                android:id="@+id/category_img_statistic"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_eating"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/transactionTypeItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Du lịch"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/black"
+                    android:paddingStart="20dp"
+                    android:textSize="18dp"/>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/total_amount_type_transaction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="400.000vnđ"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textColor="@color/black"
+                    android:paddingStart="20dp"
+                    android:textSize="18dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                >
+                <ProgressBar
+
+                    android:id="@+id/circularPercentageStatisticOutcome"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="60"
+                    android:progressDrawable="@drawable/circular_outcome"
+                    android:secondaryProgress="100" />
+
+                <ProgressBar
+
+                    android:id="@+id/circularPercentageStatisticIncome"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="60"
+                    android:progressDrawable="@drawable/circular_income"
+                    android:secondaryProgress="100"
+                    android:visibility="invisible"/>
+
+                <TextView
+                    android:id="@+id/percentageCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="60%"
+                    android:fontFamily="@font/roboto_medium"
+                    android:textColor="@color/background_dark_card"
+                    android:textSize="13sp" />
+            </FrameLayout>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="?editTextBackground"
+            android:layout_gravity="bottom"/>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

@@ -26,7 +26,7 @@ public class ViewPagerBudgetAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position == 1) {
-            return new StatisticBudgetFragment();
+            return new StatisticBudgetFragment(budgetViewModel);
         }
         return new HistoryBudgetFragment(budgetViewModel);
     }

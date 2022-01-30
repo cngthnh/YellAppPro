@@ -1,13 +1,9 @@
 package com.triplet.yellapp;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.telecom.ConnectionService;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,44 +11,26 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.tabs.TabLayout;
 import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.ViewPagerBudgetAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetBinding;
 import com.triplet.yellapp.models.BudgetCard;
-import com.triplet.yellapp.models.DashboardCard;
-import com.triplet.yellapp.models.DashboardPermission;
-import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.TransactionCard;
-import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
-import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.BudgetViewModel;
-import com.triplet.yellapp.viewmodels.DashboardViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class BudgetsFragment extends Fragment {
     FragmentBudgetBinding binding;
@@ -86,7 +64,7 @@ public class BudgetsFragment extends Fragment {
                 for (int i = 0; i<temp.size();i++) {
                     transactionCards.add(temp.get(i));
                 }
-
+                budgetCard.setBalance(budget.getBalance());
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -101,7 +79,6 @@ public class BudgetsFragment extends Fragment {
         binding.budgetName.setText(budgetCard.getName());
         binding.budgetBalance.setText(String.valueOf(budgetCard.getBalance()));
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -309,8 +286,6 @@ public class BudgetsFragment extends Fragment {
             }
         });
 
-
-
         saveBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -325,52 +300,27 @@ public class BudgetsFragment extends Fragment {
                 else {
                     newTransaction.setBudget_id(budgetCard.getId());
                     newTransaction.setContent(content.getText().toString());
-                    newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
+                    if(newTransaction.getType() == 0)
+                        newTransaction.setAmount(-Integer.parseInt(amount.getText().toString()));
+                    else
+                        newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
 
-                    budgetViewModel.addTransaction(newTransaction);
-                    //addTransactionToServer(newTransaction, dialog);
-                    dialog.dismiss();
+                    if(Math.abs(newTransaction.getAmount()) > budgetCard.balance)
+                        Toast.makeText(getContext(), "Số dư còn lại của tài khoản không đủ để thực hiện giao dịch này",
+                                Toast.LENGTH_LONG).show();
+                    else {
+                        budgetViewModel.addTransaction(newTransaction);
+                        dialog.dismiss();
+                    }
+
+
                 }
             }
         });
-
-
-
 
         dialog.show();
     }
 
-    private void addTransactionToServer(TransactionCard newTransaction, Dialog dialog) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<TransactionCard> call;
-        String transID;
-
-        String json = moshi.adapter(TransactionCard.class).toJson(newTransaction);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-        call = service.addTransaction(requestBody);
-        call.enqueue(new Callback<TransactionCard>() {
-            @Override
-            public void onResponse(Call<TransactionCard> call, Response<TransactionCard> response) {
-                Log.w("YellCreateTransaction", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    Toast.makeText(getActivity(), "Tạo thành công!", Toast.LENGTH_LONG).show();
-                    newTransaction.setTran_id(response.body().getTran_id());
-                    Log.e("ID", newTransaction.getTran_id());
-                    budgetCard.getTransactionsList().add(newTransaction);
-
-                } else {
-                    {
-                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                        Toast.makeText(getActivity(), "Tạo thất bại! " + apiError.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Call<TransactionCard> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
 }
 
 

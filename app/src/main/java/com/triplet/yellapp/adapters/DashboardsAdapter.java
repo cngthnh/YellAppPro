@@ -250,6 +250,11 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
         return 0;
     }
 
+    public void filterList(List<DashboardCard> filteredList) {
+        mListDashboard = filteredList;
+        notifyDataSetChanged();
+    }
+
     public class DashboardsViewHolder extends RecyclerView.ViewHolder{
         private ImageView cover;
         private TextView nameDashboard;
