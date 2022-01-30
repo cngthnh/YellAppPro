@@ -26,6 +26,7 @@ public class UsersDetailAdapter extends RecyclerView.Adapter<UsersDetailAdapter.
 
     public void setData(List<DashboardPermission> mListUser) {
         this.mListUser = mListUser;
+        notifyDataSetChanged();
     }
 
     @NonNull

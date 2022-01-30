@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.icu.text.SimpleDateFormat;
+import android.icu.util.TimeZone;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -507,6 +508,8 @@ public class TaskFragment extends Fragment {
         binding.addSubTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                while(currentYellTask.getTask_id() == null)
+                    ;
                 viewModel.addTask(new YellTask(currentYellTask.getDashboard_id(),"Untitled",currentYellTask.getTask_id()));
             }
         });
@@ -515,7 +518,9 @@ public class TaskFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String serverTime2MobileTime(String time) {
         SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/YYYY");
+        currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             Date date = isoFormat.parse(time);
             return currentFormat.format(date);
@@ -528,7 +533,9 @@ public class TaskFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String mobileTime2ServerTime(String time) {
         SimpleDateFormat currentFormat = new SimpleDateFormat("HH:mm  dd/MM/YYYY");
+        currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             Date date = currentFormat.parse(time);
             return isoFormat.format(date);

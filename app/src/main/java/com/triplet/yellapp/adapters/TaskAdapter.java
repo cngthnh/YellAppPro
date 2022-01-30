@@ -1,8 +1,11 @@
 package com.triplet.yellapp.adapters;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,9 +28,12 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.triplet.yellapp.LoadingDialog;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.TaskFragment;
+import com.triplet.yellapp.models.DashboardCard;
+import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
@@ -46,14 +53,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     MutableLiveData<Integer> sizeList;
     YellTaskRepository repository;
     FragmentActivity activity;
-    DashboardViewModel dashboardViewModel;
     String parentName;
+    String role;
 
     public TaskAdapter(FragmentActivity activity) {
         this.activity = activity;
         yellTaskArrayList = new ArrayList<>();
         repository = new YellTaskRepository(activity.getApplication());
+        role = "n";
         sizeList = new MutableLiveData<>();
+    }
+
+    public void setRole(List<DashboardPermission> users) {
+        String uid = activity.getSharedPreferences(activity.getResources().getString(R.string.yell_sp), MODE_PRIVATE)
+                .getString("uid","n");
+        for (int i = 0;i<users.size();i++) {
+            if (uid.equals(users.get(i).getUid()))
+                this.role = users.get(i).getRole();
+        }
     }
 
     public MutableLiveData<Integer> getSizeList (){
@@ -117,8 +134,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.deleteTaskItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                repository.deleteYellTask(yellTask);
-                removeYellTask(holder.getLayoutPosition());
+                if (role.equals("admin")||(role.equals("editor"))) {
+                    MaterialAlertDialogBuilder confirmDelete = new MaterialAlertDialogBuilder(activity)
+                            .setTitle("Xoá công việc")
+                            .setMessage("Bạn có chắc chắn muốn xoá công việc này?")
+                            .setPositiveButton("Đồng ý", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    repository.deleteYellTask(yellTask);
+                                    removeYellTask(holder.getLayoutPosition());
+                                }
+                            })
+                            .setNegativeButton("Huỷ", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            });
+                    confirmDelete.show();
+                }
+                else {
+                    Toast.makeText(activity, "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
+                }
             }
         });
         holder.taskName.setOnClickListener(new View.OnClickListener() {

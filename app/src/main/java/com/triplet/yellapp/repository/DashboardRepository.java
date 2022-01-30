@@ -210,7 +210,6 @@ public class DashboardRepository {
                     }
                     else {
                         Toast.makeText(application.getApplicationContext(), "Đã mời thành công", Toast.LENGTH_LONG).show();
-                        realm.copyToRealmOrUpdate(dbPermission);
                     }
                 }
             }

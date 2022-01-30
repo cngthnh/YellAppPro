@@ -112,13 +112,13 @@ public class DashboardFragment extends Fragment {
                    if (loadingDialog != null)
                        loadingDialog.dismissDialog();
                    dashboardCard = dashboard;
-                   usersAdapter.setData(dashboard.getUsers());
                    bindingData();
                }
             }
         });
         usersAdapter = new UsersAdapter(getContext());
         yellTaskAdapter = new TaskAdapter(getActivity());
+        usersDetailAdapter = new UsersDetailAdapter(getContext());
     }
 
     private void bindingData() {
@@ -127,6 +127,9 @@ public class DashboardFragment extends Fragment {
         binding.tvDescriptionDb.setText(dashboardCard.getDescription());
         yellTaskAdapter.setYellTaskArrayList(yellTasks);
         usersAdapter.setData(dashboardCard.getUsers());
+        usersAdapter.setData(dashboardCard.getUsers());
+        yellTaskAdapter.setRole(dashboardCard.getUsers());
+        usersDetailAdapter.setData(dashboardCard.getUsers());
     }
 
     @Override
@@ -167,7 +170,7 @@ public class DashboardFragment extends Fragment {
         binding.editDb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getPermission(dashboardCard).equals("admin")) {
+                if (getPermission(dashboardCard).equals("admin")||(getPermission(dashboardCard).equals("editor"))) {
                     editDashboard();
                 }
                 else {
@@ -422,14 +425,8 @@ public class DashboardFragment extends Fragment {
 
         LinearLayoutManager layoutManager1 = new LinearLayoutManager(getActivity());
         listUser.setLayoutManager(layoutManager1);
-        usersDetailAdapter = new UsersDetailAdapter(getContext());
-
-        List<DashboardPermission> listUserDetail = dashboardCard.getUsers();
-
-        usersDetailAdapter.setData(listUserDetail);
-        usersDetailAdapter.notifyDataSetChanged();
-        listUser.setVisibility(View.VISIBLE);
         listUser.setAdapter(usersDetailAdapter);
+        listUser.setVisibility(View.VISIBLE);
 
         dialog.show();
     }
