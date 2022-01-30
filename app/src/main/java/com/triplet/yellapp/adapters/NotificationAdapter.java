@@ -29,6 +29,7 @@ import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,6 +58,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     public void setData(List<Notification> mListNotification) {
+        Collections.reverse(mListNotification);
         this.mListNotification = mListNotification;
         notifyDataSetChanged();
     }
@@ -110,7 +112,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @RequiresApi(api = Build.VERSION_CODES.N)
     private String serverTime2MobileTime(String time) {
         android.icu.text.SimpleDateFormat currentFormat = new android.icu.text.SimpleDateFormat("HH:mm  dd/MM/yyyy");
-        currentFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        currentFormat.setTimeZone(TimeZone.getTimeZone("GMT+7:00"));
         android.icu.text.SimpleDateFormat isoFormat = new android.icu.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
