@@ -99,21 +99,22 @@ public class HistoryBudgetFragment extends Fragment {
 
     private void filter(String text) {
         List<TransactionCard> filteredList = new ArrayList<>();
-        for(TransactionCard item: transactionCardList){
-            if(text.equals("Chi tiêu"))
-            {
-                if(item.getAmount() < 0)
-                    filteredList.add(item);
+        try {
+            for (TransactionCard item : transactionCardList) {
+                if (text.equals("Chi tiêu")) {
+                    if (item.getAmount() < 0)
+                        filteredList.add(item);
+                } else if (text.equals("Thu nhập")) {
+                    if (item.getAmount() > 0)
+                        filteredList.add(item);
+                } else {
+                    filteredList = transactionCardList;
+                    break;
+                }
             }
-            else if(text.equals("Thu nhập")) {
-                if (item.getAmount() > 0)
-                    filteredList.add(item);
-            }
-            else{
-                filteredList = transactionCardList;
-                break;
-            }
+            transactionAdapter.filterList(filteredList);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
-        transactionAdapter.filterList(filteredList);
     }
 }

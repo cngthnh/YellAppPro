@@ -203,7 +203,7 @@ public class StatisticBudgetFragment extends Fragment {
             public void onClick(View view) {
                 binding.incomeLayout.setVisibility(View.VISIBLE);
                 binding.outcomeLayout.setVisibility(View.GONE);
-                binding.incomeBtnStatistic.setBackgroundColor(Color.rgb(4, 69,173));
+                binding.incomeBtnStatistic.setBackgroundColor(getResources().getColor(R.color.blue));
                 binding.incomeBtnStatistic.setTextColor(Color.rgb(255, 255, 255));
 
                 binding.outcomeBtnStatistic.setBackgroundColor(Color.rgb(144, 144, 144));

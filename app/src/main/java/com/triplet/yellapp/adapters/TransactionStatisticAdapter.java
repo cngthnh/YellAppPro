@@ -123,24 +123,24 @@ public class TransactionStatisticAdapter extends RecyclerView.Adapter<Transactio
         }
         else if(categoryStatistic.getPurpose().equals("Lương tháng")) {
             holder.categoryImg.setImageResource(R.drawable.ic_salary);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.categoryImg.setColorFilter(mContext.getResources().getColor(R.color.blue));
             holder.percentageIncome.setVisibility(View.VISIBLE);
             holder.percentageOutcome.setVisibility(View.INVISIBLE);
 
         }else if(categoryStatistic.getPurpose().equals("Tiết kiệm")) {
             holder.categoryImg.setImageResource(R.drawable.ic_savings);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.categoryImg.setColorFilter(mContext.getResources().getColor(R.color.blue));
             holder.percentageIncome.setVisibility(View.VISIBLE);
             holder.percentageOutcome.setVisibility(View.INVISIBLE);
 
         }else if(categoryStatistic.getPurpose().equals("Bán đồ cũ")) {
             holder.categoryImg.setImageResource(R.drawable.ic_dealing);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.categoryImg.setColorFilter(mContext.getResources().getColor(R.color.blue));
             holder.percentageIncome.setVisibility(View.VISIBLE);
             holder.percentageOutcome.setVisibility(View.INVISIBLE);
         }else if(categoryStatistic.getPurpose().equals("Tiền lời")) {
             holder.categoryImg.setImageResource(R.drawable.ic_interest);
-            holder.categoryImg.setColorFilter(Color.rgb(4, 69, 173));
+            holder.categoryImg.setColorFilter(mContext.getResources().getColor(R.color.blue));
             holder.percentageIncome.setVisibility(View.VISIBLE);
             holder.percentageOutcome.setVisibility(View.INVISIBLE);
         }

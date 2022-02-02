@@ -6,7 +6,12 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.snackbar.Snackbar;
+import com.triplet.yellapp.utils.GlobalStatus;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -27,7 +34,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         setContentView(R.layout.activity_main);
+
         Realm.init(this);
+
+        NetworkChangeReceiver receiver = new NetworkChangeReceiver() {
+            @Override
+            protected void raiseSnackbar() {
+                GlobalStatus globalStatus = GlobalStatus.getInstance();
+                String conn = globalStatus.isOfflineMode() ? "ngắt kết nối" : "kết nối";
+                Snackbar.make(findViewById(R.id.mainActivity), "Đã " + conn + " Internet", Snackbar.LENGTH_LONG).show();
+            }
+        };
+        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
         HomeFragment homeFragment = new HomeFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         ((FragmentTransaction) transaction).setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);

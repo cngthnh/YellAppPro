@@ -14,7 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
 public class Client {
-    private final static String API_URL = "https://yell-backend-dev.herokuapp.com/api/";
+    private final static String API_URL = "https://yell-backend.herokuapp.com/api/";
     private final static OkHttpClient client = buildClient();
     private final static Retrofit retrofit = buildRetrofit(client);
 

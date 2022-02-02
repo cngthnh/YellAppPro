@@ -41,7 +41,7 @@
                     android:layout_height="wrap_content"
                     android:text="Du lịch"
                     android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/black"
+                    android:textColor="?colorOnSecondary"
                     android:paddingStart="20dp"
                     android:textSize="18dp"/>
                 <androidx.appcompat.widget.AppCompatTextView
@@ -50,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:text="400.000vnđ"
                     android:fontFamily="@font/roboto_regular"
-                    android:textColor="@color/black"
+                    android:textColor="?colorOnSecondary"
                     android:paddingStart="20dp"
                     android:textSize="18dp"/>
 
@@ -91,7 +91,7 @@
                     android:gravity="center"
                     android:text="60%"
                     android:fontFamily="@font/roboto_medium"
-                    android:textColor="@color/background_dark_card"
+                    android:textColor="?iconTint"
                     android:textSize="13sp" />
             </FrameLayout>
 
