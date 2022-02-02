@@ -58,7 +58,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     public void setData(List<Notification> mListNotification) {
-        Collections.reverse(mListNotification);
+        try {
+            Collections.reverse(mListNotification);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         this.mListNotification = mListNotification;
         notifyDataSetChanged();
     }

@@ -23,8 +23,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.triplet.yellapp.adapters.BudgetsHomeAdapter;
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentHomeBinding;
+import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
+import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
@@ -256,6 +258,14 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void bindSummary() {
+        binding.dashboardCount.setText(String.valueOf(user.getDashboards().size()));
+        binding.budgetCount.setText(String.valueOf(user.getBudgetCards().size()));
+        binding.completedTasks.setText(String.valueOf(realm.where(YellTask.class).equalTo("status", 2).count()));
+        binding.incompletedTasks.setText(String.valueOf(realm.where(YellTask.class).notEqualTo("status", 2).count()));
+        binding.transactionCount.setText(String.valueOf(realm.where(TransactionCard.class).count()));
+    }
+
     private void bindingData () {
         dashboardsHomeAdapter.setData(user.getDashboards());
         budgetsHomeAdapter.setData(user.getBudgetCards());
@@ -271,6 +281,7 @@ public class HomeFragment extends Fragment {
                 taskRepo.patchTask(nearDeadlineTask);
             }
         });
+        bindSummary();
     }
     public void onBackPressed() {
 
