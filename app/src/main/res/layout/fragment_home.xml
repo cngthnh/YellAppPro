@@ -310,6 +310,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="25dp"
+                android:layout_marginBottom="30dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -323,11 +324,11 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
                         android:fontFamily="@font/roboto_italic"
-                        android:textAlignment="textEnd"
-                        android:text="Số lượng công việc chưa hoàn thành" />
+                        android:text="Số lượng công việc chưa hoàn thành"
+                        android:textAlignment="textEnd" />
 
                     <TextView
                         android:id="@+id/incompletedTasks"
@@ -342,9 +343,9 @@
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
+                    android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:orientation="vertical">
 

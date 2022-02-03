@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,8 +86,9 @@ public class HomeFragment extends Fragment {
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
             @Override
             public void onChanged(UserAccountFull userAccountFull) {
-                if (loadingDialog != null)
+                if (loadingDialog != null) {
                     loadingDialog.dismissDialog();
+                }
                 user = userAccountFull;
                 bindingData();
             }

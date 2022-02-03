@@ -23,6 +23,8 @@ import com.triplet.yellapp.utils.GlobalStatus;
 
 import java.util.List;
 
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -33,15 +35,16 @@ public class UserViewModel extends AndroidViewModel {
     private final int DELETED_UUID_LEN = 43;
     private YellUserRepository repository;
     private DashboardRepository dashboardRepository;
-    private LiveData<UserAccountFull> yellUserLiveData;
+    private MutableLiveData<UserAccountFull> yellUserLiveData;
     private LiveData<List<Notification>> listNotificationLivaData;
     private LiveData<Notification> notificationLiveData;
     private GlobalStatus globalStatus = GlobalStatus.getInstance();
     private SharedPreferences sharedPreferences;
     Application application;
+    String uid;
     Realm realm;
 
-    public LiveData<UserAccountFull> getYellUserLiveData() {
+    public MutableLiveData<UserAccountFull> getYellUserLiveData() {
         return yellUserLiveData;
     }
 
@@ -58,6 +61,7 @@ public class UserViewModel extends AndroidViewModel {
         notificationLiveData = repository.getNotificationMutableLiveData();
         realm = Realm.getDefaultInstance();
         sharedPreferences = application.getSharedPreferences(application.getResources().getString(R.string.yell_sp), MODE_PRIVATE);
+        uid = sharedPreferences.getString("uid", "");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -114,10 +118,22 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
-    public void sync() {
+    public MutableLiveData<UserAccountFull> sync() {
         syncDashboards();
         globalStatus.setEditedOffline(false);
         sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
                 application.getResources().getString(R.string.bool_no)).apply();
+        RealmResults<UserAccountFull> updatedUser = realm.where(UserAccountFull.class).equalTo("uid", uid).limit(1).findAllAsync();
+        updatedUser.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserAccountFull>>() {
+            @Override
+            public void onChange(RealmResults<UserAccountFull> userAccountFulls, OrderedCollectionChangeSet changeSet) {
+                try {
+                    yellUserLiveData.postValue(userAccountFulls.get(0));
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return yellUserLiveData;
     }
 }
