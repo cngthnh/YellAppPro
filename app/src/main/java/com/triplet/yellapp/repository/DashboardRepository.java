@@ -18,6 +18,7 @@ import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.RealmListJsonAdapterFactory;
 import com.triplet.yellapp.utils.SessionManager;
 
@@ -37,6 +38,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DashboardRepository {
+    private final int TRUE_UUID_LEN = 36;
+    private final int TEMP_UUID_LEN = 40;
+    private final int DELETED_UUID_LEN = 43;
+    GlobalStatus globalStatus = GlobalStatus.getInstance();
     SessionManager sessionManager;
     ApiService service;
     SharedPreferences sharedPreferences;
@@ -124,7 +129,8 @@ public class DashboardRepository {
                 return true;
             }
 
-            if (diff > 5) {
+            GlobalStatus globalStatus = GlobalStatus.getInstance();
+            if (diff > 5 && !globalStatus.isOfflineMode()) {
                 getDashboardFromServer(dashboardId);
                 return false;
             }
@@ -134,7 +140,7 @@ public class DashboardRepository {
         }
     }
 
-    private void editDashboardOnServer(DashboardCard dashboardCard) {
+    public void editDashboardOnServer(DashboardCard dashboardCard) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
         RequestBody requestBody = dashboardToJson(dashboardCard);
@@ -155,14 +161,27 @@ public class DashboardRepository {
         });
     }
 
-    public void editDashboard(DashboardCard dashboardCard) {
+    private void editDashboardInLocalDb(DashboardCard dashboardCard) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 realm.copyToRealmOrUpdate(dashboardCard);
             }
         });
-        editDashboardOnServer(dashboardCard);
+    }
+
+    public void editDashboard(DashboardCard dashboardCard) {
+        if (!globalStatus.isOfflineMode()) {
+            editDashboardOnServer(dashboardCard);
+            dashboardCard.local_edited_at = null;
+        }
+        else {
+            dashboardCard.local_edited_at = df.format(new Date());
+            globalStatus.setEditedOffline(true);
+            sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                    application.getResources().getString(R.string.bool_yes)).apply();
+        }
+        editDashboardInLocalDb(dashboardCard);
     }
 
     private void deleteDashboardFromServer(DashboardCard dashboardCard) {
@@ -186,18 +205,39 @@ public class DashboardRepository {
         });
     }
 
-    public void deleteDashboard(DashboardCard dashboardCard) {
+    public void syncDeletedDashboardWithServer(DashboardCard dashboardCard) {
+        if (dashboardCard.getDashboard_id().length() == DELETED_UUID_LEN)
+            dashboardCard.dashboard_id = dashboardCard.getDashboard_id().replace("DELETED", "");
+        deleteDashboardFromServer(dashboardCard);
+    }
+
+    private void deleteDashboardInLocalDb(DashboardCard dashboardCard) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                DashboardCard object = realm.where(DashboardCard.class).equalTo("dashboard_id",dashboardCard.getDashboard_id()).findFirst();
+                DashboardCard object = realm.where(DashboardCard.class).equalTo("dashboard_id", dashboardCard.getDashboard_id()).findFirst();
                 if (object == null)
                     return;
                 object.deleteFromRealm();
                 Log.w("DashboardOnRealm: ", "Deleted " + dashboardCard.getName());
             }
         });
-        deleteDashboardFromServer(dashboardCard);
+    }
+
+    public void deleteDashboard(DashboardCard dashboardCard) {
+        if (!globalStatus.isOfflineMode()) {
+            deleteDashboardInLocalDb(dashboardCard);
+            syncDeletedDashboardWithServer(dashboardCard);
+        } else {
+            if (dashboardCard.getDashboard_id().length() == TRUE_UUID_LEN) {
+                dashboardCard.dashboard_id = "DELETED" + dashboardCard.getDashboard_id();
+                globalStatus.setEditedOffline(true);
+                sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                        application.getResources().getString(R.string.bool_yes)).apply();
+            } else if (dashboardCard.getDashboard_id().length() == TEMP_UUID_LEN) {
+                deleteDashboardInLocalDb(dashboardCard);
+            }
+        }
     }
 
     public void inviteToDashboardOnServer(DashboardPermission dbPermission) {

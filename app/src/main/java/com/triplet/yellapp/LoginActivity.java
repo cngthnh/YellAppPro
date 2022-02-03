@@ -73,16 +73,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (sessionManager.getToken().getAccessToken() != null){
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
-        }
+        } else {
 
-        Realm.init(this);
-        realm = Realm.getDefaultInstance();
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.deleteAll();
-            }
-        });
+            Realm.init(this);
+            realm = Realm.getDefaultInstance();
+            realm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.deleteAll();
+                }
+            });
+        }
     }
 
     private void prepareOnClickListeners() {
@@ -144,7 +145,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     if (response.isSuccessful()) {
                         sessionManager.saveToken(response.body());
-                        sharedPreferences.edit().putString("uid",username);
+                        sharedPreferences.edit().putString("uid", username);
                         sharedPreferences.edit().apply();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();

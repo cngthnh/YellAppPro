@@ -4,7 +4,9 @@ import static java.lang.Math.abs;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -31,6 +34,7 @@ import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.utils.ApiService;
+import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 import com.triplet.yellapp.viewmodels.YellTaskViewModel;
@@ -62,14 +66,17 @@ public class HomeFragment extends Fragment {
     YellTask nearDeadlineTask;
     YellTaskRepository taskRepo;
     YellTaskViewModel taskViewModel;
+    SharedPreferences sharedPreferences;
+    GlobalStatus globalStatus = GlobalStatus.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         loadingDialog = new LoadingDialog(getActivity());
-        sessionManager = SessionManager.getInstance(getActivity().
-                getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE));
+        sharedPreferences = getActivity().
+                getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE);
+        sessionManager = SessionManager.getInstance(sharedPreferences);
         dashboardsHomeAdapter = new DashboardsHomeAdapter(getContext(), sessionManager);
         budgetsHomeAdapter = new BudgetsHomeAdapter(getContext(), sessionManager);
         taskRepo = new YellTaskRepository(getActivity().getApplication());
@@ -100,13 +107,15 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        if(!userViewModel.getUser())
+
+        if (!userViewModel.getUser())
             loadingDialog.startLoadingDialog();
         binding.avatarImg.setOnClickListener(new View.OnClickListener() {
             @Override
