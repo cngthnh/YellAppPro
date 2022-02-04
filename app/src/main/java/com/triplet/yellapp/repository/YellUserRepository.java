@@ -178,9 +178,12 @@ public class YellUserRepository {
 
             UserAccountFull result = realm.copyFromRealm(object);
 
-            // những dashboard nào đã được đánh dấu xoá thì không hiển thị
+            // những dashboard và budget nào đã được đánh dấu xoá thì không hiển thị
             for (DashboardCard dashboard : result.dashboards) {
                 if (dashboard.getDashboard_id().length() == DELETED_UUID_LEN) result.dashboards.remove(dashboard);
+            }
+            for (BudgetCard budget : result.budgetCards) {
+                if (budget.getId().length() == DELETED_UUID_LEN) result.budgetCards.remove(budget);
             }
 
             yellUserLiveData.postValue(result);
@@ -206,6 +209,9 @@ public class YellUserRepository {
                             if (dashboardCard.getDashboard_id() != null) {
                                 needToDelete = realm.where(DashboardCard.class).equalTo("dashboard_id", dashboardCard.getDashboard_id()).findFirst();
                             }
+                            if (needToDelete != null) {
+                                needToDelete.deleteFromRealm();
+                            }
                             dashboardCard.setDashboard_id(response.body().getDashboard_id());
                             dashboardCard.local_edited_at = null;
                             dashboardCard.last_sync = df.format(new Date());
@@ -218,10 +224,6 @@ public class YellUserRepository {
                             userAccountFull.addDashboard(dashboardCard);
                             userAccountFull.last_sync = dashboardCard.last_sync;
                             yellUserLiveData.postValue(userAccountFull);
-
-                            if (needToDelete != null) {
-                                needToDelete.deleteFromRealm();
-                            }
                             realm.copyToRealmOrUpdate(userAccountFull);
                         }
                     });
@@ -250,15 +252,23 @@ public class YellUserRepository {
             public void onResponse(Call<BudgetCard> call, Response<BudgetCard> response) {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    budgetCard.setId(response.body().getId());
-                    budgetCard.last_sync = df.format(new Date());
-                    UserAccountFull userAccountFull = yellUserLiveData.getValue();
-                    userAccountFull.addBudget(budgetCard);
-                    userAccountFull.last_sync = budgetCard.last_sync;
-                    yellUserLiveData.postValue(userAccountFull);
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            BudgetCard needToDelete = null;
+                            if (budgetCard.getId() != null) {
+                                needToDelete = realm.where(BudgetCard.class).equalTo("id", budgetCard.getId()).findFirst();
+                            }
+                            if (needToDelete != null) {
+                                needToDelete.deleteFromRealm();
+                            }
+                            budgetCard.setId(response.body().getId());
+                            budgetCard.local_edited_at = null;
+                            budgetCard.last_sync = df.format(new Date());
+                            UserAccountFull userAccountFull = realm.copyFromRealm(realm.where(UserAccountFull.class).equalTo("uid", uid).findFirst());
+                            userAccountFull.addBudget(budgetCard);
+                            userAccountFull.last_sync = budgetCard.last_sync;
+                            yellUserLiveData.postValue(userAccountFull);
                             realm.copyToRealmOrUpdate(userAccountFull);
                         }
                     });
@@ -372,7 +382,6 @@ public class YellUserRepository {
         dashboardCard.setUsers(dashboardPermissions);
         UserAccountFull userAccountFull = yellUserLiveData.getValue();
         userAccountFull.addDashboard(dashboardCard);
-        userAccountFull.last_sync = dashboardCard.last_sync;
         yellUserLiveData.postValue(userAccountFull);
 
         sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
@@ -385,5 +394,23 @@ public class YellUserRepository {
                 realm.copyToRealmOrUpdate(userAccountFull);
             }
         });
+    }
+
+    public void addBudgetToLocalDb(BudgetCard budgetCard) {
+        budgetCard.setId("TEMP" + UUID.randomUUID().toString());
+        budgetCard.local_edited_at = df.format(new Date());
+        UserAccountFull userAccountFull = yellUserLiveData.getValue();
+        userAccountFull.addBudget(budgetCard);
+        yellUserLiveData.postValue(userAccountFull);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(userAccountFull);
+            }
+        });
+        sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                application.getResources().getString(R.string.bool_yes)).apply();
+        GlobalStatus globalStatus = GlobalStatus.getInstance();
+        globalStatus.setEditedOffline(true);
     }
 }

@@ -16,8 +16,10 @@ import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.Notification;
+import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
+import com.triplet.yellapp.repository.BudgetRepository;
 import com.triplet.yellapp.repository.DashboardRepository;
 import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.repository.YellUserRepository;
@@ -37,6 +39,7 @@ public class UserViewModel extends AndroidViewModel {
     private final int DELETED_UUID_LEN = 43;
     private YellUserRepository repository;
     private DashboardRepository dashboardRepository;
+    private BudgetRepository budgetRepository;
     private YellTaskRepository taskRepository;
     private MutableLiveData<UserAccountFull> yellUserLiveData;
     private LiveData<List<Notification>> listNotificationLivaData;
@@ -60,6 +63,7 @@ public class UserViewModel extends AndroidViewModel {
         repository = new YellUserRepository(getApplication());
         dashboardRepository = new DashboardRepository(getApplication());
         taskRepository = new YellTaskRepository(getApplication());
+        budgetRepository = new BudgetRepository(getApplication());
         yellUserLiveData = repository.getYellUserLiveData();
         listNotificationLivaData = repository.getListNotificationLiveData();
         notificationLiveData = repository.getNotificationMutableLiveData();
@@ -81,7 +85,10 @@ public class UserViewModel extends AndroidViewModel {
     }
 
     public void addBudget(BudgetCard budgetCard) {
-        repository.addBudgetToServer(budgetCard);
+        if (globalStatus.isOfflineMode())
+            repository.addBudgetToLocalDb(budgetCard);
+        else
+            repository.addBudgetToServer(budgetCard);
     }
 
     public void getNotification() {
@@ -147,9 +154,48 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
+    private void syncBudgets() {
+        List<BudgetCard> budgets = realm.copyFromRealm(realm.where(BudgetCard.class).isNotNull("local_edited_at").findAll());
+        for (BudgetCard budget : budgets) {
+            switch (budget.getId().length())
+            {
+                case TEMP_UUID_LEN:
+                    repository.addBudgetToServer(budget);
+                    break;
+                case DELETED_UUID_LEN:
+                    budgetRepository.syncDeletedBudgetWithServer(budget);
+                    break;
+                case TRUE_UUID_LEN:
+                    // không có phương thức chỉnh sửa budget
+                    break;
+            }
+        }
+    }
+
+    private void syncTransactions() {
+        List<TransactionCard> transactions = realm.copyFromRealm(realm.where(TransactionCard.class).isNotNull("local_edited_at").findAll());
+        for (TransactionCard transaction : transactions) {
+            switch (transaction.getTran_id().length())
+            {
+                case TEMP_UUID_LEN:
+                    budgetRepository.getBudget(transaction.getBudget_id());
+                    budgetRepository.addTransactionToServer(transaction);
+                    break;
+                case DELETED_UUID_LEN:
+                    budgetRepository.syncDeletedTransactionWithServer(transaction);
+                    break;
+                case TRUE_UUID_LEN:
+                    // không có phương thức chỉnh sửa
+                    break;
+            }
+        }
+    }
+
     public MutableLiveData<UserAccountFull> sync() {
         syncTasks();
         syncDashboards();
+        syncBudgets();
+        syncTransactions();
         globalStatus.setEditedOffline(false);
         sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
                 application.getResources().getString(R.string.bool_no)).apply();

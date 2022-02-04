@@ -417,7 +417,6 @@ public class YellTaskRepository {
 
     public void deleteYellTask(YellTask yellTask) {
         if (!globalStatus.isOfflineMode()) {
-            deleteTaskInLocalDb(yellTask);
             syncDeletedTaskWithServer(yellTask);
         } else {
             if (yellTask.getTask_id().length() == TRUE_UUID_LEN) {

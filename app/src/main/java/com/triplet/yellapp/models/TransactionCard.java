@@ -85,4 +85,7 @@ public class TransactionCard extends RealmObject {
         this.purposes=purpose;
         this.created_at=created_at;
     }
+    public TransactionCard(String transaction_id) {
+        this.transaction_id = transaction_id;
+    }
 }

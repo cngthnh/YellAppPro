@@ -19,6 +19,7 @@ import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.RealmListJsonAdapterFactory;
 import com.triplet.yellapp.utils.SessionManager;
 
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
@@ -38,6 +40,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class BudgetRepository {
+    private final int TRUE_UUID_LEN = 36;
+    private final int TEMP_UUID_LEN = 40;
+    private final int DELETED_UUID_LEN = 43;
     SessionManager sessionManager;
     ApiService service;
     SharedPreferences sharedPreferences;
@@ -45,6 +50,7 @@ public class BudgetRepository {
     Moshi moshi;
     DateFormat df;
     MutableLiveData<BudgetCard> budgetCardMutableLiveData;
+    GlobalStatus globalStatus = GlobalStatus.getInstance();
 
     private Realm realm;
 
@@ -85,8 +91,12 @@ public class BudgetRepository {
                         }
                     });
                 } else {
-                    ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    try {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -105,26 +115,32 @@ public class BudgetRepository {
             return false;
         }
         else {
-            long diff = 0;
-            try {
-                Date dt_sync = df.parse(object.last_sync);
-                Date dt_now = df.parse(df.format(new Date()));
-                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                getBudgetFromServer(budgetId);
-                return false;
+            if (!globalStatus.isOfflineMode()) {
+                long diff = 0;
+                try {
+                    Date dt_sync = df.parse(object.last_sync);
+                    Date dt_now = df.parse(df.format(new Date()));
+                    diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    getBudgetFromServer(budgetId);
+                    return false;
+                } catch (NullPointerException e) {
+                    return true;
+                }
+
+                if (diff > 5) {
+                    getBudgetFromServer(budgetId);
+                    return false;
+                }
             }
-            catch (NullPointerException e) {
-                return true;
+            BudgetCard result = realm.copyFromRealm(object);
+            // những budget nào đã được đánh dấu xoá thì không hiển thị
+            for (TransactionCard transaction : result.transactions) {
+                if (transaction.getTran_id().length() == DELETED_UUID_LEN) result.removeTransaction(transaction);
             }
 
-            if (diff > 5) {
-                getBudgetFromServer(budgetId);
-                return false;
-            }
-
-            budgetCardMutableLiveData.postValue(realm.copyFromRealm(object));
+            budgetCardMutableLiveData.postValue(result);
             return true;
         }
     }
@@ -161,17 +177,46 @@ public class BudgetRepository {
         });
     }
 
-    public void deleteBudget(BudgetCard budgetCard) {
+    private void deleteBudgetInLocalDb(BudgetCard budgetCard) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                BudgetCard object = realm.where(BudgetCard.class).equalTo("id",budgetCard.getId()).findFirst();
+                BudgetCard object = realm.where(BudgetCard.class).equalTo("id", budgetCard.getId()).findFirst();
                 if (object == null)
                     return;
                 object.deleteFromRealm();
             }
         });
+    }
+
+    public void syncDeletedBudgetWithServer(BudgetCard budgetCard) {
+        deleteBudgetInLocalDb(new BudgetCard(budgetCard.getId(), ""));
+        if (budgetCard.getId().length() == DELETED_UUID_LEN)
+            budgetCard.id = budgetCard.getId().replace("DELETED", "");
         deleteBudgetFromServer(budgetCard);
+    }
+
+    public void deleteBudget(BudgetCard budgetCard) {
+        if (!globalStatus.isOfflineMode()) {
+            syncDeletedBudgetWithServer(budgetCard);
+        } else {
+            if (budgetCard.getId().length() == TRUE_UUID_LEN) {
+                deleteBudgetInLocalDb(budgetCard);
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        budgetCard.id = "DELETED" + budgetCard.getId();
+                        budgetCard.local_edited_at = df.format(new Date());
+                        realm.copyToRealmOrUpdate(budgetCard);
+                    }
+                });
+                globalStatus.setEditedOffline(true);
+                sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                        application.getResources().getString(R.string.bool_yes)).apply();
+            } else if (budgetCard.getId().length() == TEMP_UUID_LEN) {
+                deleteBudgetInLocalDb(budgetCard);
+            }
+        }
     }
 
     public void addTransactionToServer(TransactionCard transactionCard) {
@@ -184,16 +229,26 @@ public class BudgetRepository {
             public void onResponse(Call<TransactionCard> call, Response<TransactionCard> response) {
                 Log.w("YellCreateTransaction", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    transactionCard.setTran_id(response.body().getTran_id());
-                    transactionCard.last_sync = df.format(new Date());
-                    BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
-                    budgetCard.addTransaction(transactionCard);
-                    budgetCard.setBalance(budgetCard.getBalance()+transactionCard.getAmount());
-                    budgetCardMutableLiveData.postValue(budgetCard);
+
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
+                            TransactionCard needToDelete = null;
+                            if (transactionCard.getTran_id() != null) {
+                                needToDelete = realm.where(TransactionCard.class).equalTo("transaction_id", transactionCard.getTran_id()).findFirst();
+                                budgetCard.removeTransaction(transactionCard);
+                            }
+                            transactionCard.setTran_id(response.body().getTran_id());
+                            transactionCard.local_edited_at = null;
+                            transactionCard.last_sync = df.format(new Date());
+                            budgetCard.addTransaction(transactionCard);
+                            budgetCard.setBalance(budgetCard.getBalance()+transactionCard.getAmount());
+                            budgetCardMutableLiveData.postValue(budgetCard);
                             realm.copyToRealmOrUpdate(budgetCard);
+                            if (needToDelete != null) {
+                                needToDelete.deleteFromRealm();
+                            }
                         }
                     });
                 } else {
@@ -251,7 +306,7 @@ public class BudgetRepository {
         });
     }
 
-    public void deleteTransaction(TransactionCard transactionCard) {
+    private void deleteTransactionInLocalDb(TransactionCard transactionCard) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -263,6 +318,63 @@ public class BudgetRepository {
                 Log.w("TransactionDeleted", "Deleted " + transactionCard.getContent()+" on DB");
             }
         });
+    }
+
+    public void syncDeletedTransactionWithServer(TransactionCard transactionCard) {
+        deleteTransactionInLocalDb(new TransactionCard(transactionCard.getTran_id()));
+        if (transactionCard.getTran_id().length() == DELETED_UUID_LEN)
+            transactionCard.transaction_id = transactionCard.getTran_id().replace("DELETED", "");
         deleteTransactionOnServer(transactionCard);
+    }
+
+    public void deleteTransaction(TransactionCard transactionCard) {
+        if (!globalStatus.isOfflineMode()) {
+            syncDeletedTransactionWithServer(transactionCard);
+        } else {
+            if (transactionCard.getTran_id().length() == TRUE_UUID_LEN) {
+                deleteTransactionInLocalDb(transactionCard);
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        transactionCard.transaction_id = "DELETED" + transactionCard.getTran_id();
+                        transactionCard.local_edited_at = df.format(new Date());
+                        realm.copyToRealmOrUpdate(transactionCard);
+                    }
+                });
+                globalStatus.setEditedOffline(true);
+                sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                        application.getResources().getString(R.string.bool_yes)).apply();
+            } else if (transactionCard.getTran_id().length() == TEMP_UUID_LEN) {
+                deleteTransactionInLocalDb(transactionCard);
+            }
+        }
+    }
+
+    public void addTransaction(TransactionCard transactionCard) {
+        transactionCard.budget_id = budgetCardMutableLiveData.getValue().getId();
+        if (globalStatus.isOfflineMode())
+            addTransactionInLocalDb(transactionCard);
+        else
+            addTransactionToServer(transactionCard);
+    }
+
+    private void addTransactionInLocalDb(TransactionCard transactionCard) {
+        transactionCard.setTran_id("TEMP" + UUID.randomUUID().toString());
+        transactionCard.local_edited_at = df.format(new Date());
+        BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
+        budgetCard.addTransaction(transactionCard);
+        budgetCard.setBalance(budgetCard.getBalance() + transactionCard.getAmount());
+        budgetCardMutableLiveData.postValue(budgetCard);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(budgetCard);
+            }
+        });
+
+        sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                application.getResources().getString(R.string.bool_yes)).apply();
+        GlobalStatus globalStatus = GlobalStatus.getInstance();
+        globalStatus.setEditedOffline(true);
     }
 }
