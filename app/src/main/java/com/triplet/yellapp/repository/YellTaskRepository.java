@@ -22,6 +22,7 @@ import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
+import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.RealmListJsonAdapterFactory;
 import com.triplet.yellapp.utils.SessionManager;
 
@@ -31,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
@@ -44,6 +46,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class YellTaskRepository {
+    private final int TRUE_UUID_LEN = 36;
+    private final int TEMP_UUID_LEN = 40;
+    private final int DELETED_UUID_LEN = 43;
     SessionManager sessionManager;
     ApiService service;
     SharedPreferences sharedPreferences;
@@ -54,6 +59,7 @@ public class YellTaskRepository {
     private MutableLiveData<YellTask> YellTaskResponseLiveData;
     private MutableLiveData<YellTask> addYellTaskMutableLiveData;
     private Realm realm;
+    private GlobalStatus globalStatus = GlobalStatus.getInstance();
 
     public YellTaskRepository(Application application) {
         this.application = application;
@@ -113,34 +119,68 @@ public class YellTaskRepository {
             return false;
         }
         else {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            long diff = 0;
-            try {
-                Date dt_sync = df.parse(object.last_sync);
-                Date dt_now = df.parse(df.format(new Date()));
-                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                getTaskFromServer(taskId);
-                return false;
+            if (!globalStatus.isOfflineMode()) {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                long diff = 0;
+                try {
+                    Date dt_sync = df.parse(object.last_sync);
+                    Date dt_now = df.parse(df.format(new Date()));
+                    diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    getTaskFromServer(taskId);
+                    return false;
+                } catch (NullPointerException e) {
+                    return true;
+                }
+
+                if (diff > 5) {
+                    getTaskFromServer(taskId);
+                    return false;
+                }
             }
-            catch (NullPointerException e) {
-                return true;
+            YellTask result = realm.copyFromRealm(object);
+
+            // những subtask nào đã được đánh dấu xoá thì không hiển thị
+            for (YellTask subtask : result.subtasks) {
+                if (subtask.getTask_id().length() == DELETED_UUID_LEN) result.removeSubtask(subtask);
             }
 
-            if (diff > 5) {
-                getTaskFromServer(taskId);
-                return false;
-            }
-
-            YellTaskResponseLiveData.postValue(realm.copyFromRealm(object));
+            YellTaskResponseLiveData.postValue(result);
             return true;
         }
     }
 
     public MutableLiveData<YellTask> getYellTaskResponseLiveData() {
         return YellTaskResponseLiveData;
+    }
+
+    public void addTaskToLocalDb(YellTask task, YellTask parentTask) {
+        task.setTask_id("TEMP" + UUID.randomUUID().toString());
+        task.local_edited_at = df.format(new Date());
+        task.dashboard_id = parentTask.getDashboard_id();
+        task.parent_id = parentTask.task_id;
+        parentTask.addSubtask(task);
+        addYellTaskMutableLiveData.postValue(parentTask);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(parentTask);
+            }
+        });
+
+        sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                application.getResources().getString(R.string.bool_yes)).apply();
+        GlobalStatus globalStatus = GlobalStatus.getInstance();
+        globalStatus.setEditedOffline(true);
+    }
+
+    public void addTask(YellTask yellTask, YellTask parentTask) {
+        if (globalStatus.isOfflineMode())
+            addTaskToLocalDb(yellTask, parentTask);
+        else
+            addTaskToServer(yellTask, parentTask);
     }
 
     public void addTaskToServer(YellTask yellTask, YellTask parentTask) {
@@ -153,8 +193,14 @@ public class YellTaskRepository {
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
+                    YellTask needToDelete = null;
+                    if (yellTask.task_id != null) {
+                        needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();
+                        parentTask.removeSubtask(yellTask);
+                    }
                     yellTask.setTask_id(response.body().getTask_id());
                     yellTask.last_sync = df.format(new Date());
+                    yellTask.parent_id = parentTask.task_id;
                     parentTask.addSubtask(yellTask);
                     addYellTaskMutableLiveData.postValue(parentTask);
                     realm.executeTransactionAsync(new Realm.Transaction() {
@@ -163,6 +209,8 @@ public class YellTaskRepository {
                             realm.copyToRealmOrUpdate(parentTask);
                         }
                     });
+                    if (needToDelete != null)
+                        needToDelete.deleteFromRealm();
                 } else {
                     if (response.code() == 401) {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
@@ -224,23 +272,30 @@ public class YellTaskRepository {
             return false;
         }
         else {
-            long diff = 0;
-            try {
-                Date dt_sync = df.parse(object.last_sync);
-                Date dt_now = df.parse(df.format(new Date()));
-                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                getDashboardFromServer(dashboardId);
-                return false;
-            }
-            catch (NullPointerException e) {
-                return true;
-            }
+            if (!globalStatus.isOfflineMode()) {
+                long diff = 0;
+                try {
+                    Date dt_sync = df.parse(object.last_sync);
+                    Date dt_now = df.parse(df.format(new Date()));
+                    diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    getDashboardFromServer(dashboardId);
+                    return false;
+                } catch (NullPointerException e) {
+                    return true;
+                }
 
-            if (diff > 5) {
-                getDashboardFromServer(dashboardId);
-                return false;
+                if (diff > 5) {
+                    getDashboardFromServer(dashboardId);
+                    return false;
+                }
+            }
+            DashboardCard result = realm.copyFromRealm(object);
+
+            // những task nào đã được đánh dấu xoá thì không hiển thị
+            for (YellTask task : result.tasks) {
+                if (task.getTask_id().length() == DELETED_UUID_LEN) result.removeTask(task);
             }
 
             dashboardCardMutableLiveData.postValue(realm.copyFromRealm(object));
@@ -261,6 +316,7 @@ public class YellTaskRepository {
     public void patchTaskToServer(YellTask yellTask) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
+        yellTask.local_edited_at = null;
         RequestBody requestBody = taskToJson(yellTask);
         call = service.editTask(null,requestBody);
         call.enqueue(new Callback<InfoMessage>() {
@@ -287,15 +343,28 @@ public class YellTaskRepository {
         });
     }
 
-    public void patchTask(YellTask yellTask) {
-        YellTaskResponseLiveData.postValue(yellTask);
+    private void patchTaskInLocalDb(YellTask yellTask) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 realm.copyToRealmOrUpdate(yellTask);
             }
         });
-        patchTaskToServer(yellTask);
+    }
+
+    public void patchTask(YellTask yellTask) {
+        if (!globalStatus.isOfflineMode()) {
+            patchTaskToServer(yellTask);
+            yellTask.local_edited_at = null;
+        }
+        else {
+            yellTask.local_edited_at = df.format(new Date());
+            globalStatus.setEditedOffline(true);
+            sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                    application.getResources().getString(R.string.bool_yes)).apply();
+        }
+        patchTaskInLocalDb(yellTask);
+        YellTaskResponseLiveData.postValue(yellTask);
     }
 
     private void deleteTaskOnServer(YellTask yellTask) {
@@ -314,7 +383,7 @@ public class YellTaskRepository {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                         Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    Log.w("YellTaskDeleted", "Delete Failed ");
+                    Log.w("YellTaskDeleted", "Delete Failed " + String.valueOf(response.code()));
                 }
 
             }
@@ -327,17 +396,46 @@ public class YellTaskRepository {
         });
     }
 
-    public void deleteYellTask(YellTask yellTask) {
+    public void syncDeletedTaskWithServer(YellTask task) {
+        deleteTaskInLocalDb(new YellTask(task.getTask_id()));
+        if (task.getTask_id().length() == DELETED_UUID_LEN)
+            task.task_id = task.getTask_id().replace("DELETED", "");
+        deleteTaskOnServer(task);
+    }
+
+    private void deleteTaskInLocalDb(YellTask task) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                YellTask object = realm.where(YellTask.class).equalTo("task_id",yellTask.getTask_id()).findFirst();
+                YellTask object = realm.where(YellTask.class).equalTo("task_id", task.getTask_id()).findFirst();
                 if (object == null)
                     return;
                 object.deleteFromRealm();
-                Log.w("YellTaskDeletedOnServer", "Deleted " + yellTask.getName()+" on DB");
             }
         });
-        deleteTaskOnServer(yellTask);
+    }
+
+    public void deleteYellTask(YellTask yellTask) {
+        if (!globalStatus.isOfflineMode()) {
+            deleteTaskInLocalDb(yellTask);
+            syncDeletedTaskWithServer(yellTask);
+        } else {
+            if (yellTask.getTask_id().length() == TRUE_UUID_LEN) {
+                deleteTaskInLocalDb(yellTask);
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        yellTask.task_id = "DELETED" + yellTask.getTask_id();
+                        yellTask.local_edited_at = df.format(new Date());
+                        realm.copyToRealmOrUpdate(yellTask);
+                    }
+                });
+                globalStatus.setEditedOffline(true);
+                sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                        application.getResources().getString(R.string.bool_yes)).apply();
+            } else if (yellTask.getTask_id().length() == TEMP_UUID_LEN) {
+                deleteTaskInLocalDb(yellTask);
+            }
+        }
     }
 }

@@ -47,15 +47,11 @@ public class DashboardViewModel extends AndroidViewModel {
     }
 
     public void inviteSomeone(DashboardPermission dashboardPermission) {
-        repository.inviteToDashboardOnServer(dashboardPermission);
+        repository.inviteToDashboard(dashboardPermission);
     }
 
     public void addYellTask(YellTask yellTask) {
-        repository.addTaskToServer(yellTask);
-    }
-
-    public void deleteYellTask(YellTask yellTask) {
-        repository.deleteYellTask(yellTask);
+        repository.addTask(yellTask);
     }
 
 }

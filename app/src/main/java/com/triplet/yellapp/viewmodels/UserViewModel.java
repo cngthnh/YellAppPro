@@ -17,7 +17,9 @@ import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.models.UserAccountFull;
+import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.DashboardRepository;
+import com.triplet.yellapp.repository.YellTaskRepository;
 import com.triplet.yellapp.repository.YellUserRepository;
 import com.triplet.yellapp.utils.GlobalStatus;
 
@@ -35,6 +37,7 @@ public class UserViewModel extends AndroidViewModel {
     private final int DELETED_UUID_LEN = 43;
     private YellUserRepository repository;
     private DashboardRepository dashboardRepository;
+    private YellTaskRepository taskRepository;
     private MutableLiveData<UserAccountFull> yellUserLiveData;
     private LiveData<List<Notification>> listNotificationLivaData;
     private LiveData<Notification> notificationLiveData;
@@ -56,6 +59,7 @@ public class UserViewModel extends AndroidViewModel {
     public void init() {
         repository = new YellUserRepository(getApplication());
         dashboardRepository = new DashboardRepository(getApplication());
+        taskRepository = new YellTaskRepository(getApplication());
         yellUserLiveData = repository.getYellUserLiveData();
         listNotificationLivaData = repository.getListNotificationLiveData();
         notificationLiveData = repository.getNotificationMutableLiveData();
@@ -118,7 +122,33 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
+    private void syncTasks() {
+        List<YellTask> tasks = realm.copyFromRealm(realm.where(YellTask.class).isNotNull("local_edited_at").findAll());
+        for (YellTask task : tasks) {
+            switch (task.getTask_id().length())
+            {
+                case TEMP_UUID_LEN:
+                    if (task.parent_id == null) {
+                        dashboardRepository.getDashboard(task.dashboard_id);
+                        dashboardRepository.addTaskToServer(task);
+                    }
+                    else {
+                        taskRepository.addTaskToServer(task, realm.copyFromRealm(realm.where(YellTask.class)
+                                .equalTo("task_id", task.parent_id).findFirst()));
+                    }
+                    break;
+                case DELETED_UUID_LEN:
+                    taskRepository.syncDeletedTaskWithServer(task);
+                    break;
+                case TRUE_UUID_LEN:
+                    taskRepository.patchTaskToServer(task);
+                    break;
+            }
+        }
+    }
+
     public MutableLiveData<UserAccountFull> sync() {
+        syncTasks();
         syncDashboards();
         globalStatus.setEditedOffline(false);
         sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),

@@ -15,6 +15,7 @@ import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.DashboardPermission;
 import com.triplet.yellapp.models.ErrorMessage;
 import com.triplet.yellapp.models.InfoMessage;
+import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
@@ -27,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
@@ -115,27 +117,33 @@ public class DashboardRepository {
             return false;
         }
         else {
-            long diff = 0;
-            try {
-                Date dt_sync = df.parse(object.last_sync);
-                Date dt_now = df.parse(df.format(new Date()));
-                diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                getDashboardFromServer(dashboardId);
-                return false;
+            if (!globalStatus.isOfflineMode()) {
+                long diff = 0;
+                try {
+                    Date dt_sync = df.parse(object.last_sync);
+                    Date dt_now = df.parse(df.format(new Date()));
+                    diff = TimeUnit.MINUTES.convert(dt_now.getTime() - dt_sync.getTime(), TimeUnit.MILLISECONDS);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    getDashboardFromServer(dashboardId);
+                    return false;
+                } catch (NullPointerException e) {
+                    return true;
+                }
+
+                if (diff > 5) {
+                    getDashboardFromServer(dashboardId);
+                    return false;
+                }
             }
-            catch (NullPointerException e) {
-                return true;
+            DashboardCard result = realm.copyFromRealm(object);
+
+            // những task nào đã được đánh dấu xoá thì không hiển thị
+            for (YellTask task : result.tasks) {
+                if (task.getTask_id().length() == DELETED_UUID_LEN) result.removeTask(task);
             }
 
-            GlobalStatus globalStatus = GlobalStatus.getInstance();
-            if (diff > 5 && !globalStatus.isOfflineMode()) {
-                getDashboardFromServer(dashboardId);
-                return false;
-            }
-
-            dashboardCardMutableLiveData.postValue(realm.copyFromRealm(object));
+            dashboardCardMutableLiveData.postValue(result);
             return true;
         }
     }
@@ -143,6 +151,7 @@ public class DashboardRepository {
     public void editDashboardOnServer(DashboardCard dashboardCard) {
         service = Client.createServiceWithAuth(ApiService.class, sessionManager);
         Call<InfoMessage> call;
+        dashboardCard.local_edited_at = null;
         RequestBody requestBody = dashboardToJson(dashboardCard);
         call = service.editDashboard(requestBody);
         call.enqueue(new Callback<InfoMessage>() {
@@ -182,6 +191,7 @@ public class DashboardRepository {
                     application.getResources().getString(R.string.bool_yes)).apply();
         }
         editDashboardInLocalDb(dashboardCard);
+        dashboardCardMutableLiveData.postValue(dashboardCard);
     }
 
     private void deleteDashboardFromServer(DashboardCard dashboardCard) {
@@ -206,6 +216,7 @@ public class DashboardRepository {
     }
 
     public void syncDeletedDashboardWithServer(DashboardCard dashboardCard) {
+        deleteDashboardInLocalDb(new DashboardCard(dashboardCard.getDashboard_id(), null));
         if (dashboardCard.getDashboard_id().length() == DELETED_UUID_LEN)
             dashboardCard.dashboard_id = dashboardCard.getDashboard_id().replace("DELETED", "");
         deleteDashboardFromServer(dashboardCard);
@@ -230,7 +241,15 @@ public class DashboardRepository {
             syncDeletedDashboardWithServer(dashboardCard);
         } else {
             if (dashboardCard.getDashboard_id().length() == TRUE_UUID_LEN) {
-                dashboardCard.dashboard_id = "DELETED" + dashboardCard.getDashboard_id();
+                deleteDashboardInLocalDb(dashboardCard);
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        dashboardCard.dashboard_id = "DELETED" + dashboardCard.getDashboard_id();
+                        dashboardCard.local_edited_at = df.format(new Date());
+                        realm.copyToRealmOrUpdate(dashboardCard);
+                    }
+                });
                 globalStatus.setEditedOffline(true);
                 sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
                         application.getResources().getString(R.string.bool_yes)).apply();
@@ -279,15 +298,24 @@ public class DashboardRepository {
             public void onResponse(Call<YellTask> call, Response<YellTask> response) {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    yellTask.setTask_id(response.body().getTask_id());
-                    yellTask.last_sync = df.format(new Date());
-                    DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
-                    dashboardCard.addTask(yellTask);
-                    dashboardCardMutableLiveData.postValue(dashboardCard);
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
+                            YellTask needToDelete = null;
+                            if (yellTask.task_id != null) {
+                                needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();
+                                dashboardCard.removeTask(yellTask);
+                            }
+                            yellTask.setTask_id(response.body().getTask_id());
+                            yellTask.last_sync = df.format(new Date());
+                            yellTask.local_edited_at = null;
+                            dashboardCard.addTask(yellTask);
                             realm.copyToRealmOrUpdate(dashboardCard);
+                            if (needToDelete != null)
+                                needToDelete.deleteFromRealm();
+
+                            dashboardCardMutableLiveData.postValue(dashboardCard);
                         }
                     });
                 } else {
@@ -334,18 +362,7 @@ public class DashboardRepository {
         });
     }
 
-    public void deleteYellTask(YellTask yellTask) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                YellTask object = realm.where(YellTask.class).equalTo("task_id",yellTask.getTask_id()).findFirst();
-                if (object == null)
-                    return;
-                object.deleteFromRealm();
-            }
-        });
-        deleteTaskOnServer(yellTask);
-    }
+
 
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
         String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
@@ -363,4 +380,38 @@ public class DashboardRepository {
         return RequestBody.create(MediaType.parse("text/plain"), jsonYellTask);
     }
 
+    public void addTaskToLocalDb(YellTask task) {
+        task.setTask_id("TEMP" + UUID.randomUUID().toString());
+        task.local_edited_at = df.format(new Date());
+        DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
+        dashboardCard.addTask(task);
+        dashboardCardMutableLiveData.postValue(dashboardCard);
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(dashboardCard);
+            }
+        });
+
+        sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                application.getResources().getString(R.string.bool_yes)).apply();
+        GlobalStatus globalStatus = GlobalStatus.getInstance();
+        globalStatus.setEditedOffline(true);
+    }
+
+    public void addTask(YellTask yellTask) {
+        yellTask.dashboard_id = dashboardCardMutableLiveData.getValue().getDashboard_id();
+        if (globalStatus.isOfflineMode())
+            addTaskToLocalDb(yellTask);
+        else
+            addTaskToServer(yellTask);
+    }
+
+    public void inviteToDashboard(DashboardPermission dashboardPermission) {
+        if (globalStatus.isOfflineMode()) {
+            Toast.makeText(application.getApplicationContext(), "Không thể mời người khác trong trạng thái offline", Toast.LENGTH_SHORT).show();
+        } else {
+            inviteToDashboardOnServer(dashboardPermission);
+        }
+    }
 }
