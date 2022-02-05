@@ -98,7 +98,7 @@ public class DashboardRepository {
                     });
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(application.getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -301,7 +301,9 @@ public class DashboardRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            DashboardCard dashboardCard = dashboardCardMutableLiveData.getValue();
+                            DashboardCard dashboardCard = realm.copyFromRealm(realm.where(DashboardCard.class)
+                                    .equalTo("dashboard_id",yellTask.getDashboard_id())
+                                    .findFirst());
                             YellTask needToDelete = null;
                             if (yellTask.task_id != null) {
                                 needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();

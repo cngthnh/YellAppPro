@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
+import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.viewmodels.UserViewModel;
@@ -69,6 +70,12 @@ public class MainActivity extends AppCompatActivity {
                 userViewModel = new ViewModelProvider((ViewModelStoreOwner) this.context).get(UserViewModel.class);
                 userViewModel.init();
                 loadingDialog.startLoadingDialog();
+                userViewModel.getSyncDashboardCardLiveData().observe((LifecycleOwner) this.context, new Observer<DashboardCard>() {
+                    @Override
+                    public void onChanged(DashboardCard dashboardCard) {
+                        userViewModel.syncTasks(dashboardCard.getTasks());
+                    }
+                });
                 userViewModel.sync().observe((LifecycleOwner) this.context, new Observer<UserAccountFull>() {
                     @Override
                     public void onChanged(UserAccountFull userAccountFull) {

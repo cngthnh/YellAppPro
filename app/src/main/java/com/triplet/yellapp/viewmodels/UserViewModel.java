@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
@@ -44,6 +45,7 @@ public class UserViewModel extends AndroidViewModel {
     private MutableLiveData<UserAccountFull> yellUserLiveData;
     private LiveData<List<Notification>> listNotificationLivaData;
     private LiveData<Notification> notificationLiveData;
+    private LiveData<DashboardCard> syncDashboardCardLiveData;
     private GlobalStatus globalStatus = GlobalStatus.getInstance();
     private SharedPreferences sharedPreferences;
     Application application;
@@ -67,6 +69,7 @@ public class UserViewModel extends AndroidViewModel {
         yellUserLiveData = repository.getYellUserLiveData();
         listNotificationLivaData = repository.getListNotificationLiveData();
         notificationLiveData = repository.getNotificationMutableLiveData();
+        syncDashboardCardLiveData = repository.getSyncDashBoardLiveData();
         realm = Realm.getDefaultInstance();
         sharedPreferences = application.getSharedPreferences(application.getResources().getString(R.string.yell_sp), MODE_PRIVATE);
         uid = sharedPreferences.getString("uid", "");
@@ -102,6 +105,9 @@ public class UserViewModel extends AndroidViewModel {
     public LiveData<Notification> getNotificationLiveData() {
         return notificationLiveData;
     }
+    public LiveData<DashboardCard> getSyncDashboardCardLiveData() {
+        return syncDashboardCardLiveData;
+    }
 
     public void acceptNotify(Notification notification) {
         repository.confirmInvited(notification);
@@ -129,8 +135,7 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
-    private void syncTasks() {
-        List<YellTask> tasks = realm.copyFromRealm(realm.where(YellTask.class).isNotNull("local_edited_at").findAll());
+    public void syncTasks(List<YellTask> tasks) {
         for (YellTask task : tasks) {
             switch (task.getTask_id().length())
             {
@@ -192,7 +197,6 @@ public class UserViewModel extends AndroidViewModel {
     }
 
     public MutableLiveData<UserAccountFull> sync() {
-        syncTasks();
         syncDashboards();
         syncBudgets();
         syncTransactions();

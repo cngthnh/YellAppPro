@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -61,6 +62,7 @@ public class YellUserRepository {
     MutableLiveData<UserAccountFull> yellUserLiveData;
     MutableLiveData<List<Notification>> listNotificationLiveData;
     MutableLiveData<Notification> notificationMutableLiveData;
+    MutableLiveData<DashboardCard> syncDashBoardLiveData;
     DateFormat df;
     String uid;
     private Realm realm;
@@ -77,6 +79,10 @@ public class YellUserRepository {
         return listNotificationLiveData;
     }
 
+    public MutableLiveData<DashboardCard> getSyncDashBoardLiveData() {
+        return syncDashBoardLiveData;
+    }
+
     public YellUserRepository(Application application)
     {
         this.application = application;
@@ -86,6 +92,7 @@ public class YellUserRepository {
         yellUserLiveData = new MutableLiveData<>();
         listNotificationLiveData = new MutableLiveData<>();
         notificationMutableLiveData = new MutableLiveData<>();
+        syncDashBoardLiveData = new MutableLiveData<>();
         uid = sharedPreferences.getString("uid",null);
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
@@ -205,14 +212,26 @@ public class YellUserRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            String dashboard_id = response.body().getDashboard_id();
                             DashboardCard needToDelete = null;
                             if (dashboardCard.getDashboard_id() != null) {
-                                needToDelete = realm.where(DashboardCard.class).equalTo("dashboard_id", dashboardCard.getDashboard_id()).findFirst();
+                                needToDelete = realm.where(DashboardCard.class)
+                                        .equalTo("dashboard_id", dashboardCard.getDashboard_id())
+                                        .findFirst();
                             }
                             if (needToDelete != null) {
+                                RealmResults<YellTask> temp = realm.where(YellTask.class)
+                                        .equalTo("dashboard_id",needToDelete.getDashboard_id())
+                                        .findAll();
+                                RealmList<YellTask> tasks = new RealmList<>();
+                                tasks.addAll(realm.copyFromRealm(temp.subList(0,temp.size())));
+                                for (int i =0;i<tasks.size();i++) {
+                                    tasks.get(i).setDashboard_id(dashboard_id);
+                                }
+                                dashboardCard.setTasks(tasks);
                                 needToDelete.deleteFromRealm();
                             }
-                            dashboardCard.setDashboard_id(response.body().getDashboard_id());
+                            dashboardCard.setDashboard_id(dashboard_id);
                             dashboardCard.local_edited_at = null;
                             dashboardCard.last_sync = df.format(new Date());
                             RealmList<DashboardPermission> dashboardPermissions = new RealmList<>();
@@ -225,6 +244,7 @@ public class YellUserRepository {
                             userAccountFull.last_sync = dashboardCard.last_sync;
                             yellUserLiveData.postValue(userAccountFull);
                             realm.copyToRealmOrUpdate(userAccountFull);
+                            syncDashBoardLiveData.postValue(dashboardCard);
                         }
                     });
                 } else {
