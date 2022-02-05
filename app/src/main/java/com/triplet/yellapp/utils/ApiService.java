@@ -48,6 +48,10 @@ public interface ApiService {
     @GET("users")
     Call<UserAccountFull> getUserFull(@Query("fetch") String fetch);
 
+    @PATCH("users")
+    @Headers("Content-Type: application/json")
+    Call<InfoMessage> updateUser(@Body RequestBody body);
+
     @DELETE("auth")
     Call<InfoMessage> logout();
 

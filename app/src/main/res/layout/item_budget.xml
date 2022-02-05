@@ -33,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:cardBackgroundColor="?editTextBackground"
         app:cardElevation="0dp"
         app:cardCornerRadius="20dp">
         <androidx.appcompat.widget.LinearLayoutCompat

@@ -11,6 +11,8 @@ public class UserCredentials {
     public String email;
     @Json(name="name")
     public String name;
+    @Json(name="old_hash")
+    public String oldHash;
 
     public UserCredentials(String uid) {
         this.uid = uid;
@@ -33,6 +35,14 @@ public class UserCredentials {
         this.hash = hash;
         this.email = email;
         this.name = name;
+    }
+    public UserCredentials(String uid, String hash, String oldHash, String email, String name)
+    {
+        this.uid = uid;
+        this.hash = hash;
+        this.email = email;
+        this.name = name;
+        this.oldHash = oldHash;
     }
 
     public void setHash(String hash) {
