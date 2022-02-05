@@ -121,6 +121,7 @@ public class DashboardFragment extends Fragment {
             usersAdapter.setData(dashboardCard.getUsers());
             yellTaskAdapter.setRole(dashboardCard.getUsers());
             usersDetailAdapter.setData(dashboardCard.getUsers());
+            binding.listTasks.setAdapter(yellTaskAdapter);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

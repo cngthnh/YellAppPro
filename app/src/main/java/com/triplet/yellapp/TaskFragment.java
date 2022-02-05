@@ -150,6 +150,7 @@ public class TaskFragment extends Fragment {
                         binding.taskName.setText(yellTask.getName());
                         binding.contentEditText.setText(yellTask.getContent());
                         yellTaskAdapter.setYellTaskArrayList(currentYellTask.getSubtasks());
+                        binding.listTask.setAdapter(yellTaskAdapter);
                     }
                 }
             }
@@ -160,6 +161,7 @@ public class TaskFragment extends Fragment {
                 currentYellTask = yellTask;
                 subTasks = yellTask.getSubtasks();
                 yellTaskAdapter.setYellTaskArrayList(subTasks);
+                binding.listTask.setAdapter(yellTaskAdapter);
             }
         });
         viewModel.getDashboardCardLiveData().observe(this, new Observer<DashboardCard>() {
@@ -176,6 +178,7 @@ public class TaskFragment extends Fragment {
                                 subTasks.add(temp.get(i));
                     }
                     yellTaskAdapter.setYellTaskArrayList(subTasks);
+                    binding.listTask.setAdapter(yellTaskAdapter);
                 }
                 catch (Exception e)
                 {
