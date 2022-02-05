@@ -2,30 +2,23 @@ package com.triplet.yellapp;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -33,40 +26,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.BudgetsAdapter;
-import com.triplet.yellapp.adapters.DashboardsAdapter;
-import com.triplet.yellapp.adapters.UsersDetailAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetListBinding;
 import com.triplet.yellapp.models.BudgetCard;
-import com.triplet.yellapp.models.DashboardCard;
-import com.triplet.yellapp.models.DashboardPermission;
-import com.triplet.yellapp.models.ErrorMessage;
-import com.triplet.yellapp.models.UserAccount;
 import com.triplet.yellapp.models.UserAccountFull;
-import com.triplet.yellapp.repository.YellTaskRepository;
-import com.triplet.yellapp.utils.ApiService;
-import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ListBudgetsFragment extends Fragment {
     FragmentBudgetListBinding binding;
     BudgetsAdapter budgetsAdapter = null;
     List<BudgetCard> list;
-    ApiService service;
     SessionManager sessionManager;
-    Moshi moshi = new Moshi.Builder().build();
 
     UserViewModel userViewModel;
     LoadingDialog loadingDialog;
@@ -261,6 +235,7 @@ public class ListBudgetsFragment extends Fragment {
                     newBudget.setBalance(Integer.parseInt(balanceBudget.getText().toString()));
                     newBudget.setThreshold(Integer.parseInt(thresholdBudget.getText().toString()));
                     userViewModel.addBudget(newBudget);
+                    loadingDialog.startLoadingDialog();
                     dialog.dismiss();
                 }
             }

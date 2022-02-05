@@ -305,11 +305,12 @@ public class BudgetsFragment extends Fragment {
                     else
                         newTransaction.setAmount(Integer.parseInt(amount.getText().toString()));
 
-                    if(Math.abs(newTransaction.getAmount()) > budgetCard.balance)
+                    if(-newTransaction.getAmount() > budgetCard.balance)
                         Toast.makeText(getContext(), "Số dư còn lại của tài khoản không đủ để thực hiện giao dịch này",
                                 Toast.LENGTH_LONG).show();
                     else {
                         budgetViewModel.addTransaction(newTransaction);
+                        loadingDialog.startLoadingDialog();
                         dialog.dismiss();
                     }
 

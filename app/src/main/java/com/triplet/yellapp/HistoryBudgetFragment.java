@@ -59,7 +59,7 @@ public class HistoryBudgetFragment extends Fragment {
                 }
             }
         });
-        transactionAdapter = new TransactionAdapter(getActivity(), sessionManager, budgetViewModel);
+        transactionAdapter = new TransactionAdapter(getActivity(), sessionManager, budgetViewModel, loadingDialog);
     }
 
     private void setBalance(BudgetCard budget) {

@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.chauthai.swipereveallayout.SwipeRevealLayout;
 import com.chauthai.swipereveallayout.ViewBinderHelper;
+import com.triplet.yellapp.LoadingDialog;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.utils.SessionManager;
@@ -40,11 +41,13 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     SessionManager sessionManager;
     BudgetViewModel budgetViewModel;
     int balance;
+    LoadingDialog loadingDialog;
 
-    public TransactionAdapter(FragmentActivity activity, SessionManager sessionManager, BudgetViewModel budgetViewModel) {
+    public TransactionAdapter(FragmentActivity activity, SessionManager sessionManager, BudgetViewModel budgetViewModel, LoadingDialog loadingDialog) {
         this.activity = activity;
         this.sessionManager = sessionManager;
         this.budgetViewModel = budgetViewModel;
+        this.loadingDialog = loadingDialog;
     }
 
     public void setData(List<TransactionCard> mListTransaction, int balance) {
@@ -167,6 +170,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             @Override
             public void onClick(View view) {
                 budgetViewModel.deleteTransaction(transactionCard);
+                loadingDialog.startLoadingDialog();
                 dialog.dismiss();
             }
         });
