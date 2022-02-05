@@ -61,6 +61,10 @@ public class BudgetCard extends RealmObject {
         this.id = id;
         this.transactions = transactions;
     }
+    public BudgetCard(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
 
     public String getId() {
@@ -104,6 +108,15 @@ public class BudgetCard extends RealmObject {
         if (transactions == null)
             transactions = new RealmList<>();
         transactions.add(transactionCard);
+    }
+
+    public void removeTransaction(TransactionCard transactionCard) {
+        if (transactions != null)
+            try {
+                transactions.remove(transactionCard);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
     }
 
     public void deleteTransaction(TransactionCard transactionCard) {

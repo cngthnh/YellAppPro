@@ -30,6 +30,11 @@ public class DashboardCard extends RealmObject {
         this.name = name;
     }
 
+    public DashboardCard(String dashboard_id, String name) {
+        this.dashboard_id = dashboard_id;
+        this.name = name;
+    }
+
     public DashboardCard(String dashboard_id, String name, String description, RealmList<YellTask> tasks, RealmList<DashboardPermission> users) {
         this.dashboard_id = dashboard_id;
         this.name = name;
@@ -74,6 +79,15 @@ public class DashboardCard extends RealmObject {
         if (tasks == null)
             tasks = new RealmList<>();
         tasks.add(yellTask);
+    }
+
+    public void removeTask(YellTask yellTask) {
+        if (tasks != null)
+            try {
+                tasks.remove(yellTask);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
     }
 
     public RealmList<DashboardPermission> getUsers() {

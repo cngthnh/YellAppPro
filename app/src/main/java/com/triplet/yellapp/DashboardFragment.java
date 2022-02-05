@@ -96,6 +96,7 @@ public class DashboardFragment extends Fragment {
                     }
                 }
                 catch (Exception e) {
+                    e.printStackTrace();
                     dashboardViewModel.getDashboard(dashboardCard.getDashboard_id());
                 }
                 if (getActivity() != null) {
@@ -112,13 +113,17 @@ public class DashboardFragment extends Fragment {
     }
 
     private void bindingData() {
-        binding.edtNameDb.setText(dashboardCard.getName());
-        //TODO: Binding Label
-        binding.tvDescriptionDb.setText(dashboardCard.getDescription());
-        yellTaskAdapter.setYellTaskArrayList(yellTasks);
-        usersAdapter.setData(dashboardCard.getUsers());
-        yellTaskAdapter.setRole(dashboardCard.getUsers());
-        usersDetailAdapter.setData(dashboardCard.getUsers());
+        try {
+            binding.edtNameDb.setText(dashboardCard.getName());
+            //TODO: Binding Label
+            binding.tvDescriptionDb.setText(dashboardCard.getDescription());
+            yellTaskAdapter.setYellTaskArrayList(yellTasks);
+            usersAdapter.setData(dashboardCard.getUsers());
+            yellTaskAdapter.setRole(dashboardCard.getUsers());
+            usersDetailAdapter.setData(dashboardCard.getUsers());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -133,6 +138,8 @@ public class DashboardFragment extends Fragment {
             binding.tvDescriptionDb.setText(dashboardCard.getDescription());
             binding.edtDescriptionDb.setText(dashboardCard.getDescription());
         }
+
+        bindingData();
 
         binding.backDashboard.setOnClickListener(new View.OnClickListener() {
             @Override

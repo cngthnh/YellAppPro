@@ -34,7 +34,7 @@ public class BudgetViewModel extends AndroidViewModel {
     }
 
     public void addTransaction(TransactionCard transactionCard) {
-        repository.addTransactionToServer(transactionCard);
+        repository.addTransaction(transactionCard);
     }
 
     public void deleteTransaction(TransactionCard transactionCard){

@@ -120,6 +120,15 @@ public class YellTask extends RealmObject {
         subtasks.add(subtask);
     }
 
+    public void removeSubtask(YellTask subtask) {
+        if (subtasks != null)
+            try {
+                subtasks.remove(subtask);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+    }
+
     public String getDashboard_id() {
         return dashboard_id;
     }
