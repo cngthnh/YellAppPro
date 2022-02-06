@@ -41,6 +41,8 @@ public class AccountFragment extends Fragment {
     LoadingDialog loadingDialog;
     UserAccountFull user;
     AccountInfoFragment accountInfoFragment;
+    SettingsFragment settingsFragment;
+    FaqFragment faqFragment;
 
     AccountFragment(UserViewModel userViewModel) {
         this.userViewModel = userViewModel;
@@ -64,6 +66,8 @@ public class AccountFragment extends Fragment {
             }
         });
         accountInfoFragment = new AccountInfoFragment(userViewModel);
+        settingsFragment = new SettingsFragment();
+        faqFragment = new FaqFragment();
     }
 
     private void bindingData() {
@@ -123,6 +127,30 @@ public class AccountFragment extends Fragment {
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)
                         .replace(R.id.fragmentContainer, accountInfoFragment, "ACCOUNT_INFO")
+                        .addToBackStack(null).commit();
+            }
+        });
+
+        binding.settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, settingsFragment, "SETTINGS")
+                        .addToBackStack(null).commit();
+            }
+        });
+
+        binding.faqBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                R.anim.slide_in_right, R.anim.slide_out_left)
+                        .replace(R.id.fragmentContainer, faqFragment, "FAQ")
                         .addToBackStack(null).commit();
             }
         });

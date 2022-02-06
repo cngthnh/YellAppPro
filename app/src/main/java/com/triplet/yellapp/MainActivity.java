@@ -1,8 +1,7 @@
 package com.triplet.yellapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
@@ -10,30 +9,24 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.utils.GlobalStatus;
+import com.triplet.yellapp.utils.NetworkChangeReceiver;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity {
     private boolean doubleTapToQuit;
@@ -43,6 +36,19 @@ public class MainActivity extends AppCompatActivity {
     private UserViewModel userViewModel;
     private HomeFragment homeFragment;
     private LoadingDialog loadingDialog;
+    public static void setNightMode(Context target, Boolean state){
+
+        if (state == null) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+            return;
+        }
+
+        if (state) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +57,22 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(getResources().getString(R.string.yell_sp), MODE_PRIVATE);
         homeFragment = new HomeFragment();
         loadingDialog = new LoadingDialog(this);
+
+        globalStatus.setUiMode(sharedPreferences.getInt(getResources().getString(R.string.yell_ui_mode), 0));
+        if (Build.VERSION.SDK_INT < 29) {
+            if (globalStatus.getUiMode() == 0) globalStatus.setUiMode(1);
+        }
+
+        switch (globalStatus.getUiMode()) {
+            case 0:
+                setNightMode(this, null);
+                break;
+            case 2:
+                setNightMode(this, true);
+                break;
+            default:
+                setNightMode(this, false);
+        }
 
         Realm.init(this);
 

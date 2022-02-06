@@ -1,4 +1,4 @@
-package com.triplet.yellapp;
+package com.triplet.yellapp.utils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +14,7 @@ import com.triplet.yellapp.utils.GlobalStatus;
 public abstract class NetworkChangeReceiver extends BroadcastReceiver {
 
     public Context context;
-    NetworkChangeReceiver(Context context) {
+    public NetworkChangeReceiver(Context context) {
         this.context = context;
     }
 
@@ -23,7 +23,8 @@ public abstract class NetworkChangeReceiver extends BroadcastReceiver {
         try {
             GlobalStatus globalStatus = GlobalStatus.getInstance();
             globalStatus.setOfflineMode(!isOnline(context));
-            globalStatus.setStartCheck(true);
+            if (!globalStatus.getStartCheck().getValue())
+                globalStatus.setStartCheck(true);
             raiseSnackbar();
             if (!globalStatus.isOfflineMode() && globalStatus.isEditedOffline()) {
                 syncWithServer();

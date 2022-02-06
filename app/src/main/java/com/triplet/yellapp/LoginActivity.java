@@ -90,6 +90,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         binding.loginBtn.setOnClickListener(this);
         binding.gotoRegister.setOnClickListener(this);
         binding.revealPassword.setOnClickListener(this);
+        binding.forgotPasswordBtn.setOnClickListener(this);
+        binding.signinWithFb.setOnClickListener(this);
+        binding.signinWithGoogle.setOnClickListener(this);
     }
 
     private void showLoading(){
@@ -205,6 +208,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             goToRegister();
         } else if (viewId == R.id.revealPassword) {
             revealOrHidePassword(view);
+        } else if (viewId == R.id.forgotPasswordBtn || viewId == R.id.signinWithFb || viewId == R.id.signinWithGoogle) {
+            Toast.makeText(this, "Chức năng chưa hoàn thiện", Toast.LENGTH_LONG).show();
         }
     }
 }

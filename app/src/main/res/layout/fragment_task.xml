@@ -6,6 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:clickable="true"
     android:focusable="true"
+    android:background="?backgroundColor"
     tools:context=".TaskFragment">
 
     <!-- TODO: Update blank fragment layout -->

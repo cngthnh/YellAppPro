@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Yell</string>
     <string name="yell_sp">YellSP</string>
+    <string name="yell_ui_mode">YellUIMode</string>
     <string name="homepage">Trang chủ</string>
     <string name="dashboards">Bảng công việc</string>
     <string name="budgets">Ngân sách</string>

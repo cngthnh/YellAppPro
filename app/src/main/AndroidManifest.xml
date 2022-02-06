@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.YellApp">
         <receiver
-            android:name=".NetworkChangeReceiver"
+            android:name=".utils.NetworkChangeReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
@@ -27,6 +27,7 @@
         <activity android:name=".LoginActivity" />
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".SplashActivity"
