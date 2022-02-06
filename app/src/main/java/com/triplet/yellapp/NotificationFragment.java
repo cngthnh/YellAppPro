@@ -79,7 +79,6 @@ public class NotificationFragment extends Fragment {
         binding = FragmentNotificationBinding.inflate(inflater, container,false);
         getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.yellow_primary));
         View view = binding.getRoot();
-        loadingDialog.startLoadingDialog();
         userViewModel.getNotification();
         binding.backNotification.setOnClickListener(new View.OnClickListener() {
             @Override
