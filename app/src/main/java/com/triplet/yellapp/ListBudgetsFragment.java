@@ -63,6 +63,7 @@ public class ListBudgetsFragment extends Fragment {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
                     budgetsAdapter.setData(list);
+                    binding.recycleView.setAdapter(budgetsAdapter);
                 }
             }
         });

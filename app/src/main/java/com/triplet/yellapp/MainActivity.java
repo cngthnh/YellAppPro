@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 GlobalStatus globalStatus = GlobalStatus.getInstance();
                 String conn = globalStatus.isOfflineMode() ? "ngắt kết nối" : "kết nối";
                 Snackbar.make(findViewById(R.id.mainActivity), "Đã " + conn + " Internet", Snackbar.LENGTH_LONG).show();
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Home");
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("HOME");
                 if (fragment!=null)
                     getSupportFragmentManager().popBackStack("HOME",0);
             }

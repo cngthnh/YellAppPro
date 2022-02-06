@@ -383,6 +383,7 @@ public class DashboardRepository {
                     String yellTaskId = response.body().getTask_id();
                     YellTask needToDelete = null;
                     if (yellTask.task_id != null) {
+                        flag = 1;
                         needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();
                         parentTask.removeSubtask(yellTask);
                         RealmResults<YellTask> temp = realm.where(YellTask.class)
