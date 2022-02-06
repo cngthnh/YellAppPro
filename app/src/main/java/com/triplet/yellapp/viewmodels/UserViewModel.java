@@ -47,6 +47,7 @@ public class UserViewModel extends AndroidViewModel {
     private LiveData<Notification> notificationLiveData;
     private LiveData<DashboardCard> syncDashboardCardLiveData;
     private LiveData<YellTask> syncYellTaskLiveData;
+    private LiveData<BudgetCard> syncBudgetLiveData;
     private GlobalStatus globalStatus = GlobalStatus.getInstance();
     private SharedPreferences sharedPreferences;
     Application application;
@@ -75,6 +76,7 @@ public class UserViewModel extends AndroidViewModel {
         notificationLiveData = repository.getNotificationMutableLiveData();
         syncDashboardCardLiveData = repository.getSyncDashBoardLiveData();
         syncYellTaskLiveData = dashboardRepository.getSyncYellTaskLiveData();
+        syncBudgetLiveData = repository.getSyncBudgetLiveData();
         realm = Realm.getDefaultInstance();
         sharedPreferences = application.getSharedPreferences(application.getResources().getString(R.string.yell_sp), MODE_PRIVATE);
         uid = sharedPreferences.getString("uid", "");
@@ -106,6 +108,10 @@ public class UserViewModel extends AndroidViewModel {
     public void getNotification() {
         repository.getNotificationFromServer();
         repository.getNotification();
+    }
+
+    public LiveData<BudgetCard> getSyncBudgetLiveData() {
+        return syncBudgetLiveData;
     }
 
     public LiveData<List<Notification>> getListNotificationLivaData() {
@@ -187,7 +193,7 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
-    private void syncBudgets() {
+    public void syncBudgets() {
         List<BudgetCard> budgets = realm.copyFromRealm(realm.where(BudgetCard.class).isNotNull("local_edited_at").findAll());
         for (BudgetCard budget : budgets) {
             switch (budget.getId().length())
@@ -207,6 +213,26 @@ public class UserViewModel extends AndroidViewModel {
 
     private void syncTransactions() {
         List<TransactionCard> transactions = realm.copyFromRealm(realm.where(TransactionCard.class).isNotNull("local_edited_at").findAll());
+        for (TransactionCard transaction : transactions) {
+            if (transaction.getBudget_id().length() == TRUE_UUID_LEN) {
+                switch (transaction.getTran_id().length())
+                {
+                    case TEMP_UUID_LEN:
+                        budgetRepository.getBudget(transaction.getBudget_id());
+                        budgetRepository.addTransactionToServer(transaction);
+                        break;
+                    case DELETED_UUID_LEN:
+                        budgetRepository.syncDeletedTransactionWithServer(transaction);
+                        break;
+                    case TRUE_UUID_LEN:
+                        // không có phương thức chỉnh sửa
+                        break;
+                }
+            }
+        }
+    }
+
+    public void syncAddTransactions(List<TransactionCard> transactions) {
         for (TransactionCard transaction : transactions) {
             switch (transaction.getTran_id().length())
             {

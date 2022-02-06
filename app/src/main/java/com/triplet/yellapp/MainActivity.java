@@ -20,6 +20,7 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
@@ -113,6 +114,12 @@ public class MainActivity extends AppCompatActivity {
                     public void onChanged(UserAccountFull userAccountFull) {
                         if (loadingDialog != null)
                             loadingDialog.dismissDialog();
+                    }
+                });
+                userViewModel.getSyncBudgetLiveData().observe((LifecycleOwner) this.context, new Observer<BudgetCard>() {
+                    @Override
+                    public void onChanged(BudgetCard budgetCard) {
+                        userViewModel.syncAddTransactions(budgetCard.getTransactionsList());
                     }
                 });
             }

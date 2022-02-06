@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -58,17 +60,25 @@ public class ListBudgetsFragment extends Fragment {
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
             @Override
             public void onChanged(UserAccountFull userAccountFull) {
-                list = userAccountFull.getBudgetCards();
-                if (getActivity() != null) {
-                    if (loadingDialog != null)
-                        loadingDialog.dismissDialog();
-                    budgetsAdapter.setData(list);
-                    binding.recycleView.setAdapter(budgetsAdapter);
+                try
+                {
+                    list = userAccountFull.getBudgetCards();
+                    if (getActivity() != null) {
+                        if (loadingDialog != null)
+                            loadingDialog.dismissDialog();
+                        budgetsAdapter.setData(list);
+                        binding.recycleView.setAdapter(budgetsAdapter);
+                    }
+                }
+                catch (Exception e) {
+                    Toast.makeText(getContext(),"Error Loading List Budgets",Toast.LENGTH_SHORT);
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

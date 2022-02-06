@@ -233,7 +233,10 @@ public class BudgetRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
-                            BudgetCard budgetCard = budgetCardMutableLiveData.getValue();
+                            BudgetCard budgetCard = realm.copyFromRealm(realm
+                                    .where(BudgetCard.class)
+                                    .equalTo("id",transactionCard.getBudget_id())
+                                    .findFirst());
                             TransactionCard needToDelete = null;
                             if (transactionCard.getTran_id() != null) {
                                 needToDelete = realm.where(TransactionCard.class).equalTo("transaction_id", transactionCard.getTran_id()).findFirst();

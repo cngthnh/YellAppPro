@@ -330,22 +330,27 @@ public class HomeFragment extends Fragment {
         binding.transactionCount.setText(String.valueOf(realm.where(TransactionCard.class).count()));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void bindingData () {
-        dashboardsHomeAdapter.setData(user.getDashboards());
-        budgetsHomeAdapter.setData(user.getBudgetCards());
-        binding.accountTitle.setText("Hi, " + user.getName());
-        bindNearestDeadlineTask();
-        binding.highLightTaskCompleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nearDeadlineTask.status = 2;
-                ImageButton button = ((ImageButton) view);
-                button.setImageResource(R.drawable.ic_check_circle_filled);
-                button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
-                taskRepo.patchTask(nearDeadlineTask);
-            }
-        });
-        bindSummary();
+        try {
+            dashboardsHomeAdapter.setData(user.getDashboards());
+            budgetsHomeAdapter.setData(user.getBudgetCards());
+            binding.accountTitle.setText("Hi, " + user.getName());
+            bindNearestDeadlineTask();
+            binding.highLightTaskCompleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    nearDeadlineTask.status = 2;
+                    ImageButton button = ((ImageButton) view);
+                    button.setImageResource(R.drawable.ic_check_circle_filled);
+                    button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(getActivity(), R.color.orange)));
+                    taskRepo.patchTask(nearDeadlineTask);
+                }
+            });
+            bindSummary();
+        } catch (Exception e) {
+            userViewModel.getUser();
+        }
     }
     public void onBackPressed() {
 

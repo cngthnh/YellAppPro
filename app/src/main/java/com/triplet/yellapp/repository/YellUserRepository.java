@@ -64,10 +64,15 @@ public class YellUserRepository {
     MutableLiveData<List<Notification>> listNotificationLiveData;
     MutableLiveData<Notification> notificationMutableLiveData;
     MutableLiveData<DashboardCard> syncDashBoardLiveData;
+    MutableLiveData<BudgetCard> syncBudgetLiveData;
     DateFormat df;
     String uid;
     List<Notification> notificationList;
     private Realm realm;
+
+    public MutableLiveData<BudgetCard> getSyncBudgetLiveData() {
+        return syncBudgetLiveData;
+    }
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
         return yellUserLiveData;
@@ -95,6 +100,7 @@ public class YellUserRepository {
         listNotificationLiveData = new MutableLiveData<>();
         notificationMutableLiveData = new MutableLiveData<>();
         syncDashBoardLiveData = new MutableLiveData<>();
+        syncBudgetLiveData = new MutableLiveData<>();
         uid = sharedPreferences.getString("uid",null);
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
@@ -282,19 +288,33 @@ public class YellUserRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            int flag = 0;
+                            String budgetId = response.body().getId();
                             BudgetCard needToDelete = null;
                             if (budgetCard.getId() != null) {
                                 needToDelete = realm.where(BudgetCard.class).equalTo("id", budgetCard.getId()).findFirst();
                             }
                             if (needToDelete != null) {
+                                flag = 1;
+                                RealmResults<TransactionCard> temp = realm.where(TransactionCard.class)
+                                        .equalTo("budget_id",needToDelete.getId())
+                                        .findAll();
+                                RealmList<TransactionCard> transactionCards = new RealmList<>();
+                                transactionCards.addAll(realm.copyFromRealm(temp.subList(0,temp.size())));
+                                for (int i =0;i<transactionCards.size();i++) {
+                                    transactionCards.get(i).setBudget_id(budgetId);
+                                }
+                                budgetCard.setTransactionsList(transactionCards);
                                 needToDelete.deleteFromRealm();
                             }
-                            budgetCard.setId(response.body().getId());
+                            budgetCard.setId(budgetId);
                             budgetCard.local_edited_at = null;
                             budgetCard.last_sync = df.format(new Date());
                             UserAccountFull userAccountFull = realm.copyFromRealm(realm.where(UserAccountFull.class).equalTo("uid", uid).findFirst());
                             userAccountFull.addBudget(budgetCard);
                             userAccountFull.last_sync = budgetCard.last_sync;
+                            if (flag == 1)
+                                syncBudgetLiveData.postValue(budgetCard);
                             yellUserLiveData.postValue(userAccountFull);
                             realm.copyToRealmOrUpdate(userAccountFull);
                         }
