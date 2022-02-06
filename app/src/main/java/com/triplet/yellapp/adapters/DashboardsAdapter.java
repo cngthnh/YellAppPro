@@ -53,15 +53,11 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
     private Context mContext = null;
     private List<DashboardCard> mListDashboard;
     private ViewBinderHelper viewBinderHelper = new ViewBinderHelper();
-    SessionManager sessionManager;
-    ApiService service;
     String uid;
-    Moshi moshi = new Moshi.Builder().build();
     DashboardRepository repository;
 
     public DashboardsAdapter(Context mContext, SessionManager sessionManager) {
         this.mContext = mContext;
-        this.sessionManager = sessionManager;
         this.uid =  mContext.getSharedPreferences(mContext.getResources().getString(R.string.yell_sp), MODE_PRIVATE)
                 .getString("uid","n");
         this.repository = new DashboardRepository((Application) mContext.getApplicationContext());
@@ -186,60 +182,6 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
         });
 
         dialog.show();
-    }
-
-    private void deleteDashboardFromServer(DashboardCard dashboardCard) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<InfoMessage> call;
-
-        String json = moshi.adapter(DashboardCard.class).toJson(dashboardCard);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), json);
-
-        call = service.deleteDashboard(requestBody);
-        call.enqueue(new Callback<InfoMessage>() {
-            @Override
-            public void onResponse(Call<InfoMessage> call, Response<InfoMessage> response) {
-                Log.w("YellDeleteDashboard", "onResponse: " + response);
-            }
-
-            @Override
-            public void onFailure(Call<InfoMessage> call, Throwable t) {
-                Log.w("YellDeleteDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
-    }
-
-    private void checkPermission(DashboardCard dashboardCard, DashboardsViewHolder holder) {
-        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
-        Call<UserAccount> call;
-        call = service.getUserProfile("compact");
-        call.enqueue(new Callback<UserAccount>() {
-            @Override
-            public void onResponse(Call<UserAccount> call, Response<UserAccount> response) {
-                Log.w("YellGetListDashboard", "onResponse: " + response);
-                if (response.isSuccessful()) {
-                    String uid = response.body().getId();
-                    for(int i = 0; i < dashboardCard.getUsers().size(); i++){
-                        if(uid.equals(dashboardCard.getUsers().get(i).getUid())){
-
-                            if(dashboardCard.getUsers().get(i).getRole().equals("admin"))
-                            {
-                                openDialogDeleteDashboard(holder, dashboardCard);
-                                return;
-                            }
-                            else {
-                                Toast.makeText(mContext, "Bạn không có quyền thực hiện chức năng này", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserAccount> call, Throwable t) {
-                Log.w("YellGetListDashboard", "onFailure: " + t.getMessage() );
-            }
-        });
     }
 
     @Override

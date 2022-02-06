@@ -46,10 +46,8 @@ public class ListDashboardsFragment extends Fragment {
     DashboardsAdapter dashboardsAdapter = null;
     List<DashboardCard> list;
     SessionManager sessionManager;
-    ApiService service;
     UserViewModel userViewModel;
     LoadingDialog loadingDialog;
-    Moshi moshi = new Moshi.Builder().build();
 
     public ListDashboardsFragment(UserViewModel userViewModel) {
         this.userViewModel = userViewModel;
@@ -62,7 +60,6 @@ public class ListDashboardsFragment extends Fragment {
         dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
         list = new ArrayList<>();
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onChanged(UserAccountFull userAccountFull) {
                 try {
@@ -78,7 +75,6 @@ public class ListDashboardsFragment extends Fragment {
                 }
             }
         });
-        userViewModel.init();
     }
 
 
