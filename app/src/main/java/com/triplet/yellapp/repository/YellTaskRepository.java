@@ -100,7 +100,7 @@ public class YellTaskRepository {
                     });
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(application.getApplicationContext(), "getTaskFromServer error", Toast.LENGTH_LONG).show();
                 }
             }
 

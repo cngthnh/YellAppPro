@@ -104,7 +104,8 @@ public class DashboardRepository {
                     });
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
-                    Toast.makeText(application.getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+                    Toast.makeText(application.getApplicationContext(),
+                            "Get Dashboard from server Error", Toast.LENGTH_LONG).show();
                     dashboardCardMutableLiveData.postValue(null);
                 }
             }

@@ -56,7 +56,7 @@ public class DashboardsAdapter extends RecyclerView.Adapter<DashboardsAdapter.Da
     String uid;
     DashboardRepository repository;
 
-    public DashboardsAdapter(Context mContext, SessionManager sessionManager) {
+    public DashboardsAdapter(Context mContext) {
         this.mContext = mContext;
         this.uid =  mContext.getSharedPreferences(mContext.getResources().getString(R.string.yell_sp), MODE_PRIVATE)
                 .getString("uid","n");

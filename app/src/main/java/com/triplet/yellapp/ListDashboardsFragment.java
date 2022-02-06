@@ -57,9 +57,10 @@ public class ListDashboardsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadingDialog = new LoadingDialog(getActivity());
-        dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
+        dashboardsAdapter = new DashboardsAdapter(getContext());
         list = new ArrayList<>();
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onChanged(UserAccountFull userAccountFull) {
                 try {
@@ -68,6 +69,7 @@ public class ListDashboardsFragment extends Fragment {
                         if (loadingDialog != null)
                             loadingDialog.dismissDialog();
                         dashboardsAdapter.setData(list);
+                        binding.recycleView.setAdapter(dashboardsAdapter);
                     }
                 } catch (Exception e) {
                     loadingDialog.startLoadingDialog();

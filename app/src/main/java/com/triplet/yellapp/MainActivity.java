@@ -86,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 GlobalStatus globalStatus = GlobalStatus.getInstance();
                 String conn = globalStatus.isOfflineMode() ? "ngắt kết nối" : "kết nối";
                 Snackbar.make(findViewById(R.id.mainActivity), "Đã " + conn + " Internet", Snackbar.LENGTH_LONG).show();
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("Home");
+                if (fragment!=null)
+                    getSupportFragmentManager().popBackStack("HOME",0);
             }
 
             @Override
@@ -124,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 transaction.replace(R.id.fragmentContainer, homeFragment, "HOME");
                 transaction.addToBackStack("HOME");
                 transaction.commit();
+                if (userViewModel != null)
+                    userViewModel.sync();
             }
         });
     }
