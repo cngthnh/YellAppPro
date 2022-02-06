@@ -35,6 +35,7 @@ import com.triplet.yellapp.utils.SessionManager;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -65,6 +66,7 @@ public class YellUserRepository {
     MutableLiveData<DashboardCard> syncDashBoardLiveData;
     DateFormat df;
     String uid;
+    List<Notification> notificationList;
     private Realm realm;
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
@@ -316,11 +318,39 @@ public class YellUserRepository {
             public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
                 Log.w("YellGetNotification", "onResponse: " + response);
                 if (response.isSuccessful()) {
-                    listNotificationLiveData.postValue(response.body());
+                    List<Notification> notifications = listNotificationLiveData.getValue();
+                    if(notifications == null)
+                        notifications = new ArrayList<>();
+                    List<Notification> notifications1 = response.body();
+                    if(notifications1 != null){
+                        for(Notification item: notifications1)
+                        {
+                            int check = 0;
+                            for(Notification item1: notifications){
+                                if(item1.getId().equals(item.getId())){
+                                    check = 1; //Nếu đã tồn tại notification trong livedata thì bỏ qua, nếu không thì thêm vào
+                                    break;
+                                }
+                            }
+                            if(check == 0){
+                                notifications.add(item);
+                            }
+
+                        }
+                    }
+                    listNotificationLiveData.postValue(notifications);
+
+                    notificationList = notifications;
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(notificationList);
+                        }
+                    });
+
                     getUserFromServer();
                     Log.w("YellGetNotification", "Get Notification Successfully " + response);
                 }
-                listNotificationLiveData.postValue(response.body());
             }
             @Override
             public void onFailure(Call<List<Notification>> call, Throwable t) {
@@ -372,6 +402,25 @@ public class YellUserRepository {
                 Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void readNotification(Notification notification){
+        notificationList = listNotificationLiveData.getValue();
+        if(notificationList != null){
+            for(Notification item: notificationList){
+                if(item.getId().equals(notification.getId()))
+                {
+                    item.setRead(true);
+                    break;
+                }
+            }
+            realm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    realm.copyToRealmOrUpdate(notificationList);
+                }
+            });
+        }
     }
 
     private RequestBody dashboardToJson(DashboardCard dashboardCard) {
@@ -432,5 +481,39 @@ public class YellUserRepository {
                 application.getResources().getString(R.string.bool_yes)).apply();
         GlobalStatus globalStatus = GlobalStatus.getInstance();
         globalStatus.setEditedOffline(true);
+    }
+
+    public void addNotificationToLocalDb(Notification notification, String id) {
+        notificationList = listNotificationLiveData.getValue();
+        if (notificationList == null) {
+            notificationList = new ArrayList<>();
+        }
+        notification.setId("BUDGET" + id);
+        for(Notification item: notificationList){
+            if(item.getId().equals(notification.getId()))
+                return;
+        }
+        notification.setCreatedAt(df.format(new Date()));
+        notification.setUpdatedAt(notification.getCreatedAt());
+
+        notificationList.add(notification);
+
+        listNotificationLiveData.postValue(notificationList);
+
+
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.copyToRealmOrUpdate(notificationList);
+            }
+        });
+
+        /*
+        sharedPreferences.edit().putString(application.getResources().getString(R.string.edited_offline),
+                application.getResources().getString(R.string.bool_yes)).apply();
+        GlobalStatus globalStatus = GlobalStatus.getInstance();
+        globalStatus.setEditedOffline(true);
+
+         */
     }
 }

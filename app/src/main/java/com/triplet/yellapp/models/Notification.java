@@ -2,7 +2,9 @@ package com.triplet.yellapp.models;
 
 import com.squareup.moshi.Json;
 
-public class Notification {
+import io.realm.RealmObject;
+
+public class Notification extends RealmObject{
     @Json(name = "notif_id")
     public String id;
     @Json(name = "type")
@@ -17,6 +19,16 @@ public class Notification {
     public String createdAt;
     @Json(name = "updated_at")
     public String updatedAt;
+
+    public Notification() {
+    }
+
+    public Notification(String type, String message, Boolean read, String role) {
+        this.type = type;
+        this.message = message;
+        this.read = read;
+        this.role = role;
+    }
 
     public Notification(String id, String type, String message, Boolean read, String role, String createdAt, String updatedAt) {
         this.id = id;

@@ -15,6 +15,7 @@ import com.triplet.yellapp.BudgetsFragment;
 import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.util.List;
 
@@ -22,10 +23,12 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
     private Context mContext = null;
     private List<BudgetCard> mListBudget;
     SessionManager sessionManager;
+    UserViewModel userViewModel;
 
-    public BudgetsHomeAdapter(Context mContext, SessionManager sessionManager) {
+    public BudgetsHomeAdapter(Context mContext, SessionManager sessionManager, UserViewModel userViewModel) {
         this.mContext = mContext;
         this.sessionManager = sessionManager;
+        this.userViewModel = userViewModel;
     }
 
     public void setData(List<BudgetCard> mListBudget) {
@@ -53,7 +56,7 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                BudgetsFragment budgetFragment = new BudgetsFragment(budgetCard, sessionManager);
+                BudgetsFragment budgetFragment = new BudgetsFragment(budgetCard, sessionManager, userViewModel);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)

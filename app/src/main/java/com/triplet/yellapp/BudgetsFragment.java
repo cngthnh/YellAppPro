@@ -24,10 +24,12 @@ import com.squareup.moshi.Moshi;
 import com.triplet.yellapp.adapters.ViewPagerBudgetAdapter;
 import com.triplet.yellapp.databinding.FragmentBudgetBinding;
 import com.triplet.yellapp.models.BudgetCard;
+import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.BudgetViewModel;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +44,14 @@ public class BudgetsFragment extends Fragment {
     LoadingDialog loadingDialog;
     List<TransactionCard> transactionCards;
     ViewPagerBudgetAdapter viewPagerBudgetAdapter;
+    UserViewModel userViewModel;
 
 
-    public BudgetsFragment(BudgetCard budgetCard, SessionManager sessionManager) {
+
+    public BudgetsFragment(BudgetCard budgetCard, SessionManager sessionManager, UserViewModel userViewModel) {
         this.budgetCard = budgetCard;
         this.sessionManager = sessionManager;
+        this.userViewModel = userViewModel;
     }
 
     @Override
@@ -54,6 +59,8 @@ public class BudgetsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         budgetViewModel = new ViewModelProvider(this).get(BudgetViewModel.class);
         budgetViewModel.init();
+
+
         loadingDialog = new LoadingDialog(getActivity());
 
         budgetViewModel.getBudgetCardLiveData().observe(this, new Observer<BudgetCard>() {
@@ -65,6 +72,7 @@ public class BudgetsFragment extends Fragment {
                     transactionCards.add(temp.get(i));
                 }
                 budgetCard.setBalance(budget.getBalance());
+
                 if (getActivity() != null) {
                     if (loadingDialog != null)
                         loadingDialog.dismissDialog();
@@ -73,6 +81,8 @@ public class BudgetsFragment extends Fragment {
                 }
             }
         });
+
+
     }
 
     private void bindingData() {

@@ -83,7 +83,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         holder.timeNotification.setText(serverTime2MobileTime(notification.getCreatedAt()));
 
-        if(notification.getRole() == null){
+        if(notification.getRole() == null || notification.getType().equals("2")){
             holder.confirmed.setVisibility(View.GONE);
             holder.unconfirmed.setVisibility(View.GONE);
         }
