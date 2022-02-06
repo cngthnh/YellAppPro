@@ -319,8 +319,27 @@ public class YellUserRepository {
                 Log.w("YellGetNotification", "onResponse: " + response);
                 if (response.isSuccessful()) {
                     List<Notification> notifications = listNotificationLiveData.getValue();
+                    List<Notification> notifications2 = realm.copyFromRealm(realm.where(Notification.class).findAll());
                     if(notifications == null)
                         notifications = new ArrayList<>();
+
+                    if(notifications2 != null){
+                        for(Notification item: notifications2)
+                        {
+                            int check = 0;
+                            for(Notification item1: notifications){
+                                if(item1.getId().equals(item.getId())){
+                                    check = 1; //Nếu đã tồn tại notification trong livedata thì bỏ qua, nếu không thì thêm vào
+                                    break;
+                                }
+                            }
+                            if(check == 0){
+                                notifications.add(item);
+                            }
+
+                        }
+                    }
+
                     List<Notification> notifications1 = response.body();
                     if(notifications1 != null){
                         for(Notification item: notifications1)
@@ -338,6 +357,8 @@ public class YellUserRepository {
 
                         }
                     }
+
+
                     listNotificationLiveData.postValue(notifications);
 
                     notificationList = notifications;
@@ -358,6 +379,11 @@ public class YellUserRepository {
                 listNotificationLiveData.postValue(null);
             }
         });
+    }
+
+    public void getNotification(){
+        List<Notification> notifications = realm.where(Notification.class).findAll();
+        int i;
     }
 
     public void rejectInvited(Notification notification) {

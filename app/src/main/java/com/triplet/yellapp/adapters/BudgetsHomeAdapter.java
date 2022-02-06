@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -64,6 +65,44 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
                         .addToBackStack(null).commit();
             }
         });
+
+        setProgressbar(holder, budgetCard);
+    }
+
+    private void setProgressbar(BudgetsHomeViewHolder holder, BudgetCard budgetCard) {
+        int totalOutcome = 0;
+        int total;
+        int percentage;
+
+
+        if(budgetCard.getTransactionsList() == null)
+        {
+            return;
+        }
+
+        for(int i = 0; i < budgetCard.getTransactionsList().size(); i++)
+        {
+            if(budgetCard.getTransactionsList().get(i).getAmount() < 0)
+                totalOutcome -= budgetCard.getTransactionsList().get(i).amount;
+        }
+
+        total = budgetCard.getBalance() + totalOutcome;
+
+
+        if(budgetCard.getType() != 0)
+        {
+            percentage = (budgetCard.balance * 100)/ budgetCard.threshold;
+            if(percentage > 100)
+                percentage = 100;
+        }
+        else{
+            if(total == 0)
+                percentage = 0;
+            else
+                percentage = (totalOutcome * 100) /total;
+        }
+
+        holder.progressBar.setProgress(percentage);
     }
 
     @Override
@@ -80,12 +119,14 @@ public class BudgetsHomeAdapter extends RecyclerView.Adapter<BudgetsHomeAdapter.
         private TextView nameBudget;
         private TextView balance;
         private CardView itemLayout;
+        private ProgressBar progressBar;
 
         public BudgetsHomeViewHolder(@NonNull View itemView) {
             super(itemView);
             nameBudget = itemView.findViewById((R.id.name_bg_home_item));
             balance = itemView.findViewById(R.id.balance_bg_home);
             itemLayout = itemView.findViewById(R.id.item_budget_home);
+            progressBar = itemView.findViewById(R.id.progressBar_bg_home);
         }
     }
 }

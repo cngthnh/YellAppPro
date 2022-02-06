@@ -3,8 +3,10 @@ package com.triplet.yellapp.models;
 import com.squareup.moshi.Json;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Notification extends RealmObject{
+    @PrimaryKey
     @Json(name = "notif_id")
     public String id;
     @Json(name = "type")

@@ -100,6 +100,7 @@ public class UserViewModel extends AndroidViewModel {
 
     public void getNotification() {
         repository.getNotificationFromServer();
+        repository.getNotification();
     }
 
     public LiveData<List<Notification>> getListNotificationLivaData() {
