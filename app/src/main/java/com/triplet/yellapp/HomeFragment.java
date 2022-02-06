@@ -89,24 +89,28 @@ public class HomeFragment extends Fragment {
                 }
                 user = userAccountFull;
 
-                for(BudgetCard item: user.getBudgetCards())
-                {
-                    if(item.getType() == 0 && item.getBalance() < item.getThreshold())
+                try {
+                    for(BudgetCard item: user.getBudgetCards())
                     {
-                        Notification notification = new Notification("2",
-                                "Sổ tay " + item.getName() + " đã vượt ngưỡng chi tiêu",
-                                false, "admin");
-                        userViewModel.addNotification(notification, item.getId());
+                        if(item.getType() == 0 && item.getBalance() < item.getThreshold())
+                        {
+                            Notification notification = new Notification("2",
+                                    "Sổ tay " + item.getName() + " đã vượt ngưỡng chi tiêu",
+                                    false, "admin");
+                            userViewModel.addNotification(notification, item.getId());
+                        }
+                        else if(item.getType() == 1 && item.getBalance() > item.threshold)
+                        {
+                            Notification notification = new Notification("2",
+                                    "Sổ tay " + item.getName() + " đã đạt được mục tiêu tiết kiệm",
+                                    false, "admin");
+                            userViewModel.addNotification(notification, item.getId());
+                        }
                     }
-                    else if(item.getType() == 1 && item.getBalance() > item.threshold)
-                    {
-                        Notification notification = new Notification("2",
-                                "Sổ tay " + item.getName() + " đã đạt được mục tiêu tiết kiệm",
-                                false, "admin");
-                        userViewModel.addNotification(notification, item.getId());
-                    }
+                    bindingData();
+                } catch (Exception e) {
+                    userViewModel.getUser();
                 }
-                bindingData();
             }
         });
         taskViewModel = new ViewModelProvider(this).get(YellTaskViewModel.class);

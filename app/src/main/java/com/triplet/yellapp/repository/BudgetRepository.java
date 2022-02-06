@@ -94,8 +94,10 @@ public class BudgetRepository {
                     try {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                         Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                        budgetCardMutableLiveData.postValue(null);
                     } catch (NullPointerException e) {
                         e.printStackTrace();
+                        budgetCardMutableLiveData.postValue(null);
                     }
                 }
             }
