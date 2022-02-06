@@ -97,7 +97,7 @@ public class DashboardFragment extends Fragment {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    dashboardViewModel.getDashboard(dashboardCard.getDashboard_id());
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
                 if (getActivity() != null) {
                    if (loadingDialog != null)

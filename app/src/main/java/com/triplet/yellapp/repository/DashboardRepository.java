@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -51,6 +52,7 @@ public class DashboardRepository {
     Moshi moshi;
     DateFormat df;
     MutableLiveData<DashboardCard> dashboardCardMutableLiveData;
+    MutableLiveData<YellTask> syncYellTaskLiveData;
     private Realm realm;
 
     public DashboardRepository(Application application) {
@@ -59,6 +61,7 @@ public class DashboardRepository {
         sessionManager = SessionManager.getInstance(sharedPreferences);
         service = Client.createService(ApiService.class);
         dashboardCardMutableLiveData = new MutableLiveData<>();
+        syncYellTaskLiveData = new MutableLiveData<>();
         moshi = new Moshi.Builder()
                 .add(new RealmListJsonAdapterFactory())
                 .build();
@@ -69,6 +72,9 @@ public class DashboardRepository {
 
     public MutableLiveData<DashboardCard> getDashboardCardMutableLiveData() {
         return dashboardCardMutableLiveData;
+    }
+    public MutableLiveData<YellTask> getSyncYellTaskLiveData() {
+        return syncYellTaskLiveData;
     }
 
     public void getDashboardFromServer(String dashboardId) {
@@ -99,6 +105,7 @@ public class DashboardRepository {
                 } else {
                     ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
                     Toast.makeText(application.getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
+                    dashboardCardMutableLiveData.postValue(null);
                 }
             }
 
@@ -128,6 +135,7 @@ public class DashboardRepository {
                     getDashboardFromServer(dashboardId);
                     return false;
                 } catch (NullPointerException e) {
+                    dashboardCardMutableLiveData.postValue(null);
                     return true;
                 }
 
@@ -301,25 +309,113 @@ public class DashboardRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            int flag = 0;
+                            String yellTaskId = response.body().getTask_id();
+                            String currentId= yellTask.task_id;
                             DashboardCard dashboardCard = realm.copyFromRealm(realm.where(DashboardCard.class)
                                     .equalTo("dashboard_id",yellTask.getDashboard_id())
                                     .findFirst());
                             YellTask needToDelete = null;
                             if (yellTask.task_id != null) {
+                                flag = 1;
                                 needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();
                                 dashboardCard.removeTask(yellTask);
+                                RealmResults<YellTask> temp = realm.where(YellTask.class)
+                                        .equalTo("parent_id",yellTask.getTask_id())
+                                        .findAll();
+                                RealmList<YellTask> tasks = new RealmList<>();
+                                tasks.addAll(realm.copyFromRealm(temp.subList(0,temp.size())));
+                                for (int i =0;i<tasks.size();i++) {
+                                    tasks.get(i).setParent_id(yellTaskId);
+                                }
+                                yellTask.setSubtasks(tasks);
+                                if (needToDelete != null) {
+                                    realm.executeTransactionAsync(new Realm.Transaction() {
+                                        @Override
+                                        public void execute(Realm realm) {
+                                            YellTask deleteItem = realm.where(YellTask.class)
+                                                    .equalTo("task_id", currentId)
+                                                    .findFirst();
+                                            if (deleteItem!=null)
+                                                deleteItem.deleteFromRealm();
+                                        }
+                                    });
+                                }
                             }
-                            yellTask.setTask_id(response.body().getTask_id());
+                            yellTask.setTask_id(yellTaskId);
                             yellTask.last_sync = df.format(new Date());
                             yellTask.local_edited_at = null;
                             dashboardCard.addTask(yellTask);
                             realm.copyToRealmOrUpdate(dashboardCard);
-                            if (needToDelete != null)
-                                needToDelete.deleteFromRealm();
-
+                            if (flag == 1)
+                                syncYellTaskLiveData.postValue(yellTask);
                             dashboardCardMutableLiveData.postValue(dashboardCard);
                         }
                     });
+                } else {
+                    if (response.code() == 401) {
+                        ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());
+                        Toast.makeText(application.getApplicationContext(), apiError.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<YellTask> call, Throwable t) {
+                Toast.makeText(application.getApplicationContext(), "Lỗi khi kết nối với server", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void addTaskToServer(YellTask yellTask, YellTask parentTask) {
+        service = Client.createServiceWithAuth(ApiService.class, sessionManager);
+        Call<YellTask> call;
+        RequestBody requestBody = taskToJson(yellTask);
+        call = service.addTask(null, requestBody);
+        call.enqueue(new Callback<YellTask>() {
+            @Override
+            public void onResponse(Call<YellTask> call, Response<YellTask> response) {
+                Log.w("YellCreateDashboard", "onResponse: " + response);
+                if (response.isSuccessful()) {
+                    int flag = 0;
+                    String currentId=yellTask.task_id;
+                    String yellTaskId = response.body().getTask_id();
+                    YellTask needToDelete = null;
+                    if (yellTask.task_id != null) {
+                        needToDelete = realm.where(YellTask.class).equalTo("task_id", yellTask.task_id).findFirst();
+                        parentTask.removeSubtask(yellTask);
+                        RealmResults<YellTask> temp = realm.where(YellTask.class)
+                                .equalTo("parent_id",yellTask.getTask_id())
+                                .findAll();
+                        RealmList<YellTask> tasks = new RealmList<>();
+                        tasks.addAll(realm.copyFromRealm(temp.subList(0,temp.size())));
+                        for (int i =0;i<tasks.size();i++) {
+                            tasks.get(i).setParent_id(yellTaskId);
+                        }
+                        yellTask.setSubtasks(tasks);
+                        if (needToDelete != null) {
+                            realm.executeTransactionAsync(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    YellTask deleteItem = realm.where(YellTask.class).equalTo("task_id", currentId).findFirst();
+                                    if (deleteItem!=null)
+                                        deleteItem.deleteFromRealm();
+                                }
+                            });
+                        }
+                    }
+                    yellTask.setTask_id(response.body().getTask_id());
+                    yellTask.last_sync = df.format(new Date());
+                    yellTask.parent_id = parentTask.task_id;
+                    parentTask.addSubtask(yellTask);
+                    realm.executeTransactionAsync(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            realm.copyToRealmOrUpdate(parentTask);
+                        }
+                    });
+                    if (flag == 1)
+                        syncYellTaskLiveData.postValue(yellTask);
                 } else {
                     if (response.code() == 401) {
                         ErrorMessage apiError = ErrorMessage.convertErrors(response.errorBody());

@@ -1,6 +1,7 @@
 package com.triplet.yellapp;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -60,19 +62,27 @@ public class ListDashboardsFragment extends Fragment {
         dashboardsAdapter = new DashboardsAdapter(getContext(), sessionManager);
         list = new ArrayList<>();
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onChanged(UserAccountFull userAccountFull) {
-                list = userAccountFull.getDashboards();
-                if (getActivity() != null) {
-                    if (loadingDialog != null)
-                        loadingDialog.dismissDialog();
-                    dashboardsAdapter.setData(list);
+                try {
+                    list = userAccountFull.getDashboards();
+                    if (getActivity() != null) {
+                        if (loadingDialog != null)
+                            loadingDialog.dismissDialog();
+                        dashboardsAdapter.setData(list);
+                    }
+                } catch (Exception e) {
+                    loadingDialog.startLoadingDialog();
+                    userViewModel.getUser();
                 }
             }
         });
+        userViewModel.init();
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -84,7 +94,8 @@ public class ListDashboardsFragment extends Fragment {
             loadingDialog.startLoadingDialog();
         else {
             if (list.isEmpty())
-                list = userViewModel.getYellUserLiveData().getValue().getDashboards();
+                if (userViewModel.getYellUserLiveData().getValue()!=null)
+                    list = userViewModel.getYellUserLiveData().getValue().getDashboards();
             dashboardsAdapter.setData(list);
         }
 

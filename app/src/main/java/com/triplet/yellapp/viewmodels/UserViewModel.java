@@ -46,6 +46,7 @@ public class UserViewModel extends AndroidViewModel {
     private LiveData<List<Notification>> listNotificationLivaData;
     private LiveData<Notification> notificationLiveData;
     private LiveData<DashboardCard> syncDashboardCardLiveData;
+    private LiveData<YellTask> syncYellTaskLiveData;
     private GlobalStatus globalStatus = GlobalStatus.getInstance();
     private SharedPreferences sharedPreferences;
     Application application;
@@ -54,6 +55,9 @@ public class UserViewModel extends AndroidViewModel {
 
     public MutableLiveData<UserAccountFull> getYellUserLiveData() {
         return yellUserLiveData;
+    }
+    public LiveData<YellTask> getSyncYellTaskLiveData() {
+        return syncYellTaskLiveData;
     }
 
     public UserViewModel(@NonNull Application application) {
@@ -70,6 +74,7 @@ public class UserViewModel extends AndroidViewModel {
         listNotificationLivaData = repository.getListNotificationLiveData();
         notificationLiveData = repository.getNotificationMutableLiveData();
         syncDashboardCardLiveData = repository.getSyncDashBoardLiveData();
+        syncYellTaskLiveData = dashboardRepository.getSyncYellTaskLiveData();
         realm = Realm.getDefaultInstance();
         sharedPreferences = application.getSharedPreferences(application.getResources().getString(R.string.yell_sp), MODE_PRIVATE);
         uid = sharedPreferences.getString("uid", "");
@@ -135,27 +140,42 @@ public class UserViewModel extends AndroidViewModel {
         }
     }
 
-    public void syncTasks(List<YellTask> tasks) {
+    public void syncAddTasks(List<YellTask> tasks) {
         for (YellTask task : tasks) {
-            switch (task.getTask_id().length())
-            {
-                case TEMP_UUID_LEN:
-                    if (task.parent_id == null) {
-                        dashboardRepository.getDashboard(task.dashboard_id);
-                        dashboardRepository.addTaskToServer(task);
-                    }
-                    else {
-                        taskRepository.addTaskToServer(task, realm.copyFromRealm(realm.where(YellTask.class)
-                                .equalTo("task_id", task.parent_id).findFirst()));
-                    }
-                    break;
-                case DELETED_UUID_LEN:
-                    taskRepository.syncDeletedTaskWithServer(task);
-                    break;
-                case TRUE_UUID_LEN:
-                    taskRepository.patchTaskToServer(task);
-                    break;
+            if (task.parent_id == null)
+                dashboardRepository.addTaskToServer(task);
+        }
+    }
+    public void syncTasks() {
+        List<YellTask> tasks = realm.copyFromRealm(realm.where(YellTask.class).isNotNull("local_edited_at").findAll());
+        for (YellTask task : tasks) {
+            if (task.getDashboard_id().length() == TRUE_UUID_LEN) {
+                switch (task.getTask_id().length())
+                {
+                    case TEMP_UUID_LEN:
+                        if (task.parent_id == null) {
+                            dashboardRepository.getDashboard(task.dashboard_id);
+                            dashboardRepository.addTaskToServer(task);
+                        }
+                        else if (task.parent_id.length() == TRUE_UUID_LEN) {
+                            taskRepository.addTaskToServer(task, realm.copyFromRealm(realm.where(YellTask.class)
+                                    .equalTo("task_id", task.parent_id).findFirst()));
+                        }
+                        break;
+                    case DELETED_UUID_LEN:
+                        taskRepository.syncDeletedTaskWithServer(task);
+                        break;
+                    case TRUE_UUID_LEN:
+                        taskRepository.patchTaskToServer(task);
+                        break;
+                }
             }
+        }
+    }
+
+    public void syncAddSubTasks(List<YellTask> tasks, YellTask parentTask) {
+        for (YellTask task : tasks) {
+            dashboardRepository.addTaskToServer(task,parentTask);
         }
     }
 
@@ -197,6 +217,7 @@ public class UserViewModel extends AndroidViewModel {
     }
 
     public MutableLiveData<UserAccountFull> sync() {
+        syncTasks();
         syncDashboards();
         syncBudgets();
         syncTransactions();

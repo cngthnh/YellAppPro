@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
 import com.triplet.yellapp.models.DashboardCard;
 import com.triplet.yellapp.models.UserAccountFull;
+import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.NetworkChangeReceiver;
 import com.triplet.yellapp.viewmodels.UserViewModel;
@@ -95,7 +96,13 @@ public class MainActivity extends AppCompatActivity {
                 userViewModel.getSyncDashboardCardLiveData().observe((LifecycleOwner) this.context, new Observer<DashboardCard>() {
                     @Override
                     public void onChanged(DashboardCard dashboardCard) {
-                        userViewModel.syncTasks(dashboardCard.getTasks());
+                        userViewModel.syncAddTasks(dashboardCard.getTasks());
+                    }
+                });
+                userViewModel.getSyncYellTaskLiveData().observe((LifecycleOwner) this.context, new Observer<YellTask>() {
+                    @Override
+                    public void onChanged(YellTask yellTask) {
+                        userViewModel.syncAddSubTasks(yellTask.getSubtasks(),yellTask);
                     }
                 });
                 userViewModel.sync().observe((LifecycleOwner) this.context, new Observer<UserAccountFull>() {

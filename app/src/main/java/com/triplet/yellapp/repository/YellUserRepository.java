@@ -144,12 +144,14 @@ public class YellUserRepository {
                     });
                 } else {
                     Toast.makeText(application.getApplicationContext(), response.errorBody().toString(), Toast.LENGTH_LONG).show();
+                    yellUserLiveData.postValue(null);
                 }
             }
 
             @Override
             public void onFailure(Call<UserAccountFull> call, Throwable t) {
                 Log.w("YellUserRepo", "onFailure: " + t.getMessage() );
+                yellUserLiveData.postValue(null);
             }
         });
     }
@@ -212,6 +214,7 @@ public class YellUserRepository {
                     realm.executeTransactionAsync(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
+                            int flag = 0;
                             String dashboard_id = response.body().getDashboard_id();
                             DashboardCard needToDelete = null;
                             if (dashboardCard.getDashboard_id() != null) {
@@ -220,6 +223,7 @@ public class YellUserRepository {
                                         .findFirst();
                             }
                             if (needToDelete != null) {
+                                flag = 1;
                                 RealmResults<YellTask> temp = realm.where(YellTask.class)
                                         .equalTo("dashboard_id",needToDelete.getDashboard_id())
                                         .findAll();
@@ -244,7 +248,8 @@ public class YellUserRepository {
                             userAccountFull.last_sync = dashboardCard.last_sync;
                             yellUserLiveData.postValue(userAccountFull);
                             realm.copyToRealmOrUpdate(userAccountFull);
-                            syncDashBoardLiveData.postValue(dashboardCard);
+                            if (flag == 1)
+                                syncDashBoardLiveData.postValue(dashboardCard);
                         }
                     });
                 } else {
