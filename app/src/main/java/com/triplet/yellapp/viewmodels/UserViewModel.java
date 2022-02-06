@@ -99,8 +99,13 @@ public class UserViewModel extends AndroidViewModel {
             repository.addBudgetToServer(budgetCard);
     }
 
+    public void addNotification(Notification notification, String id){
+        repository.addNotificationToLocalDb(notification, id);
+    }
+
     public void getNotification() {
         repository.getNotificationFromServer();
+        repository.getNotification();
     }
 
     public LiveData<List<Notification>> getListNotificationLivaData() {
@@ -116,6 +121,10 @@ public class UserViewModel extends AndroidViewModel {
 
     public void acceptNotify(Notification notification) {
         repository.confirmInvited(notification);
+    }
+
+    public void readNotify(Notification notification){
+        repository.readNotification(notification);
     }
 
     public void reject(Notification notification) {

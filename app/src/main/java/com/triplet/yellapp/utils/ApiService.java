@@ -93,11 +93,11 @@ public interface ApiService {
     @Headers("Content-Type: application/json")
     Call<InfoMessage> rejectInvited(@Body RequestBody body);
 
-    @PATCH("notification/read")
+    @PATCH("notifications/read")
     @Headers("Content-Type: application/json")
     Call<InfoMessage> read(@Body RequestBody body);
 
-    @PATCH("notification/unread")
+    @PATCH("notifications/unread")
     @Headers("Content-Type: application/json")
     Call<InfoMessage> unread(@Body RequestBody body);
 

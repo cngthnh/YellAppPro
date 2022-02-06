@@ -53,7 +53,7 @@ public class ListBudgetsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadingDialog = new LoadingDialog(getActivity());
-        budgetsAdapter = new BudgetsAdapter(getContext(), sessionManager);
+        budgetsAdapter = new BudgetsAdapter(getContext(), sessionManager, userViewModel);
         list = new ArrayList<>();
         userViewModel.getYellUserLiveData().observe(this, new Observer<UserAccountFull>() {
             @Override

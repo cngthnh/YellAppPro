@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,11 +31,13 @@ import com.triplet.yellapp.R;
 import com.triplet.yellapp.models.BudgetCard;
 import com.triplet.yellapp.models.InfoMessage;
 import com.triplet.yellapp.repository.BudgetRepository;
-import com.triplet.yellapp.repository.DashboardRepository;
 import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.Client;
 import com.triplet.yellapp.utils.SessionManager;
+import com.triplet.yellapp.viewmodels.UserViewModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -52,11 +55,13 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
     ApiService service;
     Moshi moshi = new Moshi.Builder().build();
     BudgetRepository repository;
+    UserViewModel userViewModel;
 
-    public BudgetsAdapter(Context mContext, SessionManager sessionManager) {
+    public BudgetsAdapter(Context mContext, SessionManager sessionManager, UserViewModel userViewModel) {
         this.mContext = mContext;
         this.sessionManager = sessionManager;
         this.repository = new BudgetRepository((Application) mContext.getApplicationContext());
+        this.userViewModel = userViewModel;
     }
 
     public void setData(List<BudgetCard> mListBudget) {
@@ -79,6 +84,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
     @Override
     public void onBindViewHolder(@NonNull BudgetsViewHolder holder, int position) {
         BudgetCard budgetCard = mListBudget.get(position);
+        int progress;
         if(budgetCard == null){
             return;
         }
@@ -98,7 +104,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
             @Override
             public void onClick(View view) {
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                BudgetsFragment budgetsFragment = new BudgetsFragment(budgetCard, sessionManager);
+                BudgetsFragment budgetsFragment = new BudgetsFragment(budgetCard, sessionManager, userViewModel);
                 activity.getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                 R.anim.slide_in_right, R.anim.slide_out_left)
@@ -107,8 +113,48 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
             }
         });
 
+        setProgressbar(holder, budgetCard);
 
 
+
+
+
+    }
+
+    private void setProgressbar(BudgetsViewHolder holder, BudgetCard budgetCard) {
+        int totalOutcome = 0;
+        int total;
+        int percentage;
+
+
+        if(budgetCard.getTransactionsList() == null)
+        {
+            return;
+        }
+
+        for(int i = 0; i < budgetCard.getTransactionsList().size(); i++)
+        {
+            if(budgetCard.getTransactionsList().get(i).getAmount() < 0)
+                totalOutcome -= budgetCard.getTransactionsList().get(i).amount;
+        }
+
+        total = budgetCard.getBalance() + totalOutcome;
+
+
+        if(budgetCard.getType() != 0)
+        {
+            percentage = (budgetCard.balance * 100)/ budgetCard.threshold;
+            if(percentage > 100)
+                percentage = 100;
+        }
+        else{
+            if(total == 0)
+                percentage = 0;
+            else
+                percentage = (totalOutcome * 100) /total;
+        }
+
+        holder.progressBar.setProgress(percentage);
     }
 
     private void openDialogDeleteBudget(BudgetsViewHolder holder, BudgetCard budgetCard) {
@@ -204,6 +250,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
         private SwipeRevealLayout swipeRevealLayout;
         private CardView deleteLayout;
         private CardView itemLayout;
+        private ProgressBar progressBar;
 
         public BudgetsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -212,6 +259,7 @@ public class BudgetsAdapter extends RecyclerView.Adapter<BudgetsAdapter.BudgetsV
             balance=itemView.findViewById(R.id.budgetBalanceItem);
             deleteLayout = itemView.findViewById(R.id.deleteBudgetItem);
             itemLayout = itemView.findViewById(R.id.item_layout_budget);
+            progressBar = itemView.findViewById(R.id.progressBarBudget);
         }
     }
 }

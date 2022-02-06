@@ -2,25 +2,26 @@ package com.triplet.yellapp;
 
 import static java.lang.Math.abs;
 
-import android.animation.LayoutTransition;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,30 +30,25 @@ import com.triplet.yellapp.adapters.BudgetsHomeAdapter;
 import com.triplet.yellapp.adapters.DashboardsHomeAdapter;
 import com.triplet.yellapp.databinding.FragmentHomeBinding;
 import com.triplet.yellapp.models.BudgetCard;
-import com.triplet.yellapp.models.DashboardCard;
-import com.triplet.yellapp.models.DashboardPermission;
+import com.triplet.yellapp.models.Notification;
 import com.triplet.yellapp.models.TransactionCard;
 import com.triplet.yellapp.models.UserAccountFull;
 import com.triplet.yellapp.models.YellTask;
 import com.triplet.yellapp.repository.YellTaskRepository;
-import com.triplet.yellapp.utils.ApiService;
 import com.triplet.yellapp.utils.GlobalStatus;
 import com.triplet.yellapp.utils.SessionManager;
 import com.triplet.yellapp.viewmodels.UserViewModel;
 import com.triplet.yellapp.viewmodels.YellTaskViewModel;
 
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 import io.realm.Sort;
 
 public class HomeFragment extends Fragment {
@@ -71,6 +67,7 @@ public class HomeFragment extends Fragment {
     SharedPreferences sharedPreferences;
     GlobalStatus globalStatus = GlobalStatus.getInstance();
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +77,7 @@ public class HomeFragment extends Fragment {
                 getSharedPreferences(getResources().getString(R.string.yell_sp), Context.MODE_PRIVATE);
         sessionManager = SessionManager.getInstance(sharedPreferences);
         dashboardsHomeAdapter = new DashboardsHomeAdapter(getContext(), sessionManager);
-        budgetsHomeAdapter = new BudgetsHomeAdapter(getContext(), sessionManager);
+        budgetsHomeAdapter = new BudgetsHomeAdapter(getContext(), sessionManager, userViewModel);
         taskRepo = new YellTaskRepository(getActivity().getApplication());
         realm = Realm.getDefaultInstance();
         userViewModel.init();
@@ -91,6 +88,24 @@ public class HomeFragment extends Fragment {
                     loadingDialog.dismissDialog();
                 }
                 user = userAccountFull;
+
+                for(BudgetCard item: user.getBudgetCards())
+                {
+                    if(item.getType() == 0 && item.getBalance() < item.getThreshold())
+                    {
+                        Notification notification = new Notification("2",
+                                "Sổ tay " + item.getName() + " đã vượt ngưỡng chi tiêu",
+                                false, "admin");
+                        userViewModel.addNotification(notification, item.getId());
+                    }
+                    else if(item.getType() == 1 && item.getBalance() > item.threshold)
+                    {
+                        Notification notification = new Notification("2",
+                                "Sổ tay " + item.getName() + " đã đạt được mục tiêu tiết kiệm",
+                                false, "admin");
+                        userViewModel.addNotification(notification, item.getId());
+                    }
+                }
                 bindingData();
             }
         });
@@ -108,6 +123,43 @@ public class HomeFragment extends Fragment {
                 }, 3000);
             }
         });
+
+        userViewModel.getListNotificationLivaData().observe(this, new Observer<List<Notification>>() {
+            @Override
+            public void onChanged(List<Notification> notifications) {
+                if(notifications == null)
+                    return;
+                for(Notification item: notifications){
+                    if(!item.getRead()){
+                        String title;
+                        if(item.getType().equals("1"))
+                        {
+                            title = "Lời mời vào bảng công việc";
+                        }
+                        else
+                        {
+                            title = "Thông báo sổ tay";
+                        }
+                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_account);
+
+                        android.app.Notification noti = new NotificationCompat.Builder(getContext(), MyNotification.CHANNEL_ID)
+                                .setContentTitle(title)
+                                .setContentText(item.getMessage())
+                                .setSmallIcon(R.drawable.ic_account)
+                                .setLargeIcon(bitmap)
+                                .build();
+
+                        NotificationManager notificationManager = (NotificationManager)getActivity()
+                                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+                        if(notificationManager != null){
+                            notificationManager.notify((int) new Date().getTime(), noti);
+                            userViewModel.readNotify(item);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -117,7 +169,7 @@ public class HomeFragment extends Fragment {
         getActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.darker_gray));
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
+        userViewModel.getNotification();
         if (!userViewModel.getUser())
             loadingDialog.startLoadingDialog();
         binding.avatarImg.setOnClickListener(new View.OnClickListener() {
