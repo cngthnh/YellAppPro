@@ -154,11 +154,10 @@ public class UserViewModel extends AndroidViewModel {
                 {
                     case TEMP_UUID_LEN:
                         if (task.parent_id == null) {
-                            dashboardRepository.getDashboard(task.dashboard_id);
                             dashboardRepository.addTaskToServer(task);
                         }
                         else if (task.parent_id.length() == TRUE_UUID_LEN) {
-                            taskRepository.addTaskToServer(task, realm.copyFromRealm(realm.where(YellTask.class)
+                            dashboardRepository.addTaskToServer(task, realm.copyFromRealm(realm.where(YellTask.class)
                                     .equalTo("task_id", task.parent_id).findFirst()));
                         }
                         break;

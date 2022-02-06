@@ -378,7 +378,7 @@ public class DashboardRepository {
                 Log.w("YellCreateDashboard", "onResponse: " + response);
                 if (response.isSuccessful()) {
                     int flag = 0;
-                    String currentId=yellTask.task_id;
+                    String currentId = yellTask.task_id;
                     String yellTaskId = response.body().getTask_id();
                     YellTask needToDelete = null;
                     if (yellTask.task_id != null) {
