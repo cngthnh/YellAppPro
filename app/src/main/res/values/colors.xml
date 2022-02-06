@@ -10,6 +10,7 @@
     <color name="yellow_primary">#FFD34B</color>
     <color name="yellow_primary_var">#FF9800</color>
     <color name="orange">#F9861D</color>
+    <color name="light_orange">#66F9861D</color>
     <color name="blue_secondary">#03A9F4</color>
     <color name="blue_secondary_var">#2196F3</color>
     <color name="dark_gray">#303030</color>

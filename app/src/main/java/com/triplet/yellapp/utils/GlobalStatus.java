@@ -11,6 +11,7 @@ public class GlobalStatus {
     private boolean offlineMode;
     private String username;
     private boolean editedOffline;
+    private int uiMode;
     private MutableLiveData<Boolean> startCheck = new MutableLiveData<Boolean>();
     private static volatile GlobalStatus INSTANCE = null;
     public static GlobalStatus getInstance() {
@@ -25,6 +26,8 @@ public class GlobalStatus {
     private GlobalStatus() {
         guestMode = false;
         username = "Guest";
+        startCheck.postValue(false);
+        uiMode = 1;
     }
 
     public void setOfflineMode(boolean offlineMode) {
@@ -57,5 +60,13 @@ public class GlobalStatus {
 
     public MutableLiveData<Boolean> getStartCheck() {
         return startCheck;
+    }
+
+    public void setUiMode(int uiMode) {
+        this.uiMode = uiMode;
+    }
+
+    public int getUiMode() {
+        return uiMode;
     }
 }

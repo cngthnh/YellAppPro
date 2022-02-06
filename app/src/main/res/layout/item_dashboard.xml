@@ -9,25 +9,30 @@
     app:dragEdge="right"
     >
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/delete_layout"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:cardCornerRadius="10dp"
-        app:cardBackgroundColor="@color/red"
-        >
-        <ImageView
-            android:layout_width="70dp"
+        android:paddingStart="10dp">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/delete_layout"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_delete"
-            android:scaleY="0.6"
-            android:scaleX="0.6"
-            app:tint="@color/white"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
-            />
-    </androidx.cardview.widget.CardView>
+            android:orientation="vertical"
+            app:cardCornerRadius="10dp"
+            app:cardBackgroundColor="@color/red"
+            >
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_delete"
+                android:scaleY="0.6"
+                android:scaleX="0.6"
+                app:tint="@color/white"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                />
+        </androidx.cardview.widget.CardView>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/item_layout"

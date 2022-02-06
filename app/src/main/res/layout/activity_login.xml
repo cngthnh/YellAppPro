@@ -117,6 +117,7 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/forgotPasswordBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="?android:attr/borderlessButtonStyle"
@@ -145,6 +146,7 @@
                 android:orientation="horizontal"
                 android:gravity="center">
                 <ImageButton
+                    android:id="@+id/signinWithFb"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginHorizontal="5dp"
@@ -152,6 +154,7 @@
                     android:src="@drawable/ic_facebook"
                     />
                 <ImageButton
+                    android:id="@+id/signinWithGoogle"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:scaleX="0.94"

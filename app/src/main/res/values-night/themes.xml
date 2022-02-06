@@ -18,6 +18,7 @@
         <item name="titleTextColor">@color/title_dark</item>
         <item name="cardBackgroundColor">@color/card_background_dark</item>
         <item name="popupMenuBackground">@color/dark_gray</item>
+        <item name="backgroundColor">#121212</item>
     </style>
     <!-- Splash theme -->
     <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
