@@ -10,7 +10,7 @@ Main features:
 - Notifications
 - Offline mode
 
-Demo:
+Demo:\
 <img src="demo/Picture1.png"/>
 <img src="demo/Picture2.png"/>
 <img src="demo/Picture3.png"/>
